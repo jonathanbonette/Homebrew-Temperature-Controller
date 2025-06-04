@@ -138,11 +138,11 @@ PróximoDegrau    |
 | fimDaCurva | PróximoDegrau → Finalizado |
 | erroSensor / falha | Qualquer estado → Erro |
 
+### Changelog
 
-
-
-	
-	
+- release/1.0.0: criar repositório com requisitos e o README
+- release/2.0.0: código funcional de um blink com ESP32 e LED
+- release/2.1.0: ajuste dos estados e códigos para simulação inicial com ESP32 e interação com estados e UART  
 	
 	
 	
