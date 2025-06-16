@@ -32,7 +32,7 @@ namespace statechart_events
 typedef enum  {
 	invalid_event = SC_INVALID_EVENT_VALUE,
 	menu,
-	config,
+	start_button,
 	exit_process,
 	standard_process,
 	heating,
@@ -49,8 +49,7 @@ typedef enum  {
 	standard_process_custom,
 	finish_process,
 	finish_process_idle,
-	Statechart_main_region_IDLE_time_event_0,
-	Statechart_main_region_STATE_CONFIG_time_event_0
+	Statechart_main_region_INIT_SYSTEM_time_event_0
 } StatechartEventName;
 
 class SctEvent
@@ -79,10 +78,10 @@ class SctEvent__menu : public SctEvent
 	public:
 		SctEvent__menu(StatechartEventName name_) : SctEvent(name_){};
 };
-class SctEvent__config : public SctEvent
+class SctEvent__start_button : public SctEvent
 {
 	public:
-		SctEvent__config(StatechartEventName name_) : SctEvent(name_){};
+		SctEvent__start_button(StatechartEventName name_) : SctEvent(name_){};
 };
 class SctEvent__exit_process : public SctEvent
 {
@@ -191,7 +190,7 @@ class TimedSctEvent : public SctEvent
 #define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TEMPERATURE_2 0
 #define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TIME_2 0
 #define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_START_SETUP_PROCESS 0
-#define SCVI_MAIN_REGION_STATE_CONFIG 0
+#define SCVI_MAIN_REGION_INIT_SYSTEM 0
 
 
 class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInterface
@@ -221,7 +220,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 			main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2,
 			main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2,
 			main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS,
-			main_region_STATE_CONFIG
+			main_region_INIT_SYSTEM
 		} StatechartStates;
 					
 		static const sc_integer numStates = 17;
@@ -230,8 +229,8 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		/*! Raises the in event 'menu' that is defined in the default interface scope. */
 		void raiseMenu();
 		
-		/*! Raises the in event 'config' that is defined in the default interface scope. */
-		void raiseConfig();
+		/*! Raises the in event 'start_button' that is defined in the default interface scope. */
+		void raiseStart_button();
 		
 		/*! Raises the in event 'exit_process' that is defined in the default interface scope. */
 		void raiseExit_process();
@@ -317,6 +316,12 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				
 				virtual void pinMode(sc_integer pin, sc_integer mode) = 0;
 				
+				virtual void showIdleScreen() = 0;
+				
+				virtual void beginDisplay() = 0;
+				
+				virtual void beginMatrix() = 0;
+				
 				
 		};
 		
@@ -368,7 +373,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		sc_boolean isStateActive(StatechartStates state) const;
 		
 		//! number of time events used by the state machine.
-		static const sc_integer timeEventsCount = 2;
+		static const sc_integer timeEventsCount = 1;
 		
 		//! number of time events that can be active at once.
 		static const sc_integer parallelTimeEventsCount = 1;
@@ -390,9 +395,9 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		/*! Raises the in event 'menu' that is defined in the default interface scope. */
 		void internal_raiseMenu();
 		sc_boolean menu_raised;
-		/*! Raises the in event 'config' that is defined in the default interface scope. */
-		void internal_raiseConfig();
-		sc_boolean config_raised;
+		/*! Raises the in event 'start_button' that is defined in the default interface scope. */
+		void internal_raiseStart_button();
+		sc_boolean start_button_raised;
 		/*! Raises the in event 'exit_process' that is defined in the default interface scope. */
 		void internal_raiseExit_process();
 		sc_boolean exit_process_raised;
@@ -478,9 +483,8 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
 		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
 		void enact_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
-		void enact_main_region_STATE_CONFIG();
-		void exact_main_region_IDLE();
-		void exact_main_region_STATE_CONFIG();
+		void enact_main_region_INIT_SYSTEM();
+		void exact_main_region_INIT_SYSTEM();
 		void enseq_main_region_IDLE_default();
 		void enseq_main_region_MENU_default();
 		void enseq_main_region_EXIT_default();
@@ -497,7 +501,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_default();
 		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_default();
 		void enseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_default();
-		void enseq_main_region_STATE_CONFIG_default();
+		void enseq_main_region_INIT_SYSTEM_default();
 		void enseq_main_region_default();
 		void enseq_main_region_STANDARD_PROCESS_standard_process_default();
 		void enseq_main_region_CUSTOM_SETUP_custom_setup_default();
@@ -517,7 +521,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
 		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
 		void exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
-		void exseq_main_region_STATE_CONFIG();
+		void exseq_main_region_INIT_SYSTEM();
 		void exseq_main_region();
 		void exseq_main_region_STANDARD_PROCESS_standard_process();
 		void exseq_main_region_CUSTOM_SETUP_custom_setup();
@@ -537,7 +541,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_react(const sc_integer transitioned_before);
 		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_react(const sc_integer transitioned_before);
 		sc_integer main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_react(const sc_integer transitioned_before);
-		sc_integer main_region_STATE_CONFIG_react(const sc_integer transitioned_before);
+		sc_integer main_region_INIT_SYSTEM_react(const sc_integer transitioned_before);
 		void clearInEvents();
 		void microStep();
 		void runCycle();

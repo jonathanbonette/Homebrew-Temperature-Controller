@@ -2,7 +2,6 @@
 
 #include "Statechart.h"
 
-
 /*! \file
 Implementation of the state machine 'Statechart'
 */
@@ -16,7 +15,7 @@ Statechart::Statechart() :
 	output(1),
 	led_pin(2),
 	menu_raised(false),
-	config_raised(false),
+	start_button_raised(false),
 	exit_process_raised(false),
 	standard_process_raised(false),
 	heating_raised(false),
@@ -76,7 +75,7 @@ sc_boolean Statechart::dispatch_event(SctEvent * event)
 	switch(event->name)
 	{
 		case menu:
-		case config:
+		case start_button:
 		case exit_process:
 		case standard_process:
 		case heating:
@@ -96,15 +95,10 @@ sc_boolean Statechart::dispatch_event(SctEvent * event)
 		{
 			return iface_dispatch_event(event);
 		}
-		case Statechart_main_region_IDLE_time_event_0:
+		case Statechart_main_region_INIT_SYSTEM_time_event_0:
 		{
 			delete event;
 			return timeEvents[0] = true;
-		}
-		case Statechart_main_region_STATE_CONFIG_time_event_0:
-		{
-			delete event;
-			return timeEvents[1] = true;
 		}
 		default:
 			delete event;
@@ -132,9 +126,9 @@ sc_boolean Statechart::iface_dispatch_event(SctEvent * event)
 			internal_raiseMenu();
 			break;
 		}
-		case config:
+		case start_button:
 		{
-			internal_raiseConfig();
+			internal_raiseStart_button();
 			break;
 		}
 		case exit_process:
@@ -228,10 +222,7 @@ sc_boolean Statechart::iface_dispatch_event(SctEvent * event)
 StatechartEventName Statechart::getTimedEventName(sc_eventid evid)
 {
 	if (evid == (sc_eventid)(&timeEvents[0])) {
-		return Statechart_main_region_IDLE_time_event_0;
-	}
-	if (evid == (sc_eventid)(&timeEvents[1])) {
-		return Statechart_main_region_STATE_CONFIG_time_event_0;
+		return Statechart_main_region_INIT_SYSTEM_time_event_0;
 	}
 	return invalid_event;
 }
@@ -370,9 +361,9 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_START_SETUP_PROCESS] == main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS);
 			break;
 		}
-		case main_region_STATE_CONFIG :
+		case main_region_INIT_SYSTEM :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STATE_CONFIG] == main_region_STATE_CONFIG);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_INIT_SYSTEM] == main_region_INIT_SYSTEM);
 			break;
 		}
 		default:
@@ -410,15 +401,15 @@ void Statechart::internal_raiseMenu()
 {
 	menu_raised = true;
 }
-/* Functions for event config in interface  */
-void Statechart::raiseConfig()
+/* Functions for event start_button in interface  */
+void Statechart::raiseStart_button()
 {
-	inEventQueue.push_back(new SctEvent__config(config));
+	inEventQueue.push_back(new SctEvent__start_button(start_button));
         runCycle();
 }
-void Statechart::internal_raiseConfig()
+void Statechart::internal_raiseStart_button()
 {
-	config_raised = true;
+	start_button_raised = true;
 }
 /* Functions for event exit_process in interface  */
 void Statechart::raiseExit_process()
@@ -600,9 +591,11 @@ void Statechart::setOperationCallback(OperationCallback* operationCallback)
 void Statechart::enact_main_region_IDLE()
 {
 	/* Entry action for state 'IDLE'. */
-	timerService->setTimer(this, (sc_eventid)(&timeEvents[0]), (((sc_time) 1) * 1000), false);
+	ifaceOperationCallback->beginDisplay();
+	ifaceOperationCallback->beginMatrix();
 	ifaceOperationCallback->showStartup();
 	ifaceOperationCallback->showState((sc_string) "IDLE");
+	ifaceOperationCallback->showIdleScreen();
 }
 
 /* Entry action for state 'MENU'. */
@@ -698,28 +691,21 @@ void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS
 	ifaceOperationCallback->initializeSetupProcess();
 }
 
-/* Entry action for state 'STATE_CONFIG'. */
-void Statechart::enact_main_region_STATE_CONFIG()
+/* Entry action for state 'INIT_SYSTEM'. */
+void Statechart::enact_main_region_INIT_SYSTEM()
 {
-	/* Entry action for state 'STATE_CONFIG'. */
-	timerService->setTimer(this, (sc_eventid)(&timeEvents[1]), (((sc_time) 5) * 1000), false);
+	/* Entry action for state 'INIT_SYSTEM'. */
+	timerService->setTimer(this, (sc_eventid)(&timeEvents[0]), (((sc_time) 5) * 1000), false);
 	ifaceOperationCallback->pinMode(led_pin, output);
 	ifaceOperationCallback->digitalWrite(led_pin, high);
 	ifaceOperationCallback->showState((sc_string) "STATE_CONFIG");
 }
 
-/* Exit action for state 'IDLE'. */
-void Statechart::exact_main_region_IDLE()
+/* Exit action for state 'INIT_SYSTEM'. */
+void Statechart::exact_main_region_INIT_SYSTEM()
 {
-	/* Exit action for state 'IDLE'. */
+	/* Exit action for state 'INIT_SYSTEM'. */
 	timerService->unsetTimer(this, (sc_eventid)(&timeEvents[0]));
-}
-
-/* Exit action for state 'STATE_CONFIG'. */
-void Statechart::exact_main_region_STATE_CONFIG()
-{
-	/* Exit action for state 'STATE_CONFIG'. */
-	timerService->unsetTimer(this, (sc_eventid)(&timeEvents[1]));
 }
 
 /* 'default' enter sequence for state IDLE */
@@ -848,12 +834,12 @@ void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS
 	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS;
 }
 
-/* 'default' enter sequence for state STATE_CONFIG */
-void Statechart::enseq_main_region_STATE_CONFIG_default()
+/* 'default' enter sequence for state INIT_SYSTEM */
+void Statechart::enseq_main_region_INIT_SYSTEM_default()
 {
-	/* 'default' enter sequence for state STATE_CONFIG */
-	enact_main_region_STATE_CONFIG();
-	stateConfVector[0] = main_region_STATE_CONFIG;
+	/* 'default' enter sequence for state INIT_SYSTEM */
+	enact_main_region_INIT_SYSTEM();
+	stateConfVector[0] = main_region_INIT_SYSTEM;
 }
 
 /* 'default' enter sequence for region main region */
@@ -882,7 +868,6 @@ void Statechart::exseq_main_region_IDLE()
 {
 	/* Default exit sequence for state IDLE */
 	stateConfVector[0] = Statechart_last_state;
-	exact_main_region_IDLE();
 }
 
 /* Default exit sequence for state MENU */
@@ -992,12 +977,12 @@ void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS
 	stateConfVector[0] = main_region_CUSTOM_SETUP;
 }
 
-/* Default exit sequence for state STATE_CONFIG */
-void Statechart::exseq_main_region_STATE_CONFIG()
+/* Default exit sequence for state INIT_SYSTEM */
+void Statechart::exseq_main_region_INIT_SYSTEM()
 {
-	/* Default exit sequence for state STATE_CONFIG */
+	/* Default exit sequence for state INIT_SYSTEM */
 	stateConfVector[0] = Statechart_last_state;
-	exact_main_region_STATE_CONFIG();
+	exact_main_region_INIT_SYSTEM();
 }
 
 /* Default exit sequence for region main region */
@@ -1087,9 +1072,9 @@ void Statechart::exseq_main_region()
 			exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
 			break;
 		}
-		case main_region_STATE_CONFIG :
+		case main_region_INIT_SYSTEM :
 		{
-			exseq_main_region_STATE_CONFIG();
+			exseq_main_region_INIT_SYSTEM();
 			break;
 		}
 		default:
@@ -1205,11 +1190,10 @@ sc_integer Statechart::main_region_IDLE_react(const sc_integer transitioned_befo
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (timeEvents[0])
+		if (start_button_raised)
 		{ 
 			exseq_main_region_IDLE();
-			timeEvents[0] = false;
-			enseq_main_region_STATE_CONFIG_default();
+			enseq_main_region_INIT_SYSTEM_default();
 			transitioned_after = 0;
 		}  else
 		{
@@ -1490,15 +1474,15 @@ sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS
 	return transitioned_after;
 }
 
-sc_integer Statechart::main_region_STATE_CONFIG_react(const sc_integer transitioned_before) {
-	/* The reactions of state STATE_CONFIG. */
+sc_integer Statechart::main_region_INIT_SYSTEM_react(const sc_integer transitioned_before) {
+	/* The reactions of state INIT_SYSTEM. */
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (timeEvents[1])
+		if (timeEvents[0])
 		{ 
-			exseq_main_region_STATE_CONFIG();
-			timeEvents[1] = false;
+			exseq_main_region_INIT_SYSTEM();
+			timeEvents[0] = false;
 			enseq_main_region_MENU_default();
 			transitioned_after = 0;
 		} 
@@ -1514,7 +1498,7 @@ sc_integer Statechart::main_region_STATE_CONFIG_react(const sc_integer transitio
 
 void Statechart::clearInEvents() {
 	menu_raised = false;
-	config_raised = false;
+	start_button_raised = false;
 	exit_process_raised = false;
 	standard_process_raised = false;
 	heating_raised = false;
@@ -1532,7 +1516,6 @@ void Statechart::clearInEvents() {
 	finish_process_raised = false;
 	finish_process_idle_raised = false;
 	timeEvents[0] = false;
-	timeEvents[1] = false;
 }
 
 void Statechart::microStep() {
@@ -1607,9 +1590,9 @@ void Statechart::microStep() {
 			main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_react(-1);
 			break;
 		}
-		case main_region_STATE_CONFIG :
+		case main_region_INIT_SYSTEM :
 		{
-			main_region_STATE_CONFIG_react(-1);
+			main_region_INIT_SYSTEM_react(-1);
 			break;
 		}
 		default:

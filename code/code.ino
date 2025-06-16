@@ -14,11 +14,16 @@ void setup() {
   Serial.println("Iniciando...");
 
   Wire.begin(21, 22);  // SDA e SCL do ESP32
-  callback.beginDisplay();  // inicializa o display aqui, fora do construtor
 
   statechart.setOperationCallback(&callback);
   statechart.setTimerService(&timerService);
+
+  // Inicializa o ponteiro da Statechart no callback
+  callback.setStatechart(&statechart); 
+
   statechart.enter();
 }
 
-void loop() {}
+void loop() {
+  callback.readKeypadAndDisplay();		// Vai ser acionado automaticamente quando um evento é levantado (raise)
+}

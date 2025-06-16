@@ -142,7 +142,8 @@ PróximoDegrau    |
 
 - release/1.0.0: criar repositório com requisitos e o README
 - release/2.0.0: código funcional de um blink com ESP32 e LED
-- release/2.1.0: ajuste dos estados e códigos para simulação inicial com ESP32 e interação com estados e UART  
+- release/2.1.0: ajuste dos estados e códigos para simulação inicial com ESP32 e interação com estados e UART
+- release/2.2.0: adição do teclado matricial 4x4
 	
 	
 	
