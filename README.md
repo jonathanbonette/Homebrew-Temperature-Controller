@@ -199,6 +199,26 @@ PróximoDegrau    |
 | fimDaCurva | PróximoDegrau → Finalizado |
 | erroSensor / falha | Qualquer estado → Erro |
 
+### Receitas utilizadas
+| Receita | Etapa| Temperatura (°C) | Tempo (min) | Observações| Referência |
+|:----:|:----:|:----:|:----:|:----:|:----:|
+| **American Pale Ale** | Mostura (Infusão) | 67 | 60 | Conversão de amido em açúcares fermentáveis via enzimas | thebeerjunkies.com/pale-ale/ |
+| | Mash Out (Aquecimento Final) | 76 | 10 | Inativação enzimática, reduz viscosidade e facilita a lavagem dos grãos | |
+| **Witbier** | Descanso de Proteína | 50 | 15 | Quebra de proteínas grandes, melhora corpo, espuma e clareamento | ultralowbrewing.com/wp-content/uploads/2022/01/guide-to-step-mashing.pdf |
+| | Descanso de Sacarificação | 68 | 60 | Conversão de amido em açúcares fermentáveis e não fermentáveis, ajusta final da cerveja | |
+| | Mash Out | 76 | 10 | Inativação enzimática e preparo para lavagem | |
+| **Belgian Dubbel** | Descanso de Proteína | 52 | 15 | Quebra de proteínas para corpo, estabilidade de espuma e nutrientes de levedura | byo.com/article/belgian-dubbel/ | |
+| | Sacarificação Baixa | 64 | 45 | Gera mais maltose fermentável para um final seco | |
+| | Sacarificação Alta | 72 | 15 | Produz dextrinas para corpo e dulçor | |
+| | Mash Out | 76 | 10 | Encerra a mostura e inativa enzimas | |
+| **Bohemian Pilsen** | Descanso de Acidez/Ferúlico | 45 | 15 | Ajusta pH, ajuda a criar notas de cravo (em trigo) e melhora a sensação da boca | forum.northernbrewer.com/t/converting-a-step-mash-recipe-into-a-single-infusion-mash/4630 |
+| | Descanso de Proteína | 52 | 15 | Melhora claridade e estabilidade da espuma | |
+| | Beta-Amilase | 63 | 45 | Máxima produção de maltose, final seco | |
+| | Alpha-Amilase | 72 | 15 | Produção de dextrinas, aumenta corpo e sensação de boca | |
+| | Mash Out | 76 | 10 | Inativação enzimática e preparação para lavagem | |
+| **Customizada** | N | N | N | N | A receita customizada deverá ser informada pelo usuário na tela de receitas, ele pode criar as etapas conforme preferência |
+
+
 ### Changelog
 Este changelog registra as principais versões e funcionalidades implementadas no projeto.
 
