@@ -16,6 +16,7 @@ StatechartTimer timerService;   ///< Instância do serviço de timer para a máq
 // Filas FreeRTOS para comunicação entre tarefas
 QueueHandle_t xKeypadQueue;     ///< Fila para enviar teclas lidas da keypadTask para a stateMachineTask.
 QueueHandle_t xDisplayQueue;    ///< Fila para enviar comandos de exibição para a displayTask.
+QueueHandle_t xControlQueue;    ///< Fila para comandos da controlTask. (NOVA)
 
 // Objeto para o display OLED (acessível globalmente para a displayTask)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -24,6 +25,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 void keypadTask(void *pvParameters);
 void stateMachineTask(void *pvParameters);
 void displayTask(void *pvParameters);
+void controlTask(void *pvParameters);
 
 // --- SETUP ARDUINO ---
 /**
@@ -46,6 +48,8 @@ void setup() {
   // Cria as filas FreeRTOS
   xKeypadQueue = xQueueCreate(5, sizeof(char)); // Fila para 5 caracteres do teclado
   xDisplayQueue = xQueueCreate(10, sizeof(DisplayCommand)); // Fila para 10 comandos de display
+  xControlQueue = xQueueCreate(5, sizeof(ControlCommand)); // <-- CRIAÇÃO DA FILA DE CONTROLE
+
 
   // Verifica se as filas foram criadas com sucesso
   if (xKeypadQueue == NULL || xDisplayQueue == NULL) {
@@ -58,6 +62,8 @@ void setup() {
   xTaskCreate(keypadTask,       "KeypadTask",       2048, NULL, 1, NULL);
   xTaskCreate(displayTask,      "DisplayTask",      4096, NULL, 2, NULL);
   xTaskCreate(stateMachineTask, "StateMachineTask", 4096, NULL, 1, NULL);
+  xTaskCreate(controlTask,      "ControlTask",      4096, NULL, 1, NULL);
+
 
   // Inicia a máquina de estados (entra no estado inicial definido no modelo Yakindu)
   statechart.enter();
@@ -111,6 +117,8 @@ void stateMachineTask(void *pvParameters) {
       Serial.print("StateMachineTask: Tecla recebida: ");
       Serial.println(receivedKey);
 
+      ControlCommand controlCmd; // <--- MOVIDO PARA CÁ 
+
       // Atualiza o buffer de entrada do teclado no callback
       callback.inputBuffer += receivedKey;
       callback.lastKeyPressTime = millis(); // Timestamp da última tecla (para timeout)
@@ -149,7 +157,13 @@ void stateMachineTask(void *pvParameters) {
       // Cada estado de detalhes de receita tem sua própria lógica de botões '1' (Iniciar) e '2' (Voltar)
       else if (statechart.isStateActive(Statechart::main_region_RECIPE_1)) {
           switch (receivedKey) {
-              case '1': statechart.raiseRecipe_1_process(); callback.inputBuffer = ""; break;
+              case '1':
+                // Define qual receita será processada e dispara o início do processo
+                callback.currentRecipeIdx = 0; // American Pale Ale é índice 0
+                statechart.raiseRecipe_1_process();
+                statechart.raiseStart_first_step(); // Dispara a primeira transição dentro de STANDARD_PROCESS
+                callback.inputBuffer = "";
+                break;
               case '2': statechart.raiseRecipe_back_menu(); callback.inputBuffer = ""; break;
               default:
                 // Tecla inválida em RECIPE_1: Redesenha os detalhes da receita 1 com o input
@@ -160,7 +174,12 @@ void stateMachineTask(void *pvParameters) {
       }
       else if (statechart.isStateActive(Statechart::main_region_RECIPE_2)) {
           switch (receivedKey) {
-              case '1': statechart.raiseRecipe_2_process(); callback.inputBuffer = ""; break;
+              case '1':
+                callback.currentRecipeIdx = 1; // Witbier é índice 1
+                statechart.raiseRecipe_2_process();
+                statechart.raiseStart_first_step();
+                callback.inputBuffer = "";
+                break;
               case '2': statechart.raiseRecipe_back_menu(); callback.inputBuffer = ""; break;
               default:
                 callback.showRecipe(2); // Passa '2' para showRecipeDetailsScreen
@@ -170,7 +189,12 @@ void stateMachineTask(void *pvParameters) {
       }
       else if (statechart.isStateActive(Statechart::main_region_RECIPE_3)) {
           switch (receivedKey) {
-              case '1': statechart.raiseRecipe_3_process(); callback.inputBuffer = ""; break;
+              case '1':
+                callback.currentRecipeIdx = 2; // Belgian Dubbel é índice 2
+                statechart.raiseRecipe_3_process();
+                statechart.raiseStart_first_step();
+                callback.inputBuffer = "";
+                break;
               case '2': statechart.raiseRecipe_back_menu(); callback.inputBuffer = ""; break;
               default:
                 callback.showRecipe(3); // Passa '3' para showRecipeDetailsScreen
@@ -180,7 +204,12 @@ void stateMachineTask(void *pvParameters) {
       }
       else if (statechart.isStateActive(Statechart::main_region_RECIPE_4)) {
           switch (receivedKey) {
-              case '1': statechart.raiseRecipe_4_process(); callback.inputBuffer = ""; break;
+              case '1':
+                callback.currentRecipeIdx = 3; // Bohemian Pilsen é índice 3
+                statechart.raiseRecipe_4_process();
+                statechart.raiseStart_first_step();
+                callback.inputBuffer = "";
+                break;
               case '2': statechart.raiseRecipe_back_menu(); callback.inputBuffer = ""; break;
               default:
                 callback.showRecipe(4); // Passa '4' para showRecipeDetailsScreen
@@ -188,6 +217,15 @@ void stateMachineTask(void *pvParameters) {
                 break;
           }
       }
+      // Lógica para o estado FINISHED_MESSAGE
+      else if (statechart.isStateActive(Statechart::main_region_FINISHED_MESSAGE)) {
+          // Neste estado, não esperamos entrada de teclado para navegação,
+          // apenas um timeout fará a transição para IDLE.
+          // Ignoramos qualquer tecla pressionada para evitar interferência na mensagem.
+          callback.inputBuffer = ""; // Sempre limpa o buffer
+          Serial.println("StateMachineTask: Tecla ignorada no estado FINISHED_MESSAGE.");
+      }
+
       // TODO: Adicionar o else if para Statechart::main_region_RECIPE_5 (Customizar) quando for implementado.
       // E também para o estado CUSTOM_SETUP (se for um menu com entrada de dados).
 
@@ -195,8 +233,16 @@ void stateMachineTask(void *pvParameters) {
       else {
         switch (receivedKey) {
           case 'A': // Assumindo 'A' como um botão universal para voltar ao MENU principal de receitas
+            // TODO: Aqui precisaria de uma lógica mais robusta para "abortar" um processo
+            // que está rodando. Isso envolveria desligar atuadores, etc., antes de mudar de estado.
+            // ENVIA COMANDO PARA ABORTAR O PROCESSO!
+            controlCmd.type = CMD_START_RECIPE_STEP;
+            xQueueSend(xControlQueue, &controlCmd, portMAX_DELAY); // Sinaliza para controlTask abortar
+
+            // Depois de sinalizar, a StateMachine pode transitar para IDLE ou um estado de Erro/Abortado
             statechart.raiseMenu(); // Volta para o menu de receitas
-            callback.inputBuffer = ""; // Limpa o buffer ao mudar de tela
+            callback.inputBuffer = "";
+            Serial.println("StateMachineTask: Tecla 'A' para voltar ao menu (ABORT).");
             break;
           // TODO: Adicionar outros botões de função global aqui (ex: Parar 'B', Reset '#')
           default:
@@ -226,6 +272,13 @@ void stateMachineTask(void *pvParameters) {
         callback.showRecipe(3);
       } else if (statechart.isStateActive(Statechart::main_region_RECIPE_4)) {
         callback.showRecipe(4);
+      } else if (statechart.isStateActive(Statechart::main_region_RECIPE_5)) {
+        callback.showRecipe(5); // Para Customizar
+      }
+      // Tratamento para o estado FINISHED_MESSAGE
+      else if (statechart.isStateActive(Statechart::main_region_FINISHED_MESSAGE)) {
+          // A tela FINISHED_MESSAGE já tem um timer para voltar, não precisa redesenhar por timeout.
+          // Se o usuário digitou algo, apenas limpamos o buffer sem redesenhar.
       }
       // TODO: Adicionar outros estados relevantes aqui.
     }
@@ -329,6 +382,20 @@ void displayTask(void *pvParameters) {
           }
           break; // Fim do case CMD_SHOW_RECIPE_DETAILS_SCREEN
         }
+        // CASE para exibir o status do processo
+        case CMD_SHOW_PROCESS_STATUS_SCREEN:
+          display.println("Processo Ativo:");
+          display.setCursor(0, 16); // Posiciona abaixo do título
+          display.println(cmd.text); // Imprime a string de status preparada
+          break;
+        // CASE para exibir mensagem de conclusão
+        case CMD_SHOW_FINISHED_MESSAGE_SCREEN:
+          display.println("Processo Concluido!");
+          display.setCursor(0, 16);
+          display.println("Receita finalizada.");
+          display.setCursor(0, 32);
+          display.println("Voltando ao menu principal...");
+          break;
         case CMD_PRINT_KEYPAD_INPUT: // Imprime o texto digitado pelo teclado
           // Localiza a posição para o texto digitado (geralmente no rodapé)
           display.fillRect(0, SCREEN_HEIGHT - 8, SCREEN_WIDTH, 8, SSD1306_BLACK); // Limpa a última linha
@@ -339,5 +406,99 @@ void displayTask(void *pvParameters) {
       display.display(); // Atualiza o display físico com todas as alterações
     }
     // A tarefa não precisa de delay explícito aqui se está esperando em xQueueReceive com portMAX_DELAY
+  }
+}
+
+/**
+ * @brief Tarefa responsável por gerenciar o processo de cozimento
+ * (contagem regressiva e simulação de temperatura/atuadores).
+ */
+void controlTask(void *pvParameters) {
+  (void) pvParameters;
+
+  ControlCommand receivedControlCmd;
+  int currentTargetTemp = 0;
+  int currentDurationMinutes = 0;
+  unsigned long stepStartTimeMillis = 0;
+  bool stepActive = false;
+  int simulatedCurrentTemp = 25;
+
+  // Variáveis para a controlTask manter o controle da receita/etapa atual
+  // que ela está processando, para fins de showProcessStatus.
+  int activeRecipeIdx = -1;
+  int activeStepIdx = -1;
+
+
+  for (;;) {
+    if (xQueueReceive(xControlQueue, &receivedControlCmd, 0) == pdPASS) {
+      switch (receivedControlCmd.type) {
+        case CMD_START_RECIPE_STEP:
+          activeRecipeIdx = receivedControlCmd.recipeIndex; // Pega o índice da receita do comando
+          activeStepIdx = receivedControlCmd.stepIndex;     // Pega o índice da etapa do comando
+          
+          if (activeRecipeIdx >= 0 && activeRecipeIdx < NUM_RECIPES) {
+            const Recipe& currentRecipeData = recipes[activeRecipeIdx];
+            if (activeStepIdx >= 0 && activeStepIdx < currentRecipeData.numSteps) {
+              const RecipeStep& currentStepData = currentRecipeData.steps[activeStepIdx];
+              
+              currentTargetTemp = receivedControlCmd.targetTemperature; // Pega do comando
+              currentDurationMinutes = receivedControlCmd.durationMinutes; // Pega do comando
+              stepStartTimeMillis = millis();
+              stepActive = true;
+              Serial.printf("ControlTask: INICIADA ETAPA '%s'. Alvo: %dC, Duracao: %dmin\n",
+                            currentStepData.name.c_str(), currentTargetTemp, currentDurationMinutes);
+            }
+          }
+          break;
+        case CMD_ABORT_PROCESS:
+          Serial.println("ControlTask: Processo ABORTADO por comando.");
+          stepActive = false;
+          // TODO: Desligar atuadores.
+          break;
+      }
+    }
+
+    if (stepActive) {
+      // Simulação de Temperatura
+      if (simulatedCurrentTemp < currentTargetTemp) {
+        simulatedCurrentTemp++;
+        if (simulatedCurrentTemp > currentTargetTemp) simulatedCurrentTemp = currentTargetTemp;
+      } else if (simulatedCurrentTemp > currentTargetTemp) {
+        simulatedCurrentTemp--;
+        if (simulatedCurrentTemp < currentTargetTemp) simulatedCurrentTemp = currentTargetTemp;
+      }
+
+      // Cálculo do Tempo Restante
+      unsigned long elapsedTimeMillis = millis() - stepStartTimeMillis;
+      int remainingTimeSeconds = (currentDurationMinutes * 60) - (elapsedTimeMillis / 1000);
+      int remainingTimeMinutes = remainingTimeSeconds / 60;
+      if (remainingTimeMinutes < 0) remainingTimeMinutes = 0;
+
+      // Atualizar Display de Status Periodicamente (a cada 1 segundo)
+      static unsigned long lastDisplayUpdate = 0;
+      if (millis() - lastDisplayUpdate > 1000) {
+        lastDisplayUpdate = millis();
+        // Acessa os dados da etapa através dos índices locais 'activeRecipeIdx' e 'activeStepIdx'
+        const Recipe& recipeForDisplay = recipes[activeRecipeIdx];
+        const RecipeStep& stepForDisplay = recipeForDisplay.steps[activeStepIdx];
+        
+        callback.showProcessStatus(simulatedCurrentTemp, currentTargetTemp, remainingTimeMinutes,
+                                   const_cast<sc_string>(stepForDisplay.name.c_str()),
+                                   activeStepIdx + 1, recipeForDisplay.numSteps);
+      }
+
+      // --- Detecção de Término de Etapa ---
+      bool tempReached = (simulatedCurrentTemp >= currentTargetTemp);
+      bool durationPassed = (elapsedTimeMillis / 1000) >= (currentDurationMinutes * 60);
+
+      if (tempReached && durationPassed) {
+        Serial.println("ControlTask: ETAPA CONCLUIDA! Disparando step_finished.");
+        stepActive = false;
+        // TODO: Desligar atuadores (heater, mixer)
+        statechart.raiseStep_finished();
+      }
+    }
+
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
