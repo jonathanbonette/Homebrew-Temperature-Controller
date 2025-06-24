@@ -10,10 +10,6 @@ Implementation of the state machine 'Statechart'
 
 
 Statechart::Statechart() :
-	low(0),
-	high(1),
-	output(1),
-	led_pin(2),
 	menu_raised(false),
 	standard_process_raised(false),
 	heating_raised(false),
@@ -30,7 +26,14 @@ Statechart::Statechart() :
 	standard_process_custom_raised(false),
 	finish_process_raised(false),
 	finish_process_idle_raised(false),
+	output(1),
 	delay(1000),
+	low(0),
+	high(1),
+	led_pin(2),
+	semaphore_red_pin(23),
+	semaphore_yellow_pin(18),
+	semaphore_green_pin(19),
 	start_button_raised(false),
 	exit_process_raised(false),
 	recipe_1_raised(false),
@@ -44,6 +47,9 @@ Statechart::Statechart() :
 	recipe_3_process_raised(false),
 	recipe_4_process_raised(false),
 	recipe_5_process_raised(false),
+	start_first_step_raised(false),
+	step_finished_raised(false),
+	finished_process_raised(false),
 	timerService(sc_null),
 	ifaceOperationCallback(sc_null),
 	isExecuting(false)
@@ -114,6 +120,9 @@ sc_boolean Statechart::dispatch_event(SctEvent * event)
 		case recipe_3_process:
 		case recipe_4_process:
 		case recipe_5_process:
+		case start_first_step:
+		case step_finished:
+		case finished_process:
 		{
 			return iface_dispatch_event(event);
 		}
@@ -121,6 +130,11 @@ sc_boolean Statechart::dispatch_event(SctEvent * event)
 		{
 			delete event;
 			return timeEvents[0] = true;
+		}
+		case Statechart_main_region_FINISHED_MESSAGE_time_event_0:
+		{
+			delete event;
+			return timeEvents[1] = true;
 		}
 		default:
 			delete event;
@@ -288,6 +302,21 @@ sc_boolean Statechart::iface_dispatch_event(SctEvent * event)
 			internal_raiseRecipe_5_process();
 			break;
 		}
+		case start_first_step:
+		{
+			internal_raiseStart_first_step();
+			break;
+		}
+		case step_finished:
+		{
+			internal_raiseStep_finished();
+			break;
+		}
+		case finished_process:
+		{
+			internal_raiseFinished_process();
+			break;
+		}
 		default:
 			delete event;
 			return false;
@@ -300,6 +329,9 @@ StatechartEventName Statechart::getTimedEventName(sc_eventid evid)
 {
 	if (evid == (sc_eventid)(&timeEvents[0])) {
 		return Statechart_main_region_INIT_SYSTEM_time_event_0;
+	}
+	if (evid == (sc_eventid)(&timeEvents[1])) {
+		return Statechart_main_region_FINISHED_MESSAGE_time_event_0;
 	}
 	return invalid_event;
 }
@@ -375,7 +407,7 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 		}
 		case main_region_STANDARD_PROCESS :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS] >= main_region_STANDARD_PROCESS && stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS] <= main_region_STANDARD_PROCESS_standard_process_RESTING_2);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS] >= main_region_STANDARD_PROCESS && stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS] <= main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP);
 			break;
 		}
 		case main_region_STANDARD_PROCESS_standard_process_START_PROCESS :
@@ -383,29 +415,14 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_START_PROCESS] == main_region_STANDARD_PROCESS_standard_process_START_PROCESS);
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING :
-		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_HEATING] == main_region_STANDARD_PROCESS_standard_process_HEATING);
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING :
-		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_RESTING] == main_region_STANDARD_PROCESS_standard_process_RESTING);
-			break;
-		}
 		case main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS :
 		{
 			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_FINISH_PROCESS] == main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS);
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING_2 :
+		case main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_HEATING_2] == main_region_STANDARD_PROCESS_standard_process_HEATING_2);
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING_2 :
-		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_RESTING_2] == main_region_STANDARD_PROCESS_standard_process_RESTING_2);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_CONTROL_PROCESS_LOOP] == main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP);
 			break;
 		}
 		case main_region_CUSTOM_SETUP :
@@ -468,6 +485,11 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_RECIPE_5] == main_region_RECIPE_5);
 			break;
 		}
+		case main_region_FINISHED_MESSAGE :
+		{
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_FINISHED_MESSAGE] == main_region_FINISHED_MESSAGE);
+			break;
+		}
 		default:
 		{
 			/* State is not active*/
@@ -477,22 +499,6 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 	}
 }
 
-void Statechart::setLow(sc_integer low_)
-{
-	this->low = low_;
-}
-void Statechart::setHigh(sc_integer high_)
-{
-	this->high = high_;
-}
-void Statechart::setOutput(sc_integer output_)
-{
-	this->output = output_;
-}
-void Statechart::setLed_pin(sc_integer led_pin_)
-{
-	this->led_pin = led_pin_;
-}
 /* Functions for event menu in interface  */
 void Statechart::raiseMenu()
 {
@@ -783,6 +789,46 @@ void Statechart::internal_raiseRecipe_5_process()
 {
 	recipe_5_process_raised = true;
 }
+/* Functions for event start_first_step in interface  */
+void Statechart::raiseStart_first_step()
+{
+	inEventQueue.push_back(new SctEvent__start_first_step(start_first_step));
+        runCycle();
+}
+void Statechart::internal_raiseStart_first_step()
+{
+	start_first_step_raised = true;
+}
+/* Functions for event step_finished in interface  */
+void Statechart::raiseStep_finished()
+{
+	inEventQueue.push_back(new SctEvent__step_finished(step_finished));
+        runCycle();
+}
+void Statechart::internal_raiseStep_finished()
+{
+	step_finished_raised = true;
+}
+/* Functions for event finished_process in interface  */
+void Statechart::raiseFinished_process()
+{
+	inEventQueue.push_back(new SctEvent__finished_process(finished_process));
+        runCycle();
+}
+void Statechart::internal_raiseFinished_process()
+{
+	finished_process_raised = true;
+}
+sc_integer Statechart::getOutput() const
+{
+	return output
+	;
+}
+
+void Statechart::setOutput(sc_integer output_)
+{
+	this->output = output_;
+}
 sc_integer Statechart::getDelay() const
 {
 	return delay
@@ -792,6 +838,66 @@ sc_integer Statechart::getDelay() const
 void Statechart::setDelay(sc_integer delay_)
 {
 	this->delay = delay_;
+}
+sc_integer Statechart::getLow() const
+{
+	return low
+	;
+}
+
+void Statechart::setLow(sc_integer low_)
+{
+	this->low = low_;
+}
+sc_integer Statechart::getHigh() const
+{
+	return high
+	;
+}
+
+void Statechart::setHigh(sc_integer high_)
+{
+	this->high = high_;
+}
+sc_integer Statechart::getLed_pin() const
+{
+	return led_pin
+	;
+}
+
+void Statechart::setLed_pin(sc_integer led_pin_)
+{
+	this->led_pin = led_pin_;
+}
+sc_integer Statechart::getSemaphore_red_pin() const
+{
+	return semaphore_red_pin
+	;
+}
+
+void Statechart::setSemaphore_red_pin(sc_integer semaphore_red_pin_)
+{
+	this->semaphore_red_pin = semaphore_red_pin_;
+}
+sc_integer Statechart::getSemaphore_yellow_pin() const
+{
+	return semaphore_yellow_pin
+	;
+}
+
+void Statechart::setSemaphore_yellow_pin(sc_integer semaphore_yellow_pin_)
+{
+	this->semaphore_yellow_pin = semaphore_yellow_pin_;
+}
+sc_integer Statechart::getSemaphore_green_pin() const
+{
+	return semaphore_green_pin
+	;
+}
+
+void Statechart::setSemaphore_green_pin(sc_integer semaphore_green_pin_)
+{
+	this->semaphore_green_pin = semaphore_green_pin_;
 }
 void Statechart::setOperationCallback(OperationCallback* operationCallback)
 {
@@ -807,6 +913,10 @@ void Statechart::enact_main_region_IDLE()
 	ifaceOperationCallback->beginMatrix();
 	ifaceOperationCallback->showStartup();
 	ifaceOperationCallback->showIdleScreen();
+	ifaceOperationCallback->beginSemaphore();
+	ifaceOperationCallback->digitalWrite(semaphore_green_pin, high);
+	ifaceOperationCallback->digitalWrite(semaphore_red_pin, low);
+	ifaceOperationCallback->digitalWrite(semaphore_yellow_pin, low);
 }
 
 /* Entry action for state 'MENU'. */
@@ -822,6 +932,18 @@ void Statechart::enact_main_region_EXIT()
 {
 	/* Entry action for state 'EXIT'. */
 	ifaceOperationCallback->shutdownSystem();
+	ifaceOperationCallback->digitalWrite(semaphore_red_pin, high);
+	ifaceOperationCallback->digitalWrite(semaphore_yellow_pin, low);
+	ifaceOperationCallback->digitalWrite(semaphore_green_pin, low);
+}
+
+/* Entry action for state 'STANDARD_PROCESS'. */
+void Statechart::enact_main_region_STANDARD_PROCESS()
+{
+	/* Entry action for state 'STANDARD_PROCESS'. */
+	ifaceOperationCallback->digitalWrite(semaphore_yellow_pin, high);
+	ifaceOperationCallback->digitalWrite(semaphore_red_pin, low);
+	ifaceOperationCallback->digitalWrite(semaphore_green_pin, low);
 }
 
 /* Entry action for state 'START_PROCESS'. */
@@ -831,20 +953,6 @@ void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_START_PROCE
 	ifaceOperationCallback->initializeProcess();
 }
 
-/* Entry action for state 'HEATING'. */
-void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_HEATING()
-{
-	/* Entry action for state 'HEATING'. */
-	ifaceOperationCallback->heat(67);
-}
-
-/* Entry action for state 'RESTING'. */
-void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_RESTING()
-{
-	/* Entry action for state 'RESTING'. */
-	ifaceOperationCallback->time(25);
-}
-
 /* Entry action for state 'FINISH_PROCESS'. */
 void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS()
 {
@@ -852,18 +960,11 @@ void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_FINISH_PROC
 	ifaceOperationCallback->showFinished();
 }
 
-/* Entry action for state 'HEATING_2'. */
-void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_HEATING_2()
+/* Entry action for state 'CONTROL_PROCESS_LOOP'. */
+void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP()
 {
-	/* Entry action for state 'HEATING_2'. */
-	ifaceOperationCallback->heat(78);
-}
-
-/* Entry action for state 'RESTING_2'. */
-void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_RESTING_2()
-{
-	/* Entry action for state 'RESTING_2'. */
-	ifaceOperationCallback->time(13);
+	/* Entry action for state 'CONTROL_PROCESS_LOOP'. */
+	ifaceOperationCallback->startNextRecipeStep(ifaceOperationCallback->getCurrentRecipeIndex());
 }
 
 /* Entry action for state 'SET_TEMPERATURE'. */
@@ -945,11 +1046,26 @@ void Statechart::enact_main_region_RECIPE_5()
 	ifaceOperationCallback->showRecipe(5);
 }
 
+/* Entry action for state 'FINISHED_MESSAGE'. */
+void Statechart::enact_main_region_FINISHED_MESSAGE()
+{
+	/* Entry action for state 'FINISHED_MESSAGE'. */
+	timerService->setTimer(this, (sc_eventid)(&timeEvents[1]), (((sc_time) 5) * 1000), false);
+	ifaceOperationCallback->showFinishedMessage();
+}
+
 /* Exit action for state 'INIT_SYSTEM'. */
 void Statechart::exact_main_region_INIT_SYSTEM()
 {
 	/* Exit action for state 'INIT_SYSTEM'. */
 	timerService->unsetTimer(this, (sc_eventid)(&timeEvents[0]));
+}
+
+/* Exit action for state 'FINISHED_MESSAGE'. */
+void Statechart::exact_main_region_FINISHED_MESSAGE()
+{
+	/* Exit action for state 'FINISHED_MESSAGE'. */
+	timerService->unsetTimer(this, (sc_eventid)(&timeEvents[1]));
 }
 
 /* 'default' enter sequence for state IDLE */
@@ -980,6 +1096,7 @@ void Statechart::enseq_main_region_EXIT_default()
 void Statechart::enseq_main_region_STANDARD_PROCESS_default()
 {
 	/* 'default' enter sequence for state STANDARD_PROCESS */
+	enact_main_region_STANDARD_PROCESS();
 	enseq_main_region_STANDARD_PROCESS_standard_process_default();
 }
 
@@ -991,22 +1108,6 @@ void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_START_PROCE
 	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_START_PROCESS;
 }
 
-/* 'default' enter sequence for state HEATING */
-void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_HEATING_default()
-{
-	/* 'default' enter sequence for state HEATING */
-	enact_main_region_STANDARD_PROCESS_standard_process_HEATING();
-	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_HEATING;
-}
-
-/* 'default' enter sequence for state RESTING */
-void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_RESTING_default()
-{
-	/* 'default' enter sequence for state RESTING */
-	enact_main_region_STANDARD_PROCESS_standard_process_RESTING();
-	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_RESTING;
-}
-
 /* 'default' enter sequence for state FINISH_PROCESS */
 void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_default()
 {
@@ -1015,20 +1116,12 @@ void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROC
 	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS;
 }
 
-/* 'default' enter sequence for state HEATING_2 */
-void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2_default()
+/* 'default' enter sequence for state CONTROL_PROCESS_LOOP */
+void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_default()
 {
-	/* 'default' enter sequence for state HEATING_2 */
-	enact_main_region_STANDARD_PROCESS_standard_process_HEATING_2();
-	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_HEATING_2;
-}
-
-/* 'default' enter sequence for state RESTING_2 */
-void Statechart::enseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2_default()
-{
-	/* 'default' enter sequence for state RESTING_2 */
-	enact_main_region_STANDARD_PROCESS_standard_process_RESTING_2();
-	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_RESTING_2;
+	/* 'default' enter sequence for state CONTROL_PROCESS_LOOP */
+	enact_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
+	stateConfVector[0] = main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP;
 }
 
 /* 'default' enter sequence for state CUSTOM_SETUP */
@@ -1126,6 +1219,14 @@ void Statechart::enseq_main_region_RECIPE_5_default()
 	stateConfVector[0] = main_region_RECIPE_5;
 }
 
+/* 'default' enter sequence for state FINISHED_MESSAGE */
+void Statechart::enseq_main_region_FINISHED_MESSAGE_default()
+{
+	/* 'default' enter sequence for state FINISHED_MESSAGE */
+	enact_main_region_FINISHED_MESSAGE();
+	stateConfVector[0] = main_region_FINISHED_MESSAGE;
+}
+
 /* 'default' enter sequence for region main region */
 void Statechart::enseq_main_region_default()
 {
@@ -1183,20 +1284,6 @@ void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_START_PROCE
 	stateConfVector[0] = main_region_STANDARD_PROCESS;
 }
 
-/* Default exit sequence for state HEATING */
-void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_HEATING()
-{
-	/* Default exit sequence for state HEATING */
-	stateConfVector[0] = main_region_STANDARD_PROCESS;
-}
-
-/* Default exit sequence for state RESTING */
-void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_RESTING()
-{
-	/* Default exit sequence for state RESTING */
-	stateConfVector[0] = main_region_STANDARD_PROCESS;
-}
-
 /* Default exit sequence for state FINISH_PROCESS */
 void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS()
 {
@@ -1204,17 +1291,10 @@ void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROC
 	stateConfVector[0] = main_region_STANDARD_PROCESS;
 }
 
-/* Default exit sequence for state HEATING_2 */
-void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2()
+/* Default exit sequence for state CONTROL_PROCESS_LOOP */
+void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP()
 {
-	/* Default exit sequence for state HEATING_2 */
-	stateConfVector[0] = main_region_STANDARD_PROCESS;
-}
-
-/* Default exit sequence for state RESTING_2 */
-void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2()
-{
-	/* Default exit sequence for state RESTING_2 */
+	/* Default exit sequence for state CONTROL_PROCESS_LOOP */
 	stateConfVector[0] = main_region_STANDARD_PROCESS;
 }
 
@@ -1304,6 +1384,14 @@ void Statechart::exseq_main_region_RECIPE_5()
 	stateConfVector[0] = Statechart_last_state;
 }
 
+/* Default exit sequence for state FINISHED_MESSAGE */
+void Statechart::exseq_main_region_FINISHED_MESSAGE()
+{
+	/* Default exit sequence for state FINISHED_MESSAGE */
+	stateConfVector[0] = Statechart_last_state;
+	exact_main_region_FINISHED_MESSAGE();
+}
+
 /* Default exit sequence for region main region */
 void Statechart::exseq_main_region()
 {
@@ -1336,29 +1424,14 @@ void Statechart::exseq_main_region()
 			exseq_main_region_STANDARD_PROCESS_standard_process_START_PROCESS();
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING();
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING();
-			break;
-		}
 		case main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS :
 		{
 			exseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS();
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING_2 :
+		case main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP :
 		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2();
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING_2 :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2();
+			exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
 			break;
 		}
 		case main_region_CUSTOM_SETUP :
@@ -1421,6 +1494,11 @@ void Statechart::exseq_main_region()
 			exseq_main_region_RECIPE_5();
 			break;
 		}
+		case main_region_FINISHED_MESSAGE :
+		{
+			exseq_main_region_FINISHED_MESSAGE();
+			break;
+		}
 		default:
 			/* do nothing */
 			break;
@@ -1439,29 +1517,14 @@ void Statechart::exseq_main_region_STANDARD_PROCESS_standard_process()
 			exseq_main_region_STANDARD_PROCESS_standard_process_START_PROCESS();
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING();
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING();
-			break;
-		}
 		case main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS :
 		{
 			exseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS();
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING_2 :
+		case main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP :
 		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2();
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING_2 :
-		{
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2();
+			exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
 			break;
 		}
 		default:
@@ -1624,52 +1687,10 @@ sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_START_PROCE
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (heating_raised)
+		if (start_first_step_raised)
 		{ 
 			exseq_main_region_STANDARD_PROCESS_standard_process_START_PROCESS();
-			enseq_main_region_STANDARD_PROCESS_standard_process_HEATING_default();
-			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_HEATING_react(const sc_integer transitioned_before) {
-	/* The reactions of state HEATING. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (resting_raised)
-		{ 
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING();
-			enseq_main_region_STANDARD_PROCESS_standard_process_RESTING_default();
-			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_RESTING_react(const sc_integer transitioned_before) {
-	/* The reactions of state RESTING. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (heating_2_raised)
-		{ 
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING();
-			enseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2_default();
+			enseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_default();
 			transitioned_after = 0;
 		} 
 	} 
@@ -1687,10 +1708,10 @@ sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_FINISH_PROC
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (finish_process_idle_raised)
+		if (finished_process_raised)
 		{ 
 			exseq_main_region_STANDARD_PROCESS();
-			enseq_main_region_IDLE_default();
+			enseq_main_region_FINISHED_MESSAGE_default();
 			transitioned_after = 0;
 		} 
 	} 
@@ -1703,38 +1724,25 @@ sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_FINISH_PROC
 	return transitioned_after;
 }
 
-sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_HEATING_2_react(const sc_integer transitioned_before) {
-	/* The reactions of state HEATING_2. */
+sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_react(const sc_integer transitioned_before) {
+	/* The reactions of state CONTROL_PROCESS_LOOP. */
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (resting_2_raised)
+		if (((step_finished_raised)) && ((ifaceOperationCallback->hasMoreSteps())))
 		{ 
-			exseq_main_region_STANDARD_PROCESS_standard_process_HEATING_2();
-			enseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2_default();
+			exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
+			enseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_default();
 			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_RESTING_2_react(const sc_integer transitioned_before) {
-	/* The reactions of state RESTING_2. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (finish_process_raised)
-		{ 
-			exseq_main_region_STANDARD_PROCESS_standard_process_RESTING_2();
-			enseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_default();
-			transitioned_after = 0;
-		} 
+		}  else
+		{
+			if (((step_finished_raised)) && ((!(ifaceOperationCallback->hasMoreSteps()))))
+			{ 
+				exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
+				enseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_default();
+				transitioned_after = 0;
+			} 
+		}
 	} 
 	/* If no transition was taken */
 	if ((transitioned_after) == (transitioned_before))
@@ -2017,6 +2025,28 @@ sc_integer Statechart::main_region_RECIPE_5_react(const sc_integer transitioned_
 	return transitioned_after;
 }
 
+sc_integer Statechart::main_region_FINISHED_MESSAGE_react(const sc_integer transitioned_before) {
+	/* The reactions of state FINISHED_MESSAGE. */
+	sc_integer transitioned_after = transitioned_before;
+	if ((transitioned_after) < (0))
+	{ 
+		if (timeEvents[1])
+		{ 
+			exseq_main_region_FINISHED_MESSAGE();
+			timeEvents[1] = false;
+			enseq_main_region_IDLE_default();
+			transitioned_after = 0;
+		} 
+	} 
+	/* If no transition was taken */
+	if ((transitioned_after) == (transitioned_before))
+	{ 
+		/* then execute local reactions. */
+		transitioned_after = transitioned_before;
+	} 
+	return transitioned_after;
+}
+
 void Statechart::clearInEvents() {
 	menu_raised = false;
 	standard_process_raised = false;
@@ -2047,7 +2077,11 @@ void Statechart::clearInEvents() {
 	recipe_3_process_raised = false;
 	recipe_4_process_raised = false;
 	recipe_5_process_raised = false;
+	start_first_step_raised = false;
+	step_finished_raised = false;
+	finished_process_raised = false;
 	timeEvents[0] = false;
+	timeEvents[1] = false;
 }
 
 void Statechart::microStep() {
@@ -2072,29 +2106,14 @@ void Statechart::microStep() {
 			main_region_STANDARD_PROCESS_standard_process_START_PROCESS_react(-1);
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING :
-		{
-			main_region_STANDARD_PROCESS_standard_process_HEATING_react(-1);
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING :
-		{
-			main_region_STANDARD_PROCESS_standard_process_RESTING_react(-1);
-			break;
-		}
 		case main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS :
 		{
 			main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_react(-1);
 			break;
 		}
-		case main_region_STANDARD_PROCESS_standard_process_HEATING_2 :
+		case main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP :
 		{
-			main_region_STANDARD_PROCESS_standard_process_HEATING_2_react(-1);
-			break;
-		}
-		case main_region_STANDARD_PROCESS_standard_process_RESTING_2 :
-		{
-			main_region_STANDARD_PROCESS_standard_process_RESTING_2_react(-1);
+			main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_react(-1);
 			break;
 		}
 		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE :
@@ -2150,6 +2169,11 @@ void Statechart::microStep() {
 		case main_region_RECIPE_5 :
 		{
 			main_region_RECIPE_5_react(-1);
+			break;
+		}
+		case main_region_FINISHED_MESSAGE :
+		{
+			main_region_FINISHED_MESSAGE_react(-1);
 			break;
 		}
 		default:

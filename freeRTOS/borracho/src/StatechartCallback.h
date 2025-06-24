@@ -43,7 +43,9 @@ enum DisplayCommandType {
   CMD_SHOW_STARTUP_MESSAGE,   ///< Exibe a mensagem de inicialização ("DisplayTask OK!", "Executando showStartup()").
   CMD_SHOW_RECIPES_LIST,      ///< Exibe a lista de receitas disponíveis (MENU: "1- APA", "2- Witbier", etc.).
   CMD_SHOW_RECIPE_DETAILS_SCREEN, ///< Exibe os detalhes de uma receita específica (etapas, temperaturas, tempos).
-  CMD_PRINT_KEYPAD_INPUT      ///< Imprime o texto digitado pelo teclado, geralmente na parte inferior da tela.
+  CMD_PRINT_KEYPAD_INPUT,      ///< Imprime o texto digitado pelo teclado, geralmente na parte inferior da tela.
+  CMD_SHOW_PROCESS_STATUS_SCREEN, ///< Exibe o status atual do processo de cozimento.
+  CMD_SHOW_FINISHED_MESSAGE_SCREEN ///< Exibe a mensagem de receita concluída.
 };
 
 /**
@@ -56,6 +58,31 @@ struct DisplayCommand {
   bool clearScreen;             ///< Flag para indicar se a tela deve ser limpa antes de exibir o conteúdo.
   int recipeId;                 ///< ID da receita (para comandos de detalhes de receita).
 };
+
+// --- ENUMS E ESTRUTURAS DE COMANDO PARA O CONTROLE DO PROCESSO ---
+/**
+ * @brief Enumeração dos tipos de comandos que podem ser enviados para a controlTask.
+ * Estes comandos instruem a controlTask sobre qual etapa de receita executar.
+ */
+enum ControlCommandType {
+  CMD_START_RECIPE_STEP, ///< Inicia uma nova etapa da receita com temperatura e duração alvos.
+  CMD_ABORT_PROCESS      ///< Aborta o processo de cozimento em andamento.
+};
+
+/**
+ * @brief Estrutura de dados para os comandos enviados para a controlTask.
+ * Contém o tipo de comando e os parâmetros da etapa (temperatura, duração, índice da etapa).
+ */
+struct ControlCommand {
+  ControlCommandType type; ///< Tipo do comando.
+  int targetTemperature;   ///< Temperatura alvo para a etapa.
+  int durationMinutes;     ///< Duração da etapa em minutos.
+  int recipeIndex;         ///< Índice da receita atual.
+  int stepIndex;           ///< Índice da etapa atual.
+};
+
+// --- NOVA FILA GLOBAL (Declarada como 'extern' aqui, definida em main.cpp) ---
+extern QueueHandle_t xControlQueue; // Fila para comandos da controlTask
 
 // --- ESTRUTURAS DE DADOS PARA AS RECEITAS ---
 /**
@@ -82,8 +109,8 @@ struct Recipe {
 const Recipe recipes[] = {
   // Receita 1: American Pale Ale
   {"American Pale Ale", 2, {
-    {"Curva 1", 67, 60},
-    {"Curva 2", 76, 10}
+    {"Curva 1", 67, 1}, // {"Curva 1", 67, 60},
+    {"Curva 2", 76, 1} // {"Curva 2", 76, 10}
   }},
   // Receita 2: Witbier
   {"Witbier", 3, {
@@ -130,6 +157,11 @@ public:
   bool matrixOK = false; ///< Flag para indicar se o teclado matricial foi inicializado com sucesso.
   String inputBuffer = ""; ///< Buffer para armazenar a entrada digitada pelo teclado.
   unsigned long lastKeyPressTime = 0; ///< Timestamp da última tecla pressionada (para timeout de buffer).
+
+  // Variáveis para controle da receita e etapa atual em processamento
+  // (Inicializadas em -1 para indicar que nenhuma receita está ativa)
+  int currentRecipeIdx = -1; 
+  int currentStepIdx = -1;
 
   /**
    * @brief Construtor padrão da classe StatechartCallback.
@@ -217,15 +249,165 @@ public:
     inputBuffer = ""; // Limpa o buffer do teclado para a nova tela
   }
 
-  // --- MÉTODOS DE CALLBACK PARA FUNÇÕES AINDA NÃO IMPLEMENTADAS OU SIMPLES ---
-  void shutdownSystem() override {}
-  void initializeProcess() override {}
-  void heat(sc_integer) override {}
-  void time(sc_integer) override {}
-  void showFinished() override {}
-  void setTemperature(sc_integer) override {}
-  void setTime(sc_integer) override {}
-  void initializeSetupProcess() override {}
+  // --- MÉTODOS DE CALLBACK PARA O STANDARD_PROCESS ---
+
+  /**
+   * @brief Inicializa o processo de cozimento.
+   * Chamado pelo estado START_PROCESS do Yakindu.
+   */
+  void initializeProcess() override {
+    Serial.println("Callback: Processo de cozimento inicializado.");
+    // TODO: Aqui você faria quaisquer inicializações de atuadores/sensores antes do ciclo de controle.
+    // Ex: garantir que resistências e mixer estejam desligados inicialmente.
+    // digital_write(heater_pin, LOW);
+    // digital_write(mixer_pin, LOW);
+  }
+
+  /**
+   * @brief Inicia ou avança para a próxima etapa da receita sendo processada.
+   * Esta operação é chamada pelo Yakindu na entrada de CONTROL_PROCESS_LOOP.
+   * Ela é responsável por configurar o hardware para a etapa atual e pode
+   * sinalizar o início da monitoração de temperatura/tempo.
+   * @param recipeIndex O índice da receita que está sendo processada (0-baseado).
+   */
+  void startNextRecipeStep(sc_integer recipeIndex) override {
+    // Se a receita mudou ou é o início do processo (vinda do START_PROCESS)
+    if (this->currentRecipeIdx != recipeIndex) {
+        this->currentRecipeIdx = recipeIndex;
+        this->currentStepIdx = 0; // Começa da primeira etapa
+    } else {
+        // Se já está na mesma receita, avança para a próxima etapa
+        this->currentStepIdx++; 
+    }
+
+    if (this->currentRecipeIdx >= 0 && this->currentRecipeIdx < NUM_RECIPES) {
+        const Recipe& recipe = recipes[this->currentRecipeIdx];
+        if (this->currentStepIdx < recipe.numSteps) {
+            const RecipeStep& step = recipe.steps[this->currentStepIdx];
+            Serial.printf("Callback: INICIANDO ETAPA %d/%d: %s (Temp: %dC, Tempo: %dmin)\n",
+                          this->currentStepIdx + 1, recipe.numSteps, step.name.c_str(), step.temperature, step.duration);
+
+            // TODO: Aqui é onde você enviaria comandos para as tasks de controle de hardware.
+            // Por enquanto, apenas logs e exibição de status.
+            // Por exemplo, enviar um comando para a futura 'controlTask':
+            // CommandToControlTask cmd = {CMD_SET_TARGET_TEMP, step.temperature, step.duration};
+            // xQueueSend(xControlQueue, &cmd, portMAX_DELAY);
+            // AGORA, ENVIA O COMANDO PARA A CONTROL TASK AQUI!
+            ControlCommand controlCmd = {CMD_START_RECIPE_STEP};
+            controlCmd.recipeIndex = this->currentRecipeIdx;
+            controlCmd.stepIndex = this->currentStepIdx;
+            controlCmd.targetTemperature = step.temperature; // Passa a temperatura alvo
+            controlCmd.durationMinutes = step.duration;     // Passa a duração
+            xQueueSend(xControlQueue, &controlCmd, portMAX_DELAY); // Envia o comando para a ControlTask
+
+
+            // Exibe o status inicial da etapa no display
+            // Os valores de temperatura atual e tempo restante serão atualizados por uma tarefa de controle.
+            showProcessStatus(0, step.temperature, step.duration, const_cast<sc_string>(step.name.c_str()), this->currentStepIdx + 1, recipe.numSteps);
+
+
+        } else {
+            // Este bloco não deveria ser alcançado se as guardas do Yakindu estiverem corretas.
+            // Significa que startNextRecipeStep foi chamado mas não há mais etapas.
+            Serial.println("Callback: Erro lógico: startNextRecipeStep chamada sem mais etapas.");
+        }
+    } else {
+        Serial.println("Callback: Erro: Receita inválida em startNextRecipeStep.");
+        // TODO: Lógica de erro ou transição de falha na máquina de estados.
+    }
+  }
+
+  /**
+   * @brief Verifica se ainda há etapas a serem processadas na receita atual.
+   * Implementa a operação hasMoreSteps() do Yakindu (usada nas guardas de transição).
+   * @return true se houver mais etapas, false caso contrário.
+   */
+  sc_boolean hasMoreSteps() override {
+    if (currentRecipeIdx >= 0 && currentRecipeIdx < NUM_RECIPES) {
+      return (currentStepIdx + 1) < recipes[currentRecipeIdx].numSteps;
+    }
+    return false; // Se não houver receita selecionada ou etapas inválidas, não há mais etapas.
+  }
+
+   /**
+   * @brief Retorna o índice da receita atualmente em processamento (0-baseado).
+   * Implementa a operação getCurrentRecipeIndex() do Yakindu.
+   * @return O índice da receita.
+   */
+  sc_integer getCurrentRecipeIndex() override {
+    return currentRecipeIdx;
+  }
+
+  /**
+   * @brief Retorna o índice da etapa atual dentro da receita (0-baseado).
+   * Implementa a operação getCurrentStepIndex() do Yakindu.
+   * @return O índice da etapa.
+   */
+  sc_integer getCurrentStepIndex() override {
+    return currentStepIdx;
+  }
+
+  /**
+   * @brief Exibe o status do processo de cozimento no display OLED.
+   * Chamado pela máquina de estados ou por tarefas de controle para atualizar o UI.
+   * @param currentTemp Temperatura atual lida do sensor.
+   * @param targetTemp Temperatura alvo para a etapa atual.
+   * @param remainingTime Tempo restante para a etapa atual (em segundos ou minutos).
+   * @param stepName Nome da etapa atual (ex: "Mostura").
+   * @param stepNum Número da etapa atual (1-baseado, ex: 1 de 2).
+   * @param totalSteps Número total de etapas da receita.
+   */
+  void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingTime, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) override {
+      Serial.printf("Callback: Status Processo (Display): Etapa %d/%d '%s' - Atual: %dC, Alvo: %dC, Restante: %dmin\n",
+                    stepNum, totalSteps, stepName, currentTemp, targetTemp, remainingTime);
+
+      DisplayCommand cmd = {CMD_SHOW_PROCESS_STATUS_SCREEN};
+      cmd.clearScreen = true; // Geralmente, uma tela de status é limpa para cada atualização
+      
+      // Formata a string de status com as informações.
+      // Use várias linhas para melhor legibilidade no OLED.
+      cmd.text = String("Receita: ") + recipes[currentRecipeIdx].name + "\n" +
+                 "Etapa " + stepNum + "/" + totalSteps + ": " + String(stepName) + "\n" +
+                 "Temp: " + currentTemp + "C / " + targetTemp + "C\n" +
+                 "Tempo: " + remainingTime + " min"; // Assumindo 'remainingTime' já em minutos.
+                                                     // Se for em segundos, formate aqui para minutos e segundos.
+
+      xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY);
+  }
+
+  /**
+ * @brief Sinaliza o término do processo e desliga atuadores.
+ * Chamado pelo estado FINISH_PROCESS do Yakindu.
+ */
+  void showFinished() override {
+      Serial.println("Callback: Processo de cozimento finalizado. Desligando atuadores.");
+      // TODO: Implementar lógica para desligar resistências e mixer aqui.
+      // myStatechart->digitalWrite(heater_pin, LOW);
+      // myStatechart->digitalWrite(mixer_pin, LOW);
+
+      // Após desligar os atuadores (simulado por enquanto), disparar o evento finished_process
+      // para a máquina de estados transitar para FINISHED_MESSAGE.
+      if (myStatechart != nullptr) { // Garante que o ponteiro está válido
+          myStatechart->raiseFinished_process(); // <--- DISPARA O EVENTO AQUI!
+      } else {
+          Serial.println("Callback: Erro: myStatechart é nullptr em showFinished!");
+      }
+
+      // Resetar índices de receita/etapa após o fim do processo
+      currentRecipeIdx = -1;
+      currentStepIdx = -1;
+  }
+
+   /**
+   * @brief Exibe a mensagem de receita concluída no display.
+   * Chamado pelo estado FINISHED_MESSAGE do Yakindu.
+   */
+  void showFinishedMessage() override {
+      Serial.println("Callback: Exibindo mensagem 'Receita concluída'.");
+      DisplayCommand cmd = {CMD_SHOW_FINISHED_MESSAGE_SCREEN};
+      cmd.clearScreen = true; // Limpa a tela para exibir a mensagem final
+      xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY);
+  }
 
   /**
    * @brief Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo).
@@ -294,6 +476,47 @@ public:
       xQueueSend(xDisplayQueue, &printCmd, portMAX_DELAY);
     }
   }
+
+  // --- SEMÁFORO ---
+  /**
+   * @brief Inicializa os pinos do módulo semáforo LED.
+   * Chamado pelo estado IDLE do Yakindu.
+   */
+    void beginSemaphore() override {
+    Serial.println("Callback: Inicializando pinos do semáforo.");
+
+    if (myStatechart != nullptr) {
+        // Obtenha os valores dos pinos e modo de saída definidos no Yakindu
+        int redPin = myStatechart->getSemaphore_red_pin();
+        int yellowPin = myStatechart->getSemaphore_yellow_pin();
+        int greenPin = myStatechart->getSemaphore_green_pin();
+        int outputMode = myStatechart->getOutput(); // Obter o valor de 'output' (1)
+        int lowValue = myStatechart->getLow();     // Obter o valor de 'low' (0)
+
+        // CHAMAR AS IMPLEMENTAÇÕES DOS MÉTODOS DE CALLBACK DIRETAMENTE
+        // vai ser usado as implementações de ::pinMode e ::digitalWrite
+        pinMode(redPin, outputMode);
+        pinMode(yellowPin, outputMode);
+        pinMode(greenPin, outputMode);
+        
+        // E desligue todos os LEDs inicialmente para garantir um estado conhecido
+        digitalWrite(redPin, lowValue);
+        digitalWrite(yellowPin, lowValue);
+        digitalWrite(greenPin, lowValue);
+
+        Serial.printf("Callback: Semaforo R:%d Y:%d G:%d configurados como OUTPUT e desligados.\n", redPin, yellowPin, greenPin);
+    } else {
+        Serial.println("Callback: ERRO: myStatechart e nullptr ao inicializar semaforo.");
+    }
+  }
+
+  // --- MÉTODOS DE CALLBACK PARA FUNÇÕES AINDA NÃO IMPLEMENTADAS OU SIMPLES ---
+  void shutdownSystem() override {}
+  void heat(sc_integer) override {} // TODO: Será implementado para controlar o aquecedor
+  void time(sc_integer) override {} // TODO: Será implementado para controlar o tempo de etapa
+  void setTemperature(sc_integer) override {}
+  void setTime(sc_integer) override {}
+  void initializeSetupProcess() override {}
 
 private:
   Statechart* myStatechart = nullptr; ///< Ponteiro para a instância da Statechart.
