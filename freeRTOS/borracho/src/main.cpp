@@ -16,7 +16,9 @@ StatechartTimer timerService;   ///< Instância do serviço de timer para a máq
 // Filas FreeRTOS para comunicação entre tarefas
 QueueHandle_t xKeypadQueue;     ///< Fila para enviar teclas lidas da keypadTask para a stateMachineTask.
 QueueHandle_t xDisplayQueue;    ///< Fila para enviar comandos de exibição para a displayTask.
-QueueHandle_t xControlQueue;    ///< Fila para comandos da controlTask. (NOVA)
+QueueHandle_t xControlQueue;    ///< Fila para comandos da controlTask.
+QueueHandle_t xSensorQueue;     ///< Fila para leitura do sensor de temperatura.
+
 
 // Objeto para o display OLED (acessível globalmente para a displayTask)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -26,8 +28,9 @@ void keypadTask(void *pvParameters);
 void stateMachineTask(void *pvParameters);
 void displayTask(void *pvParameters);
 void controlTask(void *pvParameters);
+void temperatureSensorTask(void *pvParameters); 
 
-// --- SETUP ARDUINO ---
+// --- SETUP ---
 /**
  * @brief Função de inicialização do sistema.
  * Configura a comunicação serial, I2C, inicializa a máquina de estados
@@ -48,30 +51,33 @@ void setup() {
   // Cria as filas FreeRTOS
   xKeypadQueue = xQueueCreate(5, sizeof(char)); // Fila para 5 caracteres do teclado
   xDisplayQueue = xQueueCreate(10, sizeof(DisplayCommand)); // Fila para 10 comandos de display
-  xControlQueue = xQueueCreate(5, sizeof(ControlCommand)); // <-- CRIAÇÃO DA FILA DE CONTROLE
+  xControlQueue = xQueueCreate(5, sizeof(ControlCommand)); // Fila para controles de seleção
+  xSensorQueue = xQueueCreate(1, sizeof(TemperatureData)); // Fila para controle de temperatura
+  
 
 
   // Verifica se as filas foram criadas com sucesso
-  if (xKeypadQueue == NULL || xDisplayQueue == NULL) {
+  if (xKeypadQueue == NULL || xDisplayQueue == NULL || xControlQueue == NULL || xSensorQueue == NULL) {
     Serial.println("Main: ERRO! Falha ao criar filas FreeRTOS. Sistema parado.");
     for(;;); // Loop infinito em caso de erro crítico
   }
 
   // Cria as tarefas FreeRTOS com suas prioridades e tamanhos de pilha
-  // Prioridades: Display > Keypad/StateMachine (para UI responsiva)
+  // Prioridades: Display > Keypad/StateMachine
   xTaskCreate(keypadTask,       "KeypadTask",       2048, NULL, 1, NULL);
   xTaskCreate(displayTask,      "DisplayTask",      4096, NULL, 2, NULL);
   xTaskCreate(stateMachineTask, "StateMachineTask", 4096, NULL, 1, NULL);
   xTaskCreate(controlTask,      "ControlTask",      4096, NULL, 1, NULL);
+  xTaskCreate(temperatureSensorTask, "TempSensorTask", 2048, NULL, 1, NULL);
 
 
   // Inicia a máquina de estados (entra no estado inicial definido no modelo Yakindu)
   statechart.enter();
 }
 
-// --- LOOP ARDUINO ---
+// --- LOOP ---
 /**
- * @brief Loop principal do Arduino.
+ * @brief Loop principal do FreeRTOS.
  * No contexto FreeRTOS, esta função geralmente contém um delay
  * ou é usada para uma tarefa de baixa prioridade, pois a maioria
  * da lógica é executada pelas tasks criadas.
@@ -117,13 +123,13 @@ void stateMachineTask(void *pvParameters) {
       Serial.print("StateMachineTask: Tecla recebida: ");
       Serial.println(receivedKey);
 
-      ControlCommand controlCmd; // <--- MOVIDO PARA CÁ 
+      ControlCommand controlCmd; // Inicializa os comandos fora do escopo das funções
 
       // Atualiza o buffer de entrada do teclado no callback
       callback.inputBuffer += receivedKey;
       callback.lastKeyPressTime = millis(); // Timestamp da última tecla (para timeout)
 
-      // --- Lógica de Decisão e Disparo de Eventos Yakindu ---
+      // --- LÓGICA DE DECISÃO E DISPARO DE EVENTOS DO STATECHART/YAKINDU ---
       // Ações são tomadas com base no estado atual da máquina de estados.
 
       // Estado IDLE (tela inicial de "Bem-vindo")
@@ -220,7 +226,7 @@ void stateMachineTask(void *pvParameters) {
       // Lógica para o estado FINISHED_MESSAGE
       else if (statechart.isStateActive(Statechart::main_region_FINISHED_MESSAGE)) {
           // Neste estado, não esperamos entrada de teclado para navegação,
-          // apenas um timeout fará a transição para IDLE.
+          // apenas um timeout fará a transição para IDLE. Definido no Yakindu
           // Ignoramos qualquer tecla pressionada para evitar interferência na mensagem.
           callback.inputBuffer = ""; // Sempre limpa o buffer
           Serial.println("StateMachineTask: Tecla ignorada no estado FINISHED_MESSAGE.");
@@ -411,17 +417,18 @@ void displayTask(void *pvParameters) {
 
 /**
  * @brief Tarefa responsável por gerenciar o processo de cozimento
- * (contagem regressiva e simulação de temperatura/atuadores).
+ * (contagem regressiva e leitura dos dados do sensor de temperatura/atuadores).
  */
 void controlTask(void *pvParameters) {
   (void) pvParameters;
 
   ControlCommand receivedControlCmd;
+  TemperatureData currentSensorTempData; // Para receber dados do sensor
   int currentTargetTemp = 0;
   int currentDurationMinutes = 0;
   unsigned long stepStartTimeMillis = 0;
   bool stepActive = false;
-  int simulatedCurrentTemp = 25;
+  float actualCurrentTemp = 0.0; // A temperatura atual real
 
   // Variáveis para a controlTask manter o controle da receita/etapa atual
   // que ela está processando, para fins de showProcessStatus.
@@ -430,6 +437,7 @@ void controlTask(void *pvParameters) {
 
 
   for (;;) {
+    // --- Processar Comandos da Fila de Controle ---
     if (xQueueReceive(xControlQueue, &receivedControlCmd, 0) == pdPASS) {
       switch (receivedControlCmd.type) {
         case CMD_START_RECIPE_STEP:
@@ -447,6 +455,7 @@ void controlTask(void *pvParameters) {
               stepActive = true;
               Serial.printf("ControlTask: INICIADA ETAPA '%s'. Alvo: %dC, Duracao: %dmin\n",
                             currentStepData.name.c_str(), currentTargetTemp, currentDurationMinutes);
+              // TODO: Ligar aquecedor (quando implementado).
             }
           }
           break;
@@ -458,21 +467,27 @@ void controlTask(void *pvParameters) {
       }
     }
 
-    if (stepActive) {
-      // Simulação de Temperatura
-      if (simulatedCurrentTemp < currentTargetTemp) {
-        simulatedCurrentTemp++;
-        if (simulatedCurrentTemp > currentTargetTemp) simulatedCurrentTemp = currentTargetTemp;
-      } else if (simulatedCurrentTemp > currentTargetTemp) {
-        simulatedCurrentTemp--;
-        if (simulatedCurrentTemp < currentTargetTemp) simulatedCurrentTemp = currentTargetTemp;
-      }
+    // --- Receber Temperatura do Sensor ---
+    // Tenta ler o último dado da fila de sensor (não bloqueia, verifica a cada ciclo)
+    if (xQueueReceive(xSensorQueue, &currentSensorTempData, 0) == pdPASS) {
+        actualCurrentTemp = currentSensorTempData.temperature1;
+        // Serial.printf("ControlTask: Temp atual recebida: %.2fC\n", actualCurrentTemp); // Debug
+    }
 
+    // --- Lógica de Controle/Monitoramento da Etapa ---
+    if (stepActive) {
+      // Simulação de Temperatura REMOVIDA, agora vai ser usado o valor da variável actualCurrentTemp
+  
       // Cálculo do Tempo Restante
       unsigned long elapsedTimeMillis = millis() - stepStartTimeMillis;
+
+      int totalDurationSeconds = currentDurationMinutes * 60; // Duração total em segundos
       int remainingTimeSeconds = (currentDurationMinutes * 60) - (elapsedTimeMillis / 1000);
-      int remainingTimeMinutes = remainingTimeSeconds / 60;
-      if (remainingTimeMinutes < 0) remainingTimeMinutes = 0;
+
+      if (remainingTimeSeconds < 0) remainingTimeSeconds = 0; // Garante que não seja negativo
+
+      int displayMinutes = remainingTimeSeconds / 60;
+      int displaySeconds = remainingTimeSeconds % 60;
 
       // Atualizar Display de Status Periodicamente (a cada 1 segundo)
       static unsigned long lastDisplayUpdate = 0;
@@ -482,16 +497,20 @@ void controlTask(void *pvParameters) {
         const Recipe& recipeForDisplay = recipes[activeRecipeIdx];
         const RecipeStep& stepForDisplay = recipeForDisplay.steps[activeStepIdx];
         
-        callback.showProcessStatus(simulatedCurrentTemp, currentTargetTemp, remainingTimeMinutes,
+        callback.showProcessStatus(static_cast<sc_integer>(actualCurrentTemp), currentTargetTemp, 
+                                   displayMinutes, displaySeconds,
                                    const_cast<sc_string>(stepForDisplay.name.c_str()),
                                    activeStepIdx + 1, recipeForDisplay.numSteps);
       }
 
       // --- Detecção de Término de Etapa ---
-      bool tempReached = (simulatedCurrentTemp >= currentTargetTemp);
-      bool durationPassed = (elapsedTimeMillis / 1000) >= (currentDurationMinutes * 60);
+      // Agora usa a temperatura REAL (ou a última lida, se não houver um sensor de verdade)
+      bool tempReached = (actualCurrentTemp >= currentTargetTemp - 0.5 && actualCurrentTemp <= currentTargetTemp + 0.5); // Dentro de uma faixa
+      bool durationPassed = (remainingTimeSeconds == 0); // Duraçao passou se remainingTimeSeconds é 0
 
-      if (tempReached && durationPassed) {
+      if (durationPassed) { // Por enquanto, só o tempo, para testes.
+        // Para o teste inicial com copo d'água, se não tiver aquecimento, talvez queira usar SÓ durationPassed
+        // if (durationPassed) { // Apenas para teste de tempo decorrido
         Serial.println("ControlTask: ETAPA CONCLUIDA! Disparando step_finished.");
         stepActive = false;
         // TODO: Desligar atuadores (heater, mixer)
@@ -500,5 +519,69 @@ void controlTask(void *pvParameters) {
     }
 
     vTaskDelay(100 / portTICK_PERIOD_MS);
+  }
+}
+
+// --- TAREFA DO SENSOR DE TEMPERATURA: temperatureSensorTask ---
+/**
+ * @brief Tarefa responsável por ler periodicamente os sensores de temperatura DS18B20.
+ * Envia as leituras para a xSensorQueue.
+ */
+void temperatureSensorTask(void *pvParameters) {
+  (void) pvParameters;
+
+  callback.beginWaterSensor(); // Inicializa o sensor OneWire/DS18B20
+
+  float tempC = -1000.0; // Variável para a temperatura lida
+  TemperatureData tempDataToSend; // Estrutura para enviar via fila
+
+  // Aguarda um pouco para o sensor inicializar e realizar a primeira leitura
+  vTaskDelay(2000 / portTICK_PERIOD_MS); // Este delay é bom para a inicialização
+
+  // Verificação do dispositivo (para ter certeza que ele é visto)
+  if (callback.waterThermometer != nullptr) {
+      Serial.print("TempSensorTask: Numero de dispositivos DS18B20 encontrados: ");
+      Serial.println(callback.waterThermometer->getDeviceCount());
+      if (callback.waterThermometer->getDeviceCount() == 0) {
+          Serial.println("TempSensorTask: NENHUM SENSOR DS18B20 ENCONTRADO NO BARRAMENTO ONE-WIRE!");
+          for(;;); // Parar aqui se nenhum sensor for encontrado
+      }
+      // Se apenas um sensor é esperado, podemos opcionalmente obter seu endereço (futuramente teremos dois)
+      DeviceAddress tempSensorAddress;
+      if (callback.waterThermometer->getAddress(tempSensorAddress, 0)) {
+          Serial.print("TempSensorTask: Endereco do sensor 0: ");
+          for (uint8_t i = 0; i < 8; i++) {
+              if (tempSensorAddress[i] < 16) Serial.print("0");
+              Serial.print(tempSensorAddress[i], HEX);
+          }
+          Serial.println();
+      } else {
+          Serial.println("TempSensorTask: Nao foi possivel obter o endereco do sensor 0.");
+      }
+  }
+
+
+  for (;;) {
+    // Solicita a leitura da temperatura
+    if (callback.waterThermometer != nullptr) {
+        callback.waterThermometer->requestTemperatures(); // Solicita conversão
+        // vTaskDelay(750 / portTICK_PERIOD_MS); // <-- Opcional: Adicionar um delay aqui para garantir a conversão
+                                               // Se a leitura for mais rápida que 750ms, os dados podem não estar prontos
+                                               // A biblioteca geralmente gerencia isso internamente, mas pode ser um problema de timing do RTOS
+    }
+
+    tempC = callback.readWaterTemperature(); // Realiza a leitura
+
+    if (tempC != -1000.0) {
+        tempDataToSend.temperature1 = tempC;
+        xQueueOverwrite(xSensorQueue, &tempDataToSend);
+        Serial.printf("TempSensorTask: Leitura de temperatura: %.2f C\n", tempC); // <-- DEBUG DETALHADO
+    } else {
+        Serial.println("TempSensorTask: ERRO DE LEITURA DO SENSOR!"); // Isso indica DEVICE_DISCONNECTED_C
+    }
+    
+    // Atraso entre leituras. Ajustar se precisar de leituras mais rápidas.
+    // O DS18B20 precisa de tempo entre requests. 1 segundo é um bom ponto de partida.
+    vTaskDelay(1000 / portTICK_PERIOD_MS); 
   }
 }

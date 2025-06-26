@@ -3,18 +3,21 @@
 
 #include "src-gen/Statechart.h"
 #include <Arduino.h>
-// displayOLED
+// DisplayOLED
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-// matrix4x4
+// Matrix4x4
 #include <Keypad.h>
-
-// Incluir FreeRTOS Headers
+// --- Sensor de Temperatura DS18B20 ---
+#include <OneWire.h>
+#include <DallasTemperature.h>
+// FreeRTOS Headers
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h" // Para filas
 
 // --- DEFINES DO HARDWARE ---
+// Parâmetros do DisplayOLED
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET    -1
@@ -81,9 +84,6 @@ struct ControlCommand {
   int stepIndex;           ///< Índice da etapa atual.
 };
 
-// --- NOVA FILA GLOBAL (Declarada como 'extern' aqui, definida em main.cpp) ---
-extern QueueHandle_t xControlQueue; // Fila para comandos da controlTask
-
 // --- ESTRUTURAS DE DADOS PARA AS RECEITAS ---
 /**
  * @brief Estrutura para representar uma única etapa de uma receita de cerveja.
@@ -104,11 +104,23 @@ struct Recipe {
 };
 
 /**
+ * @brief Estrutura para dados de temperatura do sensor.
+ * Útil para enviar leituras de temperatura entre tasks.
+ */
+struct TemperatureData {
+    float temperature1; // Temperatura do sensor 1 (em ºC)
+    // float temperature2; // Futuro: Temperatura do sensor 2
+    // bool valid1;       // Flag para indicar se a leitura do sensor 1 é válida
+    // bool valid2;       // Futuro: Flag para indicar se a leitura do sensor 2 é válida
+};
+
+/**
  * @brief Array constante que armazena todas as receitas pré-configuradas no sistema.
  */
 const Recipe recipes[] = {
   // Receita 1: American Pale Ale
   {"American Pale Ale", 2, {
+    //DEBUG --> mudar os parâmetros no final do projeto
     {"Curva 1", 67, 1}, // {"Curva 1", 67, 60},
     {"Curva 2", 76, 1} // {"Curva 2", 76, 10}
   }},
@@ -142,7 +154,9 @@ const Recipe recipes[] = {
 const int NUM_RECIPES = sizeof(recipes) / sizeof(recipes[0]);
 
 // --- FILAS GLOBAIS (Declaradas como 'extern' aqui, definidas em main.cpp) ---
-extern QueueHandle_t xDisplayQueue;
+extern QueueHandle_t xDisplayQueue; // Fila para exibições no display
+extern QueueHandle_t xControlQueue; // Fila para comandos da controlTask
+extern QueueHandle_t xSensorQueue; // Fila para receber dados do sensor
 
 /**
  * @brief Implementação da interface de OperationCallback para a máquina de estados Yakindu.
@@ -162,6 +176,13 @@ public:
   // (Inicializadas em -1 para indicar que nenhuma receita está ativa)
   int currentRecipeIdx = -1; 
   int currentStepIdx = -1;
+
+  // --- OBJETOS PARA O DS18B20 ---
+  OneWire* oneWireBus = nullptr;
+  DallasTemperature* waterThermometer = nullptr;
+  
+  float lastReadTemperature = 0.0; // Armazena a última temperatura lida para ser acessada
+
 
   /**
    * @brief Construtor padrão da classe StatechartCallback.
@@ -184,7 +205,7 @@ public:
    */
   void beginDisplay() override {
     Serial.println("Callback: Solicitando inicio do display (Display Task irá inicializar)");
-    // A inicialização real do display é feita na displayTask. Aqui, apenas sinalizamos sucesso.
+    // A inicialização real do display é feita na displayTask. Aqui é apenas um debug para sinalizar sucesso.
     oledOK = true; 
   }
 
@@ -239,7 +260,7 @@ public:
     Serial.println(recipeId);
 
     if (recipeId >= 1 && recipeId <= NUM_RECIPES) {
-      DisplayCommand cmd = {CMD_SHOW_RECIPE_DETAILS_SCREEN}; // <-- Comando para detalhes da receita
+      DisplayCommand cmd = {CMD_SHOW_RECIPE_DETAILS_SCREEN}; // Comando para detalhes da receita
       cmd.recipeId = recipeId - 1; // Ajusta para índice base 0 do array `recipes`
       cmd.clearScreen = true; // Sempre limpa para os detalhes da receita
       xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY);
@@ -257,7 +278,7 @@ public:
    */
   void initializeProcess() override {
     Serial.println("Callback: Processo de cozimento inicializado.");
-    // TODO: Aqui você faria quaisquer inicializações de atuadores/sensores antes do ciclo de controle.
+    // TODO: Aqui faria quaisquer inicializações de atuadores/sensores antes do ciclo de controle.
     // Ex: garantir que resistências e mixer estejam desligados inicialmente.
     // digital_write(heater_pin, LOW);
     // digital_write(mixer_pin, LOW);
@@ -287,7 +308,7 @@ public:
             Serial.printf("Callback: INICIANDO ETAPA %d/%d: %s (Temp: %dC, Tempo: %dmin)\n",
                           this->currentStepIdx + 1, recipe.numSteps, step.name.c_str(), step.temperature, step.duration);
 
-            // TODO: Aqui é onde você enviaria comandos para as tasks de controle de hardware.
+            // TODO: Aqui é onde enviaria comandos para as tasks de controle de hardware.
             // Por enquanto, apenas logs e exibição de status.
             // Por exemplo, enviar um comando para a futura 'controlTask':
             // CommandToControlTask cmd = {CMD_SET_TARGET_TEMP, step.temperature, step.duration};
@@ -303,7 +324,7 @@ public:
 
             // Exibe o status inicial da etapa no display
             // Os valores de temperatura atual e tempo restante serão atualizados por uma tarefa de controle.
-            showProcessStatus(0, step.temperature, step.duration, const_cast<sc_string>(step.name.c_str()), this->currentStepIdx + 1, recipe.numSteps);
+                showProcessStatus(0, step.temperature, step.duration, 0, const_cast<sc_string>(step.name.c_str()), this->currentStepIdx + 1, recipe.numSteps);
 
 
         } else {
@@ -357,20 +378,24 @@ public:
    * @param stepNum Número da etapa atual (1-baseado, ex: 1 de 2).
    * @param totalSteps Número total de etapas da receita.
    */
-  void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingTime, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) override {
-      Serial.printf("Callback: Status Processo (Display): Etapa %d/%d '%s' - Atual: %dC, Alvo: %dC, Restante: %dmin\n",
-                    stepNum, totalSteps, stepName, currentTemp, targetTemp, remainingTime);
+  void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) override {
+      Serial.printf("Callback: Status Processo (Display): Etapa %d/%d '%s' - Atual: %dC, Alvo: %dC, Restante: %dmin %02ds\n",
+                    stepNum, totalSteps, stepName, currentTemp, targetTemp, remainingMinutes, remainingSeconds);
 
       DisplayCommand cmd = {CMD_SHOW_PROCESS_STATUS_SCREEN};
       cmd.clearScreen = true; // Geralmente, uma tela de status é limpa para cada atualização
+
+      // Declara e formata o timeBuffer
+      char timeBuffer[10]; // Buffer para formatar o tempo (ex: "1 m 00 s")
+      sprintf(timeBuffer, "%d m %02d s", remainingMinutes, remainingSeconds); // Formata segundos com 2 dígitos
+
       
       // Formata a string de status com as informações.
       // Use várias linhas para melhor legibilidade no OLED.
       cmd.text = String("Receita: ") + recipes[currentRecipeIdx].name + "\n" +
                  "Etapa " + stepNum + "/" + totalSteps + ": " + String(stepName) + "\n" +
                  "Temp: " + currentTemp + "C / " + targetTemp + "C\n" +
-                 "Tempo: " + remainingTime + " min"; // Assumindo 'remainingTime' já em minutos.
-                                                     // Se for em segundos, formate aqui para minutos e segundos.
+                 "Tempo: " + String(timeBuffer);
 
       xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY);
   }
@@ -482,11 +507,11 @@ public:
    * @brief Inicializa os pinos do módulo semáforo LED.
    * Chamado pelo estado IDLE do Yakindu.
    */
-    void beginSemaphore() override {
+  void beginSemaphore() override {
     Serial.println("Callback: Inicializando pinos do semáforo.");
 
     if (myStatechart != nullptr) {
-        // Obtenha os valores dos pinos e modo de saída definidos no Yakindu
+        // Obter os valores dos pinos e modo de saída definidos no Yakindu
         int redPin = myStatechart->getSemaphore_red_pin();
         int yellowPin = myStatechart->getSemaphore_yellow_pin();
         int greenPin = myStatechart->getSemaphore_green_pin();
@@ -508,6 +533,58 @@ public:
     } else {
         Serial.println("Callback: ERRO: myStatechart e nullptr ao inicializar semaforo.");
     }
+  }
+
+  // --- MÉTODO DE CALLBACK PARA O SENSOR DE ÁGUA ---
+  /**
+   * @brief Inicializa o sensor de temperatura DS18B20.
+   * Chamado pelo estado INIT_SYSTEM do Yakindu.
+   */
+  void beginWaterSensor() override {
+    Serial.println("Callback: Inicializando sensor de temperatura DS18B20.");
+    if (myStatechart != nullptr) {
+        int waterSensorPin = myStatechart->getWater_sensor_pin(); // Pego do Yakindu
+        Serial.printf("Callback: Sensor DS18B20 no GPIO%d.\n", waterSensorPin);
+
+        // Cria a instância OneWire na heap (já que não pode usar o construtor aqui diretamente)
+        // e a instância DallasTemperature
+        if (oneWireBus == nullptr) {
+          oneWireBus = new OneWire(waterSensorPin);
+        }
+        if (waterThermometer == nullptr) {
+          waterThermometer = new DallasTemperature(oneWireBus);
+        }
+
+        if (waterThermometer != nullptr) {
+          waterThermometer->begin(); // Inicia a comunicação com o sensor
+          Serial.println("Callback: Sensor DS18B20 inicializado.");
+        } else {
+          Serial.println("Callback: ERRO! Falha ao criar objeto DallasTemperature.");
+        }
+    } else {
+        Serial.println("Callback: ERRO: myStatechart e nullptr ao inicializar sensor de agua.");
+    }
+  }
+
+  /**
+   * @brief Lê a temperatura atual do sensor DS18B20.
+   * Esta função é chamada pela temperatureSensorTask.
+   * @return A temperatura lida em float. Retorna -1000.0 se houver erro.
+   */
+  float readWaterTemperature() {
+      if (waterThermometer != nullptr) {
+          waterThermometer->requestTemperatures(); // Solicita a leitura da temperatura
+          float tempC = waterThermometer->getTempCByIndex(0); // Lê a temperatura do primeiro sensor encontrado
+
+          if (tempC != DEVICE_DISCONNECTED_C) { // Verifica se a leitura foi bem-sucedida
+              lastReadTemperature = tempC;
+              return tempC;
+          } else {
+              Serial.println("Callback: ERRO! Sensor DS18B20 desconectado ou leitura falhou.");
+              return -1000.0; // Valor de erro
+          }
+      }
+      return -1000.0; // Objeto do sensor não inicializado
   }
 
   // --- MÉTODOS DE CALLBACK PARA FUNÇÕES AINDA NÃO IMPLEMENTADAS OU SIMPLES ---
