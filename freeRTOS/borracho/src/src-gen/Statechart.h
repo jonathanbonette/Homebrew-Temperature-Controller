@@ -433,6 +433,10 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		sc_integer getLed_pin() const;
 		/*! Sets the value of the variable 'led_pin' that is defined in the default interface scope. */
 		void setLed_pin(sc_integer led_pin);
+		/*! Gets the value of the variable 'water_sensor_pin' that is defined in the default interface scope. */
+		sc_integer getWater_sensor_pin() const;
+		/*! Sets the value of the variable 'water_sensor_pin' that is defined in the default interface scope. */
+		void setWater_sensor_pin(sc_integer water_sensor_pin);
 		/*! Gets the value of the variable 'semaphore_red_pin' that is defined in the default interface scope. */
 		sc_integer getSemaphore_red_pin() const;
 		/*! Sets the value of the variable 'semaphore_red_pin' that is defined in the default interface scope. */
@@ -469,6 +473,8 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				
 				virtual void pinMode(sc_integer pin, sc_integer mode) = 0;
 				
+				virtual void beginWaterSensor() = 0;
+				
 				virtual void showStartup() = 0;
 				
 				virtual void showIdleScreen() = 0;
@@ -495,7 +501,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				
 				virtual sc_integer getCurrentStepIndex() = 0;
 				
-				virtual void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingTime, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) = 0;
+				virtual void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) = 0;
 				
 				virtual void showFinishedMessage() = 0;
 				
@@ -618,6 +624,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		sc_integer low;
 		sc_integer high;
 		sc_integer led_pin;
+		sc_integer water_sensor_pin;
 		sc_integer semaphore_red_pin;
 		sc_integer semaphore_yellow_pin;
 		sc_integer semaphore_green_pin;

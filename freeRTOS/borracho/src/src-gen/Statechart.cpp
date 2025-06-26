@@ -31,6 +31,7 @@ Statechart::Statechart() :
 	low(0),
 	high(1),
 	led_pin(2),
+	water_sensor_pin(2),
 	semaphore_red_pin(23),
 	semaphore_yellow_pin(18),
 	semaphore_green_pin(19),
@@ -869,6 +870,16 @@ void Statechart::setLed_pin(sc_integer led_pin_)
 {
 	this->led_pin = led_pin_;
 }
+sc_integer Statechart::getWater_sensor_pin() const
+{
+	return water_sensor_pin
+	;
+}
+
+void Statechart::setWater_sensor_pin(sc_integer water_sensor_pin_)
+{
+	this->water_sensor_pin = water_sensor_pin_;
+}
 sc_integer Statechart::getSemaphore_red_pin() const
 {
 	return semaphore_red_pin
@@ -917,6 +928,7 @@ void Statechart::enact_main_region_IDLE()
 	ifaceOperationCallback->digitalWrite(semaphore_green_pin, high);
 	ifaceOperationCallback->digitalWrite(semaphore_red_pin, low);
 	ifaceOperationCallback->digitalWrite(semaphore_yellow_pin, low);
+	ifaceOperationCallback->digitalWrite(led_pin, low);
 }
 
 /* Entry action for state 'MENU'. */
@@ -932,9 +944,6 @@ void Statechart::enact_main_region_EXIT()
 {
 	/* Entry action for state 'EXIT'. */
 	ifaceOperationCallback->shutdownSystem();
-	ifaceOperationCallback->digitalWrite(semaphore_red_pin, high);
-	ifaceOperationCallback->digitalWrite(semaphore_yellow_pin, low);
-	ifaceOperationCallback->digitalWrite(semaphore_green_pin, low);
 }
 
 /* Entry action for state 'STANDARD_PROCESS'. */
@@ -1009,6 +1018,7 @@ void Statechart::enact_main_region_INIT_SYSTEM()
 	timerService->setTimer(this, (sc_eventid)(&timeEvents[0]), (((sc_time) 5) * 1000), false);
 	ifaceOperationCallback->pinMode(led_pin, output);
 	ifaceOperationCallback->digitalWrite(led_pin, high);
+	ifaceOperationCallback->beginWaterSensor();
 }
 
 /* Entry action for state 'RECIPE_1'. */
