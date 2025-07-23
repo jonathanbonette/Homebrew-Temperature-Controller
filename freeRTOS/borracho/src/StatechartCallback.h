@@ -323,7 +323,7 @@ public:
 
         // Exibe o status inicial da etapa no display
         // Os valores de temperatura atual e tempo restante serão atualizados por uma tarefa de controle
-        showProcessStatus(0, step.temperature, step.duration, 0, const_cast<sc_string>(step.name.c_str()), this->currentStepIdx + 1, recipe.numSteps);
+        showProcessStatus(0, step.temperature, step.duration, 0, const_cast<sc_string>(step.name.c_str()), this->currentStepIdx + 1, recipe.numSteps, true);
       }
       else
       {
@@ -378,31 +378,39 @@ public:
    * Chamado pela máquina de estados ou por tarefas de controle para atualizar o UI.
    * @param currentTemp Temperatura atual lida do sensor.
    * @param targetTemp Temperatura alvo para a etapa atual.
-   * @param remainingTime Tempo restante para a etapa atual (em segundos ou minutos).
+   * @param remainingMinutes Tempo restante para a etapa atual (em minutos).
+   * @param remainingSeconds Tempo restante para a etapa atual (em segundos).
    * @param stepName Nome da etapa atual (ex: "Mostura").
    * @param stepNum Número da etapa atual (1-baseado, ex: 1 de 2).
    * @param totalSteps Número total de etapas da receita.
+   * @param isRamping Indica se a etapa está em fase de rampa (esperando atingir o setpoint). // <--- NOVO PARÂMETRO
    */
-  void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) override
-  {
-    Serial.printf("Callback: Status Processo (Display): Etapa %d/%d '%s' - Atual: %dC, Alvo: %dC, Restante: %dmin %02ds\n",
-                  stepNum, totalSteps, stepName, currentTemp, targetTemp, remainingMinutes, remainingSeconds);
+  void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps, sc_boolean isRamping) override { 
+      // Debug
+      Serial.printf("Callback: Status Processo: Etapa %d/%d '%s' - Atual: %dC, Alvo: %dC. Tempo: %d:%02d (Rampa: %s)\n", 
+                    stepNum, totalSteps, stepName, currentTemp, targetTemp, remainingMinutes, remainingSeconds, isRamping ? "SIM" : "NAO");
 
-    DisplayCommand cmd = {CMD_SHOW_PROCESS_STATUS_SCREEN};
-    cmd.clearScreen = true; // Geralmente, uma tela de status é limpa para cada atualização
+      DisplayCommand cmd = {CMD_SHOW_PROCESS_STATUS_SCREEN};
+      cmd.clearScreen = true; // Sempre limpa para esta tela de status
 
-    // Declara e formata o timeBuffer
-    char timeBuffer[10];                                                    // Buffer para formatar o tempo (ex: "1 m 00 s")
-    sprintf(timeBuffer, "%d m %02d s", remainingMinutes, remainingSeconds); // Formata segundos com 2 dígitos
+      // --- LÓGICA DE MONTAGEM DA STRING AGORA DENTRO DESTE CALLBACK ---
+      String statusMessage_part1 = "Receita: " + recipes[currentRecipeIdx].name;
+      String statusMessage_part2 = "Etapa " + String(stepNum) + "/" + String(totalSteps) + ": " + String(stepName);
+      String statusMessage_part3; // Linha da temperatura
+      String statusMessage_part4; // Linha do tempo ou rampa
 
-    // Formata a string de status com as informações
-    // Use várias linhas para melhor legibilidade no OLED
-    cmd.text = String("Receita: ") + recipes[currentRecipeIdx].name + "\n" +
-               "Etapa " + stepNum + "/" + totalSteps + ": " + String(stepName) + "\n" +
-               "Temp: " + currentTemp + "C / " + targetTemp + "C\n" +
-               "Tempo: " + String(timeBuffer);
-
-    xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY);
+      if (isRamping) { // Se está em fase de rampa
+          statusMessage_part3 = "Rampa: " + String(currentTemp) + "C / " + String(targetTemp) + "C";
+          statusMessage_part4 = "Aguardando Setpoint...";
+      } else { // Se atingiu o setpoint, mostra temp e tempo
+          statusMessage_part3 = "Temp: " + String(currentTemp) + "C / " + String(targetTemp) + "C";
+          char timeBuffer[10];
+          sprintf(timeBuffer, "%d m %02d s", remainingMinutes, remainingSeconds);
+          statusMessage_part4 = "Tempo: " + String(timeBuffer);
+      }
+      
+      cmd.text = statusMessage_part1 + "\n" + statusMessage_part2 + "\n" + statusMessage_part3 + "\n" + statusMessage_part4;
+      xQueueSend(xDisplayQueue, &cmd, portMAX_DELAY); // Envia para a displayTask
   }
 
   /**
@@ -420,7 +428,7 @@ public:
     // para a máquina de estados transitar para FINISHED_MESSAGE
     if (myStatechart != nullptr)
     {
-      myStatechart->raiseFinished_process(); // <--- DISPARA O EVENTO AQUI!
+      myStatechart->raiseFinished_process();
     }
     else
     {
