@@ -3,7 +3,7 @@
 // Definir o endereço I2C para este ESP32 (deve ser o mesmo que o Mestre usa)
 constexpr uint8_t I2C_SLAVE_ADDRESS = 0x08; 
 
-// Pinos I2C do ESP32 (SDA, SCL) - Use os mesmos pinos que você usa no Mestre
+// Pinos I2C do ESP32 (SDA, SCL)
 const int I2C_SDA_PIN = 21;
 const int I2C_SCL_PIN = 22;
 
@@ -11,7 +11,7 @@ const int I2C_SCL_PIN = 22;
 constexpr uint32_t I2C_FREQ = 100000; 
 
 // Pino ADC para receber o sinal do PWM do mestre (ex: GPIO34)
-const int ADC_INPUT_PIN = 34; // Escolha um GPIO com ADC no seu ESP32 Escravo
+const int ADC_INPUT_PIN = 34;
 
 // Valores de simulação de temperatura e ADC
 const float MIN_TEMP_SIMULATED = 25.0; // Corresponde a 0% PWM / 0V
