@@ -11,6 +11,9 @@
 // Para teste com Slave
 #include <Wire.h>
 
+// PID
+#include <PID_v1.h>
+
 // --- OBJETOS GLOBAIS ---
 Statechart statechart;          ///< Instância da máquina de estados Yakindu
 StatechartCallback callback;    ///< Instância da classe de callbacks para operações do Yakindu
@@ -35,6 +38,16 @@ void stateMachineTask(void *pvParameters);
 void displayTask(void *pvParameters);
 void controlTask(void *pvParameters);
 void temperatureSensorTask(void *pvParameters); 
+
+// --- VARIÁVEIS PID ---
+// Define as entradas, saídas e setpoints para o PID
+double Setpoint, Input, Output; // Usa double para a lib do PID_v1
+double Kp=30, Ki=5.0, Kd=0.5; // Coeficientes PID iniciais (Inicial: 10, 0.1, 0.5)
+
+// Especifica o objeto PID
+// PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, Direction)
+// Direction: DIRECT (Output aumenta quando Input diminui em relação ao Setpoint)
+PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // --- SETUP ---
 /**
@@ -67,7 +80,16 @@ void setup() {
   statechart.setTimerService(&timerService);
   callback.setStatechart(&statechart); // Passa a referência da statechart para o callback
 
-  callback.setupHeaterPWM(); // GARANTE A INICIALIZAÇÃO DO PWM!
+  // GARANTE A INICIALIZAÇÃO DO PWM!
+  callback.setupHeaterPWM();
+
+  // --- CONFIGURAÇÃO DO PID ---
+  // Define os limites de saída do PID para o duty cycle do PWM (0 a 1023 para 10 bits)
+  myPID.SetOutputLimits(0, (double)((1 << statechart.getPwm_resolution_bits()) - 1)); // Max duty cycle
+  myPID.SetMode(AUTOMATIC); // Inicia o PID no modo automático (ligado)
+  myPID.SetSampleTime(100); // Define o tempo de amostragem do PID em milissegundos (o mesmo do loop da controlTask)
+  Serial.println("Main: Controlador PID inicializado.");
+
 
   // Cria as filas FreeRTOS
   xKeypadQueue = xQueueCreate(5, sizeof(char)); // Fila para 5 caracteres do teclado
@@ -144,7 +166,7 @@ void stateMachineTask(void *pvParameters) {
       callback.inputBuffer += receivedKey;
       callback.lastKeyPressTime = millis(); // Timestamp da última tecla (para timeout)
 
-      // --- LÓGICA DE DECISÃO E DISPARO DE EVENTOS DO STATECHART/YAKINDU ---
+      // --- LÓGICA DE DECISÃO E DISPARO DE EVENTOS DO STATECHART/YAKINDU/ITEMIS ---
       // Ações são tomadas com base no estado atual da máquina de estados
 
       // Estado IDLE (tela inicial de "Bem-vindo")
@@ -426,93 +448,104 @@ void controlTask(void *pvParameters) {
   (void) pvParameters;
 
   ControlCommand receivedControlCmd;
-  TemperatureData currentSensorTempData; // Para receber dados do sensor
+  TemperatureData currentSensorTempData;
   int currentTargetTemp = 0;
   int currentDurationMinutes = 0;
-  unsigned long stepStartTimeMillis = 0;
+  unsigned long stepStartTimeMillis = 0; // Tempo em que a contagem "real" da etapa começa
   bool stepActive = false;
   float actualCurrentTemp = 0.0; // A temperatura atual real
 
-  // Variáveis para a controlTask manter o controle da receita/etapa atual
-  // que ela está processando, para fins de showProcessStatus.
   int activeRecipeIdx = -1;
   int activeStepIdx = -1;
 
-  // --- Histerese e Estado do Aquecedor (para controle ON-OFF) ---
-  int hysteresis = 2; // Histerese de 2 graus C -- Mudar
-  bool heater_is_on = false; // Estado do aquecedor (ligado/desligado)
-
+  // Flag para indicar se o Setpoint foi atingido para iniciar a contagem regressiva da etapa
+  bool setpointReachedForTiming = false; 
 
   for (;;) {
-    // --- Processar Comandos da Fila de Controle ---
+    // --- Processar Comandos da Fila de Controle (xControlQueue) ---
     if (xQueueReceive(xControlQueue, &receivedControlCmd, 0) == pdPASS) {
       switch (receivedControlCmd.type) {
         case CMD_START_RECIPE_STEP:
-          activeRecipeIdx = receivedControlCmd.recipeIndex; // Pega o índice da receita do comando
-          activeStepIdx = receivedControlCmd.stepIndex;     // Pega o índice da etapa do comando
+          activeRecipeIdx = receivedControlCmd.recipeIndex;
+          activeStepIdx = receivedControlCmd.stepIndex;
           
           if (activeRecipeIdx >= 0 && activeRecipeIdx < NUM_RECIPES) {
             const Recipe& currentRecipeData = recipes[activeRecipeIdx];
             if (activeStepIdx >= 0 && activeStepIdx < currentRecipeData.numSteps) {
-              const RecipeStep& currentStepData = currentRecipeData.steps[activeStepIdx];
+              currentTargetTemp = receivedControlCmd.targetTemperature;
+              currentDurationMinutes = receivedControlCmd.durationMinutes;
               
-              currentTargetTemp = receivedControlCmd.targetTemperature; // Pega do comando
-              currentDurationMinutes = receivedControlCmd.durationMinutes; // Pega do comando
-              stepStartTimeMillis = millis();
               stepActive = true;
 
-              heater_is_on = false; // Começa desligado para a nova etapa
-              callback.controlHeaterPWM(0); // Garante que o PWM esteja em 0
-            
+              Setpoint = (double)currentTargetTemp; 
+              myPID.SetMode(AUTOMATIC); // Ativa o PID para controlar a temperatura
+
+              setpointReachedForTiming = false; // Reseta a flag para a nova etapa
+              
               Serial.printf("ControlTask: INICIADA ETAPA '%s'. Alvo: %dC, Duracao: %dmin\n",
-                          (activeRecipeIdx == 4 ? "Customizada" : recipes[activeRecipeIdx].steps[activeStepIdx].name.c_str()), currentTargetTemp, currentDurationMinutes);
+                            (activeRecipeIdx == 4 ? "Customizada" : recipes[activeRecipeIdx].steps[activeStepIdx].name.c_str()), currentTargetTemp, currentDurationMinutes);
             }
           }
           break;
         case CMD_ABORT_PROCESS:
           Serial.println("ControlTask: Processo ABORTADO por comando.");
           stepActive = false;
-          heater_is_on = false; // SÓ DESLIGA AQUI NO ABORT
-          callback.controlHeaterPWM(0); // SÓ DESLIGA AQUI NO ABORT
-          // TODO: Desligar atuadores
+          myPID.SetMode(MANUAL); // Desliga o PID
+          Output = 0; // Força a saída do PID para 0
+          callback.controlHeaterPWM(0); // Garante o PWM desligado
+          setpointReachedForTiming = false; // Reseta a flag em caso de aborto
           break;
       }
     }
 
-    // --- Receber Temperatura do Sensor ---
-    // Tenta ler o último dado da fila de sensor (não bloqueia, verifica a cada ciclo)
+    // --- Receber Última Temperatura do Sensor (xSensorQueue) ---
     if (xQueueReceive(xSensorQueue, &currentSensorTempData, 0) == pdPASS) {
         actualCurrentTemp = currentSensorTempData.temperature1;
-        // Serial.printf("ControlTask: Temp atual recebida: %.2fC\n", actualCurrentTemp); // Debug
+        Input = (double)actualCurrentTemp; // Atualiza o Input do PID
     }
-
+    
     // --- Lógica de Controle/Monitoramento da Etapa ---
-    if (stepActive) {
-      // Cálculo do Tempo Restante
-      unsigned long elapsedTimeMillis = millis() - stepStartTimeMillis;
+    if (stepActive) { // SE O PROCESSO ESTÁ ATIVO
 
-      int totalDurationSeconds = currentDurationMinutes * 60; // Duração total em segundos
-      int remainingTimeSeconds = (currentDurationMinutes * 60) - (elapsedTimeMillis / 1000);
-
-      if (remainingTimeSeconds < 0) remainingTimeSeconds = 0; // Garante que não seja negativo
-
-      int displayMinutes = remainingTimeSeconds / 60;
-      int displaySeconds = remainingTimeSeconds % 60;
-
-      // --- Lógica de Controle ON-OFF com Histerese ---
-      if (actualCurrentTemp < (currentTargetTemp - hysteresis)) {
-        heater_is_on = true;
-      } else if (actualCurrentTemp > (currentTargetTemp + hysteresis)) {
-        heater_is_on = false;
+      // --- LÓGICA DE INÍCIO DA CONTAGEM DO TEMPO ---
+      // Se a temperatura alvo ainda não foi atingida para o timing, verifique se ela foi agora
+      if (!setpointReachedForTiming) {
+          float band_tolerance = 1.0; // Tolerância de 1 grau C (ex: entre 66C e 68C para alvo 67C)
+          if (actualCurrentTemp >= (currentTargetTemp - band_tolerance) && actualCurrentTemp <= (currentTargetTemp + band_tolerance)) {
+              setpointReachedForTiming = true;
+              stepStartTimeMillis = millis(); // INICIA A CONTAGEM AQUI!
+              Serial.printf("ControlTask: Setpoint %dC atingido! Iniciando contagem de %d minutos.\n", currentTargetTemp, currentDurationMinutes);
+          }
       }
 
-      // Definir o duty cycle do PWM
-      int calculated_duty_cycle = (heater_is_on) ? ((1 << statechart.getPwm_resolution_bits()) - 1) : 0; // Max duty cycle ou 0
-      callback.controlHeaterPWM(calculated_duty_cycle); // Setar PWM
+      // Calcula o Tempo Restante: Isso só faz a contagem regressiva se o setpoint foi atingido
+      // Caso contrário, ele mantém o valor total da duração para exibição ("Aguardando...")
+      int remainingTimeSeconds; 
+      int displayMinutes;
+      int displaySeconds;
+
+      if (setpointReachedForTiming) {
+          unsigned long elapsedTimeMillis = millis() - stepStartTimeMillis;
+          remainingTimeSeconds = (currentDurationMinutes * 60) - (elapsedTimeMillis / 1000);
+          if (remainingTimeSeconds < 0) remainingTimeSeconds = 0; // Não deixa tempo negativo
+
+          displayMinutes = remainingTimeSeconds / 60;
+          displaySeconds = remainingTimeSeconds % 60;
+      } else { 
+          // Se ainda está em fase de rampa, exibe a duração total como "tempo restante"
+          remainingTimeSeconds = currentDurationMinutes * 60; 
+          displayMinutes = remainingTimeSeconds / 60;
+          displaySeconds = remainingTimeSeconds % 60;
+      }
+      
+      // --- CALCULA E APLICA O PID ---
+      myPID.Compute(); // Calcula o PID e atualiza a variável 'Output'
+      int calculated_duty_cycle = (int)Output; 
+      callback.controlHeaterPWM(calculated_duty_cycle); // Aplica o duty cycle calculado pelo PID
 
       // Atualizar Display de Status Periodicamente (a cada 1 segundo)
       static unsigned long lastDisplayUpdate = 0;
-      if (millis() - lastDisplayUpdate > 1000) {
+      if (millis() - lastDisplayUpdate >= 1000) { // Usar >= para garantir que não perca o tick
         lastDisplayUpdate = millis();
         const Recipe& recipeForDisplay = recipes[activeRecipeIdx];
         const char* stepNameForDisplay;
@@ -523,40 +556,38 @@ void controlTask(void *pvParameters) {
         } else {
           stepNameForDisplay = recipeForDisplay.steps[activeStepIdx].name.c_str();
         }
-        
-        callback.showProcessStatus(static_cast<sc_integer>(actualCurrentTemp), currentTargetTemp, 
-                              displayMinutes, displaySeconds,
-                              const_cast<sc_string>(stepNameForDisplay), 
-                              activeStepIdx + 1, (activeRecipeIdx == 4 ? statechart.getCustom_num_steps() : recipeForDisplay.numSteps));
+
+        callback.showProcessStatus(
+            static_cast<sc_integer>(actualCurrentTemp), 
+            currentTargetTemp, 
+            displayMinutes, 
+            displaySeconds,
+            const_cast<sc_string>(stepNameForDisplay), 
+            activeStepIdx + 1, 
+            (activeRecipeIdx == 4 ? statechart.getCustom_num_steps() : recipeForDisplay.numSteps),
+            !setpointReachedForTiming // <--- A flag do isRamping == true se está na fase da rampa
+        );
       }
 
       // --- Detecção de Término de Etapa ---
-      // Agora usa a temperatura REAL (ou a última lida, se não houver um sensor de verdade)
-      bool tempReached = (actualCurrentTemp >= currentTargetTemp - 0.5 && actualCurrentTemp <= currentTargetTemp + 0.5); // Dentro de uma faixa
-      bool durationPassed = (remainingTimeSeconds == 0); // Duraçao passou se remainingTimeSeconds é 0
-
-      if (durationPassed) {
+      // A etapa só termina SE O SETPOINT FOI ATINGIDO E O TEMPO CHEGOU A ZERO.
+      if (setpointReachedForTiming && remainingTimeSeconds == 0) { 
         Serial.println("ControlTask: ETAPA CONCLUIDA! Disparando step_finished.");
-        stepActive = false;
-        heater_is_on = false;
-        callback.controlHeaterPWM(0);
-        statechart.raiseStep_finished();
-      
-      } else { // Se a etapa não está ativa (processo parado/abortado/não iniciado)
-        // Se stepActive virar false (por abort ou fim da etapa), vou querer garantir que o PWM seja desligado
-        // Se stepActive ainda for true, a lógica de histerese de acima já está controlando o PWM
-        // Então esse else é mais para quando stepActive é false e o loop continua rodando
-        if (!stepActive) { // Essa verificação é para evitar que o PWM seja desligado constantemente
-             heater_is_on = false;
-             callback.controlHeaterPWM(0);
-        }
+        stepActive = false; // A etapa terminou
+        myPID.SetMode(MANUAL); // Coloca o PID em modo manual
+        Output = 0; // Força a saída do PID para 0
+        callback.controlHeaterPWM(0); // Garante que o PWM seja 0
+        // TODO: Desligar mixer se estiver ligado
+        statechart.raiseStep_finished(); // Dispara o evento de fim de etapa
       }
-    } else { // Se a etapa não está ativa (processo parado/abortado/não iniciado)
-       heater_is_on = false;
-       callback.controlHeaterPWM(0); // Garante que o PWM esteja desligado quando não tem etapa ativa
+    } else { // SE O PROCESSO NÃO ESTÁ ATIVO (ex: antes de iniciar, ou após terminar/abortar)
+        // Garante que o aquecedor esteja desligado
+        myPID.SetMode(MANUAL); // Certifica-se que o PID está desligado
+        Output = 0; // Força a saída do PID para 0
+        callback.controlHeaterPWM(0); // Garante que o PWM esteja desligado quando não tem etapa ativa
     }
 
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS); // Roda o ciclo de controle a cada 100ms
   }
 }
 

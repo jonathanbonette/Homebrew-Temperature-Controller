@@ -590,7 +590,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				
 				virtual sc_integer getCurrentStepIndex() = 0;
 				
-				virtual void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) = 0;
+				virtual void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps, sc_boolean isRamping) = 0;
 				
 				virtual void controlHeaterPWM(sc_integer duty_cycle) = 0;
 				
