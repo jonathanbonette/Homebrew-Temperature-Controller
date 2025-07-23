@@ -63,6 +63,13 @@ typedef enum  {
 	start_first_step,
 	step_finished,
 	finished_process,
+	keypad_input_confirm,
+	keypad_input_cancel,
+	go_to_loop,
+	temp_finished,
+	loop_finished,
+	start_recipe_custom,
+	go_to_menu,
 	Statechart_main_region_INIT_SYSTEM_time_event_0,
 	Statechart_main_region_FINISHED_MESSAGE_time_event_0
 } StatechartEventName;
@@ -248,6 +255,41 @@ class SctEvent__finished_process : public SctEvent
 	public:
 		SctEvent__finished_process(StatechartEventName name_) : SctEvent(name_){};
 };
+class SctEvent__keypad_input_confirm : public SctEvent
+{
+	public:
+		SctEvent__keypad_input_confirm(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__keypad_input_cancel : public SctEvent
+{
+	public:
+		SctEvent__keypad_input_cancel(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__go_to_loop : public SctEvent
+{
+	public:
+		SctEvent__go_to_loop(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__temp_finished : public SctEvent
+{
+	public:
+		SctEvent__temp_finished(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__loop_finished : public SctEvent
+{
+	public:
+		SctEvent__loop_finished(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__start_recipe_custom : public SctEvent
+{
+	public:
+		SctEvent__start_recipe_custom(StatechartEventName name_) : SctEvent(name_){};
+};
+class SctEvent__go_to_menu : public SctEvent
+{
+	public:
+		SctEvent__go_to_menu(StatechartEventName name_) : SctEvent(name_){};
+};
 class TimedSctEvent : public SctEvent
 {
 	public:
@@ -267,11 +309,11 @@ class TimedSctEvent : public SctEvent
 #define SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_FINISH_PROCESS 0
 #define SCVI_MAIN_REGION_STANDARD_PROCESS_STANDARD_PROCESS_CONTROL_PROCESS_LOOP 0
 #define SCVI_MAIN_REGION_CUSTOM_SETUP 0
-#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TEMPERATURE 0
-#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TIME 0
-#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TEMPERATURE_2 0
-#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TIME_2 0
-#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_START_SETUP_PROCESS 0
+#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_CUSTOM_SETUP_COMPLETE 0
+#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_NUM_STEPS 0
+#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS 0
+#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS_LOOP_STEPS_TEMP 0
+#define SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS_LOOP_STEPS_TIME 0
 #define SCVI_MAIN_REGION_INIT_SYSTEM 0
 #define SCVI_MAIN_REGION_RECIPE_1 0
 #define SCVI_MAIN_REGION_RECIPE_2 0
@@ -300,11 +342,11 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 			main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS,
 			main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP,
 			main_region_CUSTOM_SETUP,
-			main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE,
-			main_region_CUSTOM_SETUP_custom_setup_SET_TIME,
-			main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2,
-			main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2,
-			main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS,
+			main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE,
+			main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS,
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS,
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP,
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME,
 			main_region_INIT_SYSTEM,
 			main_region_RECIPE_1,
 			main_region_RECIPE_2,
@@ -413,6 +455,27 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		/*! Raises the in event 'finished_process' that is defined in the default interface scope. */
 		void raiseFinished_process();
 		
+		/*! Raises the in event 'keypad_input_confirm' that is defined in the default interface scope. */
+		void raiseKeypad_input_confirm();
+		
+		/*! Raises the in event 'keypad_input_cancel' that is defined in the default interface scope. */
+		void raiseKeypad_input_cancel();
+		
+		/*! Raises the in event 'go_to_loop' that is defined in the default interface scope. */
+		void raiseGo_to_loop();
+		
+		/*! Raises the in event 'temp_finished' that is defined in the default interface scope. */
+		void raiseTemp_finished();
+		
+		/*! Raises the in event 'loop_finished' that is defined in the default interface scope. */
+		void raiseLoop_finished();
+		
+		/*! Raises the in event 'start_recipe_custom' that is defined in the default interface scope. */
+		void raiseStart_recipe_custom();
+		
+		/*! Raises the in event 'go_to_menu' that is defined in the default interface scope. */
+		void raiseGo_to_menu();
+		
 		/*! Gets the value of the variable 'output' that is defined in the default interface scope. */
 		sc_integer getOutput() const;
 		/*! Sets the value of the variable 'output' that is defined in the default interface scope. */
@@ -449,6 +512,30 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		sc_integer getSemaphore_green_pin() const;
 		/*! Sets the value of the variable 'semaphore_green_pin' that is defined in the default interface scope. */
 		void setSemaphore_green_pin(sc_integer semaphore_green_pin);
+		/*! Gets the value of the variable 'heater_pwm_pin' that is defined in the default interface scope. */
+		sc_integer getHeater_pwm_pin() const;
+		/*! Sets the value of the variable 'heater_pwm_pin' that is defined in the default interface scope. */
+		void setHeater_pwm_pin(sc_integer heater_pwm_pin);
+		/*! Gets the value of the variable 'pwm_frequency' that is defined in the default interface scope. */
+		sc_integer getPwm_frequency() const;
+		/*! Sets the value of the variable 'pwm_frequency' that is defined in the default interface scope. */
+		void setPwm_frequency(sc_integer pwm_frequency);
+		/*! Gets the value of the variable 'pwm_resolution_bits' that is defined in the default interface scope. */
+		sc_integer getPwm_resolution_bits() const;
+		/*! Sets the value of the variable 'pwm_resolution_bits' that is defined in the default interface scope. */
+		void setPwm_resolution_bits(sc_integer pwm_resolution_bits);
+		/*! Gets the value of the variable 'custom_num_steps' that is defined in the default interface scope. */
+		sc_integer getCustom_num_steps() const;
+		/*! Sets the value of the variable 'custom_num_steps' that is defined in the default interface scope. */
+		void setCustom_num_steps(sc_integer custom_num_steps);
+		/*! Gets the value of the variable 'current_custom_step_idx' that is defined in the default interface scope. */
+		sc_integer getCurrent_custom_step_idx() const;
+		/*! Sets the value of the variable 'current_custom_step_idx' that is defined in the default interface scope. */
+		void setCurrent_custom_step_idx(sc_integer current_custom_step_idx);
+		/*! Gets the value of the variable 'received_value' that is defined in the default interface scope. */
+		sc_integer getReceived_value() const;
+		/*! Sets the value of the variable 'received_value' that is defined in the default interface scope. */
+		void setReceived_value(sc_integer received_value);
 		//! Inner class for default interface scope operation callbacks.
 		class OperationCallback
 		{
@@ -474,6 +561,8 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				virtual void pinMode(sc_integer pin, sc_integer mode) = 0;
 				
 				virtual void beginWaterSensor() = 0;
+				
+				virtual void setupHeaterPWM() = 0;
 				
 				virtual void showStartup() = 0;
 				
@@ -502,6 +591,32 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 				virtual sc_integer getCurrentStepIndex() = 0;
 				
 				virtual void showProcessStatus(sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps) = 0;
+				
+				virtual void controlHeaterPWM(sc_integer duty_cycle) = 0;
+				
+				virtual void showCustomSetup_GetNumSteps() = 0;
+				
+				virtual sc_boolean isValidNumSteps(sc_integer value) = 0;
+				
+				virtual void setNumCustomSteps(sc_integer value) = 0;
+				
+				virtual void initializeStepDataCollection() = 0;
+				
+				virtual void showCustomSetup_PromptTemp(sc_integer stepIdx) = 0;
+				
+				virtual void showCustomSetup_PromptTime(sc_integer stepIdx) = 0;
+				
+				virtual sc_boolean isValidDataInput(sc_integer value) = 0;
+				
+				virtual void processTemperature(sc_integer stepIdx, sc_integer value) = 0;
+				
+				virtual void processDuration(sc_integer stepIdx, sc_integer value) = 0;
+				
+				virtual sc_boolean hasMoreStepsToDefine() = 0;
+				
+				virtual void advanceToNextCustomStep() = 0;
+				
+				virtual void showCustomSetup_Summary() = 0;
 				
 				virtual void showFinishedMessage() = 0;
 				
@@ -667,6 +782,9 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		/*! Raises the in event 'recipe_5_process' that is defined in the default interface scope. */
 		void internal_raiseRecipe_5_process();
 		sc_boolean recipe_5_process_raised;
+		sc_integer heater_pwm_pin;
+		sc_integer pwm_frequency;
+		sc_integer pwm_resolution_bits;
 		/*! Raises the in event 'start_first_step' that is defined in the default interface scope. */
 		void internal_raiseStart_first_step();
 		sc_boolean start_first_step_raised;
@@ -676,6 +794,30 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		/*! Raises the in event 'finished_process' that is defined in the default interface scope. */
 		void internal_raiseFinished_process();
 		sc_boolean finished_process_raised;
+		sc_integer custom_num_steps;
+		sc_integer current_custom_step_idx;
+		sc_integer received_value;
+		/*! Raises the in event 'keypad_input_confirm' that is defined in the default interface scope. */
+		void internal_raiseKeypad_input_confirm();
+		sc_boolean keypad_input_confirm_raised;
+		/*! Raises the in event 'keypad_input_cancel' that is defined in the default interface scope. */
+		void internal_raiseKeypad_input_cancel();
+		sc_boolean keypad_input_cancel_raised;
+		/*! Raises the in event 'go_to_loop' that is defined in the default interface scope. */
+		void internal_raiseGo_to_loop();
+		sc_boolean go_to_loop_raised;
+		/*! Raises the in event 'temp_finished' that is defined in the default interface scope. */
+		void internal_raiseTemp_finished();
+		sc_boolean temp_finished_raised;
+		/*! Raises the in event 'loop_finished' that is defined in the default interface scope. */
+		void internal_raiseLoop_finished();
+		sc_boolean loop_finished_raised;
+		/*! Raises the in event 'start_recipe_custom' that is defined in the default interface scope. */
+		void internal_raiseStart_recipe_custom();
+		sc_boolean start_recipe_custom_raised;
+		/*! Raises the in event 'go_to_menu' that is defined in the default interface scope. */
+		void internal_raiseGo_to_menu();
+		sc_boolean go_to_menu_raised;
 		sc_boolean iface_dispatch_event(statechart_events::SctEvent * event);
 		
 		
@@ -705,11 +847,11 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void enact_main_region_STANDARD_PROCESS_standard_process_START_PROCESS();
 		void enact_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS();
 		void enact_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
-		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
-		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
-		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
-		void enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
-		void enact_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
+		void enact_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE();
+		void enact_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
+		void enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+		void enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
+		void enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
 		void enact_main_region_INIT_SYSTEM();
 		void enact_main_region_RECIPE_1();
 		void enact_main_region_RECIPE_2();
@@ -727,11 +869,11 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void enseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_default();
 		void enseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_default();
 		void enseq_main_region_CUSTOM_SETUP_default();
-		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_default();
-		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_default();
-		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_default();
-		void enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_default();
-		void enseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_default();
 		void enseq_main_region_INIT_SYSTEM_default();
 		void enseq_main_region_RECIPE_1_default();
 		void enseq_main_region_RECIPE_2_default();
@@ -742,6 +884,7 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void enseq_main_region_default();
 		void enseq_main_region_STANDARD_PROCESS_standard_process_default();
 		void enseq_main_region_CUSTOM_SETUP_custom_setup_default();
+		void enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_default();
 		void exseq_main_region_IDLE();
 		void exseq_main_region_MENU();
 		void exseq_main_region_EXIT();
@@ -750,11 +893,11 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void exseq_main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS();
 		void exseq_main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP();
 		void exseq_main_region_CUSTOM_SETUP();
-		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
-		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
-		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
-		void exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
-		void exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
 		void exseq_main_region_INIT_SYSTEM();
 		void exseq_main_region_RECIPE_1();
 		void exseq_main_region_RECIPE_2();
@@ -765,19 +908,22 @@ class Statechart : public sc::timer::TimedInterface, public sc::EventDrivenInter
 		void exseq_main_region();
 		void exseq_main_region_STANDARD_PROCESS_standard_process();
 		void exseq_main_region_CUSTOM_SETUP_custom_setup();
+		void exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps();
 		void react_main_region_STANDARD_PROCESS_standard_process__entry_Default();
 		void react_main_region_CUSTOM_SETUP_custom_setup__entry_Default();
+		void react_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps__entry_Default();
 		void react_main_region__entry_Default();
 		sc_integer main_region_IDLE_react(const sc_integer transitioned_before);
 		sc_integer main_region_MENU_react(const sc_integer transitioned_before);
 		sc_integer main_region_STANDARD_PROCESS_standard_process_START_PROCESS_react(const sc_integer transitioned_before);
 		sc_integer main_region_STANDARD_PROCESS_standard_process_FINISH_PROCESS_react(const sc_integer transitioned_before);
 		sc_integer main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_react(const sc_integer transitioned_before);
-		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_react(const sc_integer transitioned_before);
-		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TIME_react(const sc_integer transitioned_before);
-		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_react(const sc_integer transitioned_before);
-		sc_integer main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_react(const sc_integer transitioned_before);
-		sc_integer main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_react(const sc_integer transitioned_before);
+		sc_integer main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_react(const sc_integer transitioned_before);
 		sc_integer main_region_INIT_SYSTEM_react(const sc_integer transitioned_before);
 		sc_integer main_region_RECIPE_1_react(const sc_integer transitioned_before);
 		sc_integer main_region_RECIPE_2_react(const sc_integer transitioned_before);
