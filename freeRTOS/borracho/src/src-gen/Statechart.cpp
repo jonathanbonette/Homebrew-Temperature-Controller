@@ -48,9 +48,22 @@ Statechart::Statechart() :
 	recipe_3_process_raised(false),
 	recipe_4_process_raised(false),
 	recipe_5_process_raised(false),
+	heater_pwm_pin(17),
+	pwm_frequency(5000),
+	pwm_resolution_bits(10),
 	start_first_step_raised(false),
 	step_finished_raised(false),
 	finished_process_raised(false),
+	custom_num_steps(0),
+	current_custom_step_idx(0),
+	received_value(0),
+	keypad_input_confirm_raised(false),
+	keypad_input_cancel_raised(false),
+	go_to_loop_raised(false),
+	temp_finished_raised(false),
+	loop_finished_raised(false),
+	start_recipe_custom_raised(false),
+	go_to_menu_raised(false),
 	timerService(sc_null),
 	ifaceOperationCallback(sc_null),
 	isExecuting(false)
@@ -124,6 +137,13 @@ sc_boolean Statechart::dispatch_event(SctEvent * event)
 		case start_first_step:
 		case step_finished:
 		case finished_process:
+		case keypad_input_confirm:
+		case keypad_input_cancel:
+		case go_to_loop:
+		case temp_finished:
+		case loop_finished:
+		case start_recipe_custom:
+		case go_to_menu:
 		{
 			return iface_dispatch_event(event);
 		}
@@ -318,6 +338,41 @@ sc_boolean Statechart::iface_dispatch_event(SctEvent * event)
 			internal_raiseFinished_process();
 			break;
 		}
+		case keypad_input_confirm:
+		{
+			internal_raiseKeypad_input_confirm();
+			break;
+		}
+		case keypad_input_cancel:
+		{
+			internal_raiseKeypad_input_cancel();
+			break;
+		}
+		case go_to_loop:
+		{
+			internal_raiseGo_to_loop();
+			break;
+		}
+		case temp_finished:
+		{
+			internal_raiseTemp_finished();
+			break;
+		}
+		case loop_finished:
+		{
+			internal_raiseLoop_finished();
+			break;
+		}
+		case start_recipe_custom:
+		{
+			internal_raiseStart_recipe_custom();
+			break;
+		}
+		case go_to_menu:
+		{
+			internal_raiseGo_to_menu();
+			break;
+		}
 		default:
 			delete event;
 			return false;
@@ -428,32 +483,32 @@ sc_boolean Statechart::isStateActive(StatechartStates state) const
 		}
 		case main_region_CUSTOM_SETUP :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP] >= main_region_CUSTOM_SETUP && stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP] <= main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP] >= main_region_CUSTOM_SETUP && stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP] <= main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE :
+		case main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TEMPERATURE] == main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_CUSTOM_SETUP_COMPLETE] == main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME :
+		case main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TIME] == main_region_CUSTOM_SETUP_custom_setup_SET_TIME);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_NUM_STEPS] == main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TEMPERATURE_2] == main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS] >= main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS && stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS] <= main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_SET_TIME_2] == main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS_LOOP_STEPS_TEMP] == main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME :
 		{
-			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_START_SETUP_PROCESS] == main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS);
+			return (sc_boolean) (stateConfVector[SCVI_MAIN_REGION_CUSTOM_SETUP_CUSTOM_SETUP_LOOP_TEMP_TIME_STEPS_LOOP_STEPS_TIME] == main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME);
 			break;
 		}
 		case main_region_INIT_SYSTEM :
@@ -820,6 +875,76 @@ void Statechart::internal_raiseFinished_process()
 {
 	finished_process_raised = true;
 }
+/* Functions for event keypad_input_confirm in interface  */
+void Statechart::raiseKeypad_input_confirm()
+{
+	inEventQueue.push_back(new SctEvent__keypad_input_confirm(keypad_input_confirm));
+        runCycle();
+}
+void Statechart::internal_raiseKeypad_input_confirm()
+{
+	keypad_input_confirm_raised = true;
+}
+/* Functions for event keypad_input_cancel in interface  */
+void Statechart::raiseKeypad_input_cancel()
+{
+	inEventQueue.push_back(new SctEvent__keypad_input_cancel(keypad_input_cancel));
+        runCycle();
+}
+void Statechart::internal_raiseKeypad_input_cancel()
+{
+	keypad_input_cancel_raised = true;
+}
+/* Functions for event go_to_loop in interface  */
+void Statechart::raiseGo_to_loop()
+{
+	inEventQueue.push_back(new SctEvent__go_to_loop(go_to_loop));
+        runCycle();
+}
+void Statechart::internal_raiseGo_to_loop()
+{
+	go_to_loop_raised = true;
+}
+/* Functions for event temp_finished in interface  */
+void Statechart::raiseTemp_finished()
+{
+	inEventQueue.push_back(new SctEvent__temp_finished(temp_finished));
+        runCycle();
+}
+void Statechart::internal_raiseTemp_finished()
+{
+	temp_finished_raised = true;
+}
+/* Functions for event loop_finished in interface  */
+void Statechart::raiseLoop_finished()
+{
+	inEventQueue.push_back(new SctEvent__loop_finished(loop_finished));
+        runCycle();
+}
+void Statechart::internal_raiseLoop_finished()
+{
+	loop_finished_raised = true;
+}
+/* Functions for event start_recipe_custom in interface  */
+void Statechart::raiseStart_recipe_custom()
+{
+	inEventQueue.push_back(new SctEvent__start_recipe_custom(start_recipe_custom));
+        runCycle();
+}
+void Statechart::internal_raiseStart_recipe_custom()
+{
+	start_recipe_custom_raised = true;
+}
+/* Functions for event go_to_menu in interface  */
+void Statechart::raiseGo_to_menu()
+{
+	inEventQueue.push_back(new SctEvent__go_to_menu(go_to_menu));
+        runCycle();
+}
+void Statechart::internal_raiseGo_to_menu()
+{
+	go_to_menu_raised = true;
+}
 sc_integer Statechart::getOutput() const
 {
 	return output
@@ -910,6 +1035,66 @@ void Statechart::setSemaphore_green_pin(sc_integer semaphore_green_pin_)
 {
 	this->semaphore_green_pin = semaphore_green_pin_;
 }
+sc_integer Statechart::getHeater_pwm_pin() const
+{
+	return heater_pwm_pin
+	;
+}
+
+void Statechart::setHeater_pwm_pin(sc_integer heater_pwm_pin_)
+{
+	this->heater_pwm_pin = heater_pwm_pin_;
+}
+sc_integer Statechart::getPwm_frequency() const
+{
+	return pwm_frequency
+	;
+}
+
+void Statechart::setPwm_frequency(sc_integer pwm_frequency_)
+{
+	this->pwm_frequency = pwm_frequency_;
+}
+sc_integer Statechart::getPwm_resolution_bits() const
+{
+	return pwm_resolution_bits
+	;
+}
+
+void Statechart::setPwm_resolution_bits(sc_integer pwm_resolution_bits_)
+{
+	this->pwm_resolution_bits = pwm_resolution_bits_;
+}
+sc_integer Statechart::getCustom_num_steps() const
+{
+	return custom_num_steps
+	;
+}
+
+void Statechart::setCustom_num_steps(sc_integer custom_num_steps_)
+{
+	this->custom_num_steps = custom_num_steps_;
+}
+sc_integer Statechart::getCurrent_custom_step_idx() const
+{
+	return current_custom_step_idx
+	;
+}
+
+void Statechart::setCurrent_custom_step_idx(sc_integer current_custom_step_idx_)
+{
+	this->current_custom_step_idx = current_custom_step_idx_;
+}
+sc_integer Statechart::getReceived_value() const
+{
+	return received_value
+	;
+}
+
+void Statechart::setReceived_value(sc_integer received_value_)
+{
+	this->received_value = received_value_;
+}
 void Statechart::setOperationCallback(OperationCallback* operationCallback)
 {
 	ifaceOperationCallback = operationCallback;
@@ -976,39 +1161,39 @@ void Statechart::enact_main_region_STANDARD_PROCESS_standard_process_CONTROL_PRO
 	ifaceOperationCallback->startNextRecipeStep(ifaceOperationCallback->getCurrentRecipeIndex());
 }
 
-/* Entry action for state 'SET_TEMPERATURE'. */
-void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE()
+/* Entry action for state 'CUSTOM_SETUP_COMPLETE'. */
+void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE()
 {
-	/* Entry action for state 'SET_TEMPERATURE'. */
-	ifaceOperationCallback->setTemperature(33);
+	/* Entry action for state 'CUSTOM_SETUP_COMPLETE'. */
+	ifaceOperationCallback->showCustomSetup_Summary();
 }
 
-/* Entry action for state 'SET_TIME'. */
-void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME()
+/* Entry action for state 'NUM_STEPS'. */
+void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS()
 {
-	/* Entry action for state 'SET_TIME'. */
-	ifaceOperationCallback->setTime(10);
+	/* Entry action for state 'NUM_STEPS'. */
+	ifaceOperationCallback->showCustomSetup_GetNumSteps();
 }
 
-/* Entry action for state 'SET_TEMPERATURE_2'. */
-void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2()
+/* Entry action for state 'LOOP_TEMP_TIME_STEPS'. */
+void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS()
 {
-	/* Entry action for state 'SET_TEMPERATURE_2'. */
-	ifaceOperationCallback->setTemperature(77);
+	/* Entry action for state 'LOOP_TEMP_TIME_STEPS'. */
+	ifaceOperationCallback->initializeStepDataCollection();
 }
 
-/* Entry action for state 'SET_TIME_2'. */
-void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2()
+/* Entry action for state 'TEMP'. */
+void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP()
 {
-	/* Entry action for state 'SET_TIME_2'. */
-	ifaceOperationCallback->setTime(15);
+	/* Entry action for state 'TEMP'. */
+	ifaceOperationCallback->showCustomSetup_PromptTemp(current_custom_step_idx);
 }
 
-/* Entry action for state 'START_SETUP_PROCESS'. */
-void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS()
+/* Entry action for state 'TIME'. */
+void Statechart::enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME()
 {
-	/* Entry action for state 'START_SETUP_PROCESS'. */
-	ifaceOperationCallback->initializeSetupProcess();
+	/* Entry action for state 'TIME'. */
+	ifaceOperationCallback->showCustomSetup_PromptTime(current_custom_step_idx);
 }
 
 /* Entry action for state 'INIT_SYSTEM'. */
@@ -1019,6 +1204,7 @@ void Statechart::enact_main_region_INIT_SYSTEM()
 	ifaceOperationCallback->pinMode(led_pin, output);
 	ifaceOperationCallback->digitalWrite(led_pin, high);
 	ifaceOperationCallback->beginWaterSensor();
+	ifaceOperationCallback->setupHeaterPWM();
 }
 
 /* Entry action for state 'RECIPE_1'. */
@@ -1141,44 +1327,44 @@ void Statechart::enseq_main_region_CUSTOM_SETUP_default()
 	enseq_main_region_CUSTOM_SETUP_custom_setup_default();
 }
 
-/* 'default' enter sequence for state SET_TEMPERATURE */
-void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_default()
+/* 'default' enter sequence for state CUSTOM_SETUP_COMPLETE */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_default()
 {
-	/* 'default' enter sequence for state SET_TEMPERATURE */
-	enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
-	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE;
+	/* 'default' enter sequence for state CUSTOM_SETUP_COMPLETE */
+	enact_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE();
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE;
 }
 
-/* 'default' enter sequence for state SET_TIME */
-void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_default()
+/* 'default' enter sequence for state NUM_STEPS */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_default()
 {
-	/* 'default' enter sequence for state SET_TIME */
-	enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
-	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_SET_TIME;
+	/* 'default' enter sequence for state NUM_STEPS */
+	enact_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS;
 }
 
-/* 'default' enter sequence for state SET_TEMPERATURE_2 */
-void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_default()
+/* 'default' enter sequence for state LOOP_TEMP_TIME_STEPS */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_default()
 {
-	/* 'default' enter sequence for state SET_TEMPERATURE_2 */
-	enact_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
-	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2;
+	/* 'default' enter sequence for state LOOP_TEMP_TIME_STEPS */
+	enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+	enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_default();
 }
 
-/* 'default' enter sequence for state SET_TIME_2 */
-void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_default()
+/* 'default' enter sequence for state TEMP */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_default()
 {
-	/* 'default' enter sequence for state SET_TIME_2 */
-	enact_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
-	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2;
+	/* 'default' enter sequence for state TEMP */
+	enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP;
 }
 
-/* 'default' enter sequence for state START_SETUP_PROCESS */
-void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_default()
+/* 'default' enter sequence for state TIME */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_default()
 {
-	/* 'default' enter sequence for state START_SETUP_PROCESS */
-	enact_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
-	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS;
+	/* 'default' enter sequence for state TIME */
+	enact_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME;
 }
 
 /* 'default' enter sequence for state INIT_SYSTEM */
@@ -1258,6 +1444,13 @@ void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_default()
 	react_main_region_CUSTOM_SETUP_custom_setup__entry_Default();
 }
 
+/* 'default' enter sequence for region loop_steps */
+void Statechart::enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_default()
+{
+	/* 'default' enter sequence for region loop_steps */
+	react_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps__entry_Default();
+}
+
 /* Default exit sequence for state IDLE */
 void Statechart::exseq_main_region_IDLE()
 {
@@ -1316,39 +1509,40 @@ void Statechart::exseq_main_region_CUSTOM_SETUP()
 	stateConfVector[0] = Statechart_last_state;
 }
 
-/* Default exit sequence for state SET_TEMPERATURE */
-void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE()
+/* Default exit sequence for state CUSTOM_SETUP_COMPLETE */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE()
 {
-	/* Default exit sequence for state SET_TEMPERATURE */
+	/* Default exit sequence for state CUSTOM_SETUP_COMPLETE */
 	stateConfVector[0] = main_region_CUSTOM_SETUP;
 }
 
-/* Default exit sequence for state SET_TIME */
-void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME()
+/* Default exit sequence for state NUM_STEPS */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS()
 {
-	/* Default exit sequence for state SET_TIME */
+	/* Default exit sequence for state NUM_STEPS */
 	stateConfVector[0] = main_region_CUSTOM_SETUP;
 }
 
-/* Default exit sequence for state SET_TEMPERATURE_2 */
-void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2()
+/* Default exit sequence for state LOOP_TEMP_TIME_STEPS */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS()
 {
-	/* Default exit sequence for state SET_TEMPERATURE_2 */
+	/* Default exit sequence for state LOOP_TEMP_TIME_STEPS */
+	exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps();
 	stateConfVector[0] = main_region_CUSTOM_SETUP;
 }
 
-/* Default exit sequence for state SET_TIME_2 */
-void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2()
+/* Default exit sequence for state TEMP */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP()
 {
-	/* Default exit sequence for state SET_TIME_2 */
-	stateConfVector[0] = main_region_CUSTOM_SETUP;
+	/* Default exit sequence for state TEMP */
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS;
 }
 
-/* Default exit sequence for state START_SETUP_PROCESS */
-void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS()
+/* Default exit sequence for state TIME */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME()
 {
-	/* Default exit sequence for state START_SETUP_PROCESS */
-	stateConfVector[0] = main_region_CUSTOM_SETUP;
+	/* Default exit sequence for state TIME */
+	stateConfVector[0] = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS;
 }
 
 /* Default exit sequence for state INIT_SYSTEM */
@@ -1449,29 +1643,29 @@ void Statechart::exseq_main_region()
 			exseq_main_region_CUSTOM_SETUP();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE :
+		case main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME :
+		case main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
 			break;
 		}
 		case main_region_INIT_SYSTEM :
@@ -1550,29 +1744,52 @@ void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup()
 	/* Handle exit of all possible states (of Statechart.main_region.CUSTOM_SETUP.custom_setup) at position 0... */
 	switch(stateConfVector[ 0 ])
 	{
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE :
+		case main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME :
+		case main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME :
 		{
-			exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
+			break;
+		}
+		default:
+			/* do nothing */
+			break;
+	}
+}
+
+/* Default exit sequence for region loop_steps */
+void Statechart::exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps()
+{
+	/* Default exit sequence for region loop_steps */
+	/* Handle exit of all possible states (of Statechart.main_region.CUSTOM_SETUP.custom_setup.LOOP_TEMP_TIME_STEPS.loop_steps) at position 0... */
+	switch(stateConfVector[ 0 ])
+	{
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP :
+		{
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
+			break;
+		}
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME :
+		{
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME();
 			break;
 		}
 		default:
@@ -1592,7 +1809,14 @@ void Statechart::react_main_region_STANDARD_PROCESS_standard_process__entry_Defa
 void Statechart::react_main_region_CUSTOM_SETUP_custom_setup__entry_Default()
 {
 	/* Default react sequence for initial entry  */
-	enseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_default();
+	enseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_default();
+}
+
+/* Default react sequence for initial entry  */
+void Statechart::react_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps__entry_Default()
+{
+	/* Default react sequence for initial entry  */
+	enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_default();
 }
 
 /* Default react sequence for initial entry  */
@@ -1636,48 +1860,40 @@ sc_integer Statechart::main_region_MENU_react(const sc_integer transitioned_befo
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (custom_setup_raised)
+		if (recipe_1_raised)
 		{ 
 			exseq_main_region_MENU();
-			enseq_main_region_CUSTOM_SETUP_default();
+			enseq_main_region_RECIPE_1_default();
 			transitioned_after = 0;
 		}  else
 		{
-			if (recipe_1_raised)
+			if (recipe_2_raised)
 			{ 
 				exseq_main_region_MENU();
-				enseq_main_region_RECIPE_1_default();
+				enseq_main_region_RECIPE_2_default();
 				transitioned_after = 0;
 			}  else
 			{
-				if (recipe_2_raised)
+				if (recipe_3_raised)
 				{ 
 					exseq_main_region_MENU();
-					enseq_main_region_RECIPE_2_default();
+					enseq_main_region_RECIPE_3_default();
 					transitioned_after = 0;
 				}  else
 				{
-					if (recipe_3_raised)
+					if (recipe_4_raised)
 					{ 
 						exseq_main_region_MENU();
-						enseq_main_region_RECIPE_3_default();
+						enseq_main_region_RECIPE_4_default();
 						transitioned_after = 0;
 					}  else
 					{
-						if (recipe_4_raised)
+						if (recipe_5_raised)
 						{ 
 							exseq_main_region_MENU();
-							enseq_main_region_RECIPE_4_default();
+							enseq_main_region_RECIPE_5_default();
 							transitioned_after = 0;
-						}  else
-						{
-							if (recipe_5_raised)
-							{ 
-								exseq_main_region_MENU();
-								enseq_main_region_RECIPE_5_default();
-								transitioned_after = 0;
-							} 
-						}
+						} 
 					}
 				}
 			}
@@ -1763,78 +1979,15 @@ sc_integer Statechart::main_region_STANDARD_PROCESS_standard_process_CONTROL_PRO
 	return transitioned_after;
 }
 
-sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_react(const sc_integer transitioned_before) {
-	/* The reactions of state SET_TEMPERATURE. */
+sc_integer Statechart::main_region_CUSTOM_SETUP_react(const sc_integer transitioned_before) {
+	/* The reactions of state CUSTOM_SETUP. */
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (set_time_raised)
-		{ 
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE();
-			enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_default();
-			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_SET_TIME_react(const sc_integer transitioned_before) {
-	/* The reactions of state SET_TIME. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (set_temperature_2_raised)
-		{ 
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME();
-			enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_default();
-			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_react(const sc_integer transitioned_before) {
-	/* The reactions of state SET_TEMPERATURE_2. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (set_time_2_raised)
-		{ 
-			exseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2();
-			enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_default();
-			transitioned_after = 0;
-		} 
-	} 
-	/* If no transition was taken */
-	if ((transitioned_after) == (transitioned_before))
-	{ 
-		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
-	} 
-	return transitioned_after;
-}
-
-sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_react(const sc_integer transitioned_before) {
-	/* The reactions of state SET_TIME_2. */
-	sc_integer transitioned_after = transitioned_before;
-	if ((transitioned_after) < (0))
-	{ 
-		if (standard_process_custom_raised)
+		if (keypad_input_cancel_raised)
 		{ 
 			exseq_main_region_CUSTOM_SETUP();
-			enseq_main_region_STANDARD_PROCESS_default();
+			enseq_main_region_MENU_default();
 			transitioned_after = 0;
 		} 
 	} 
@@ -1847,15 +2000,52 @@ sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_react(co
 	return transitioned_after;
 }
 
-sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_react(const sc_integer transitioned_before) {
-	/* The reactions of state START_SETUP_PROCESS. */
+sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_react(const sc_integer transitioned_before) {
+	/* The reactions of state CUSTOM_SETUP_COMPLETE. */
 	sc_integer transitioned_after = transitioned_before;
 	if ((transitioned_after) < (0))
 	{ 
-		if (set_temperature_raised)
+		if (start_recipe_custom_raised)
 		{ 
-			exseq_main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS();
-			enseq_main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_default();
+			exseq_main_region_CUSTOM_SETUP();
+			inEventQueue.push_back(new SctEvent__recipe_5_process(recipe_5_process));
+			;
+			enseq_main_region_STANDARD_PROCESS_default();
+			transitioned_after = 0;
+		}  else
+		{
+			if (go_to_menu_raised)
+			{ 
+				exseq_main_region_CUSTOM_SETUP();
+				inEventQueue.push_back(new SctEvent__recipe_back_menu(recipe_back_menu));
+				;
+				enseq_main_region_MENU_default();
+				transitioned_after = 0;
+			} 
+		}
+	} 
+	/* If no transition was taken */
+	if ((transitioned_after) == (transitioned_before))
+	{ 
+		/* then execute local reactions. */
+		transitioned_after = main_region_CUSTOM_SETUP_react(transitioned_before);
+	} 
+	return transitioned_after;
+}
+
+sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_react(const sc_integer transitioned_before) {
+	/* The reactions of state NUM_STEPS. */
+	sc_integer transitioned_after = transitioned_before;
+	if ((transitioned_after) < (0))
+	{ 
+		if (((keypad_input_confirm_raised)) && ((ifaceOperationCallback->isValidNumSteps(received_value))))
+		{ 
+			exseq_main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS();
+			ifaceOperationCallback->setNumCustomSteps(received_value);
+			inEventQueue.push_back(new SctEvent__go_to_loop(go_to_loop));
+			;
+			enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_default();
+			main_region_CUSTOM_SETUP_react(0);
 			transitioned_after = 0;
 		} 
 	} 
@@ -1863,7 +2053,89 @@ sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS
 	if ((transitioned_after) == (transitioned_before))
 	{ 
 		/* then execute local reactions. */
-		transitioned_after = transitioned_before;
+		transitioned_after = main_region_CUSTOM_SETUP_react(transitioned_before);
+	} 
+	return transitioned_after;
+}
+
+sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_react(const sc_integer transitioned_before) {
+	/* The reactions of state LOOP_TEMP_TIME_STEPS. */
+	sc_integer transitioned_after = transitioned_before;
+	if ((transitioned_after) < (0))
+	{ 
+		if (((loop_finished_raised)) && ((ifaceOperationCallback->hasMoreStepsToDefine())))
+		{ 
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+			enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_default();
+			main_region_CUSTOM_SETUP_react(0);
+			transitioned_after = 0;
+		}  else
+		{
+			if (((loop_finished_raised)) && ((ifaceOperationCallback->hasMoreStepsToDefine())))
+			{ 
+				exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+				ifaceOperationCallback->advanceToNextCustomStep();
+				enseq_main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_default();
+				main_region_CUSTOM_SETUP_react(0);
+				transitioned_after = 0;
+			} 
+		}
+	} 
+	/* If no transition was taken */
+	if ((transitioned_after) == (transitioned_before))
+	{ 
+		/* then execute local reactions. */
+		transitioned_after = main_region_CUSTOM_SETUP_react(transitioned_before);
+	} 
+	return transitioned_after;
+}
+
+sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_react(const sc_integer transitioned_before) {
+	/* The reactions of state TEMP. */
+	sc_integer transitioned_after = transitioned_before;
+	if ((transitioned_after) < (0))
+	{ 
+		if (((keypad_input_confirm_raised)) && ((ifaceOperationCallback->isValidDataInput(received_value))))
+		{ 
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP();
+			ifaceOperationCallback->processTemperature(current_custom_step_idx, received_value);
+			inEventQueue.push_back(new SctEvent__temp_finished(temp_finished));
+			;
+			enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_default();
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_react(0);
+			transitioned_after = 0;
+		} 
+	} 
+	/* If no transition was taken */
+	if ((transitioned_after) == (transitioned_before))
+	{ 
+		/* then execute local reactions. */
+		transitioned_after = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_react(transitioned_before);
+	} 
+	return transitioned_after;
+}
+
+sc_integer Statechart::main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_react(const sc_integer transitioned_before) {
+	/* The reactions of state TIME. */
+	sc_integer transitioned_after = transitioned_before;
+	if ((transitioned_after) < (0))
+	{ 
+		if (((keypad_input_confirm_raised)) && ((ifaceOperationCallback->isValidDataInput(received_value))))
+		{ 
+			exseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS();
+			ifaceOperationCallback->processDuration(current_custom_step_idx, received_value);
+			inEventQueue.push_back(new SctEvent__loop_finished(loop_finished));
+			;
+			enseq_main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_default();
+			main_region_CUSTOM_SETUP_react(0);
+			transitioned_after = 0;
+		} 
+	} 
+	/* If no transition was taken */
+	if ((transitioned_after) == (transitioned_before))
+	{ 
+		/* then execute local reactions. */
+		transitioned_after = main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_react(transitioned_before);
 	} 
 	return transitioned_after;
 }
@@ -2021,7 +2293,7 @@ sc_integer Statechart::main_region_RECIPE_5_react(const sc_integer transitioned_
 			if (recipe_5_process_raised)
 			{ 
 				exseq_main_region_RECIPE_5();
-				enseq_main_region_STANDARD_PROCESS_default();
+				enseq_main_region_CUSTOM_SETUP_default();
 				transitioned_after = 0;
 			} 
 		}
@@ -2090,6 +2362,13 @@ void Statechart::clearInEvents() {
 	start_first_step_raised = false;
 	step_finished_raised = false;
 	finished_process_raised = false;
+	keypad_input_confirm_raised = false;
+	keypad_input_cancel_raised = false;
+	go_to_loop_raised = false;
+	temp_finished_raised = false;
+	loop_finished_raised = false;
+	start_recipe_custom_raised = false;
+	go_to_menu_raised = false;
 	timeEvents[0] = false;
 	timeEvents[1] = false;
 }
@@ -2126,29 +2405,24 @@ void Statechart::microStep() {
 			main_region_STANDARD_PROCESS_standard_process_CONTROL_PROCESS_LOOP_react(-1);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE :
+		case main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE :
 		{
-			main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_react(-1);
+			main_region_CUSTOM_SETUP_custom_setup_CUSTOM_SETUP_COMPLETE_react(-1);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME :
+		case main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS :
 		{
-			main_region_CUSTOM_SETUP_custom_setup_SET_TIME_react(-1);
+			main_region_CUSTOM_SETUP_custom_setup_NUM_STEPS_react(-1);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP :
 		{
-			main_region_CUSTOM_SETUP_custom_setup_SET_TEMPERATURE_2_react(-1);
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TEMP_react(-1);
 			break;
 		}
-		case main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2 :
+		case main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME :
 		{
-			main_region_CUSTOM_SETUP_custom_setup_SET_TIME_2_react(-1);
-			break;
-		}
-		case main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS :
-		{
-			main_region_CUSTOM_SETUP_custom_setup_START_SETUP_PROCESS_react(-1);
+			main_region_CUSTOM_SETUP_custom_setup_LOOP_TEMP_TIME_STEPS_loop_steps_TIME_react(-1);
 			break;
 		}
 		case main_region_INIT_SYSTEM :

@@ -8,20 +8,26 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
+// Para teste com Slave
+#include <Wire.h>
+
 // --- OBJETOS GLOBAIS ---
-Statechart statechart;          ///< Instância da máquina de estados Yakindu.
-StatechartCallback callback;    ///< Instância da classe de callbacks para operações do Yakindu.
-StatechartTimer timerService;   ///< Instância do serviço de timer para a máquina de estados.
+Statechart statechart;          ///< Instância da máquina de estados Yakindu
+StatechartCallback callback;    ///< Instância da classe de callbacks para operações do Yakindu
+StatechartTimer timerService;   ///< Instância do serviço de timer para a máquina de estados
 
 // Filas FreeRTOS para comunicação entre tarefas
-QueueHandle_t xKeypadQueue;     ///< Fila para enviar teclas lidas da keypadTask para a stateMachineTask.
-QueueHandle_t xDisplayQueue;    ///< Fila para enviar comandos de exibição para a displayTask.
-QueueHandle_t xControlQueue;    ///< Fila para comandos da controlTask.
-QueueHandle_t xSensorQueue;     ///< Fila para leitura do sensor de temperatura.
+QueueHandle_t xKeypadQueue;     ///< Fila para enviar teclas lidas da keypadTask para a stateMachineTask
+QueueHandle_t xDisplayQueue;    ///< Fila para enviar comandos de exibição para a displayTask
+QueueHandle_t xControlQueue;    ///< Fila para comandos da controlTask
+QueueHandle_t xSensorQueue;     ///< Fila para leitura do sensor de temperatura
 
 
-// Objeto para o display OLED (acessível globalmente para a displayTask)
+// Objeto para o display OLED
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// --- ENDEREÇO I2C DO SIMULADOR DE SENSOR ---
+const byte I2C_SLAVE_ADDRESS = 0x08; // Escolha um endereço I2C para o seu ESP32 escravo (pode ser qualquer um entre 0x08 e 0x77)
 
 // --- PROTÓTIPOS DAS FUNÇÕES DAS TAREFAS ---
 void keypadTask(void *pvParameters);
@@ -41,12 +47,27 @@ void setup() {
   delay(1000); // Pequeno delay para estabilização
   Serial.println("Main: Iniciando FreeRTOS Setup...");
 
-  Wire.begin(21, 22); // Inicializa I2C (SDA=21, SCL=22 para ESP32 DevKitC)
+ // 1. Inicialização do OLED (crucial, mas se der erro, pode travar o setup)
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("Main: ERRO! Falha ao inicializar o display no setup. Sistema parado."));
+    for(;;); // Trava aqui se o display for vital para o debug
+  } else {
+    display.setTextSize(1); display.setTextColor(SSD1306_WHITE); display.setCursor(0,0);
+    display.println("Main: Display OK!"); display.display(); delay(500);
+  }
+
+  // --- INICIALIZAÇÕES DE HARDWARE ---
+  // Inicializa I2C como MESTRE
+  Wire.begin(21, 22);
+  Wire.setClock(100000); // Define a frequência para 100kHz
+  Serial.println("Main: I2C Master inicializado nos pinos 21 (SDA) e 22 (SCL).");
 
   // Configura a máquina de estados com seus serviços e callbacks
   statechart.setOperationCallback(&callback);
   statechart.setTimerService(&timerService);
   callback.setStatechart(&statechart); // Passa a referência da statechart para o callback
+
+  callback.setupHeaterPWM(); // GARANTE A INICIALIZAÇÃO DO PWM!
 
   // Cria as filas FreeRTOS
   xKeypadQueue = xQueueCreate(5, sizeof(char)); // Fila para 5 caracteres do teclado
@@ -54,8 +75,6 @@ void setup() {
   xControlQueue = xQueueCreate(5, sizeof(ControlCommand)); // Fila para controles de seleção
   xSensorQueue = xQueueCreate(1, sizeof(TemperatureData)); // Fila para controle de temperatura
   
-
-
   // Verifica se as filas foram criadas com sucesso
   if (xKeypadQueue == NULL || xDisplayQueue == NULL || xControlQueue == NULL || xSensorQueue == NULL) {
     Serial.println("Main: ERRO! Falha ao criar filas FreeRTOS. Sistema parado.");
@@ -69,7 +88,6 @@ void setup() {
   xTaskCreate(stateMachineTask, "StateMachineTask", 4096, NULL, 1, NULL);
   xTaskCreate(controlTask,      "ControlTask",      4096, NULL, 1, NULL);
   xTaskCreate(temperatureSensorTask, "TempSensorTask", 2048, NULL, 1, NULL);
-
 
   // Inicia a máquina de estados (entra no estado inicial definido no modelo Yakindu)
   statechart.enter();
@@ -87,15 +105,12 @@ void loop() {
 }
 
 // --- IMPLEMENTAÇÃO DAS TAREFAS FREE RTOS ---
-
 /**
  * @brief Tarefa responsável pela leitura contínua do teclado matricial.
  * Envia as teclas pressionadas para a fila do teclado (xKeypadQueue).
  */
 void keypadTask(void *pvParameters) {
   (void) pvParameters; // Evita warning de parâmetro não utilizado
-
-  callback.beginMatrix(); // Inicializa o hardware do teclado matricial
 
   char key;
   for (;;) { // Loop infinito da tarefa
@@ -130,7 +145,7 @@ void stateMachineTask(void *pvParameters) {
       callback.lastKeyPressTime = millis(); // Timestamp da última tecla (para timeout)
 
       // --- LÓGICA DE DECISÃO E DISPARO DE EVENTOS DO STATECHART/YAKINDU ---
-      // Ações são tomadas com base no estado atual da máquina de estados.
+      // Ações são tomadas com base no estado atual da máquina de estados
 
       // Estado IDLE (tela inicial de "Bem-vindo")
       if (statechart.isStateActive(Statechart::main_region_IDLE)) {
@@ -227,20 +242,20 @@ void stateMachineTask(void *pvParameters) {
       else if (statechart.isStateActive(Statechart::main_region_FINISHED_MESSAGE)) {
           // Neste estado, não esperamos entrada de teclado para navegação,
           // apenas um timeout fará a transição para IDLE. Definido no Yakindu
-          // Ignoramos qualquer tecla pressionada para evitar interferência na mensagem.
+          // Ignora qualquer tecla pressionada para evitar interferência na mensagem
           callback.inputBuffer = ""; // Sempre limpa o buffer
           Serial.println("StateMachineTask: Tecla ignorada no estado FINISHED_MESSAGE.");
       }
 
-      // TODO: Adicionar o else if para Statechart::main_region_RECIPE_5 (Customizar) quando for implementado.
-      // E também para o estado CUSTOM_SETUP (se for um menu com entrada de dados).
+      // TODO: Adicionar o else if para Statechart::main_region_RECIPE_5 (Customizar) quando for implementado
+      // E também para o estado CUSTOM_SETUP (se for um menu com entrada de dados)
 
       // Lógica para estados onde a entrada de teclado é inesperada (ex: durante um processo de aquecimento)
       else {
         switch (receivedKey) {
           case 'A': // Assumindo 'A' como um botão universal para voltar ao MENU principal de receitas
             // TODO: Aqui precisaria de uma lógica mais robusta para "abortar" um processo
-            // que está rodando. Isso envolveria desligar atuadores, etc., antes de mudar de estado.
+            // que está rodando. Isso envolveria desligar os atuadores, etc., antes de mudar de estado
             // ENVIA COMANDO PARA ABORTAR O PROCESSO!
             controlCmd.type = CMD_START_RECIPE_STEP;
             xQueueSend(xControlQueue, &controlCmd, portMAX_DELAY); // Sinaliza para controlTask abortar
@@ -254,15 +269,15 @@ void stateMachineTask(void *pvParameters) {
           default:
             // Para qualquer outra tecla que não 'A' e não esperada no estado atual:
             // Apenas limpa o buffer de entrada. Não redesenha a tela
-            // para evitar interromper uma tela de processo/progresso.
+            // para evitar interromper uma tela de processo/progresso
             callback.inputBuffer = "";
             Serial.println("StateMachineTask: Tecla ignorada no estado atual.");
             break;
         }
       }
-    } // Fim de if (xQueueReceive...)
+    }
 
-    // Lógica de limpeza do inputBuffer após um timeout (se o usuário parar de digitar)
+    // Lógica de limpeza do inputBuffer após um timeout (se o usuário parar de digitar no keypad)
     if (callback.inputBuffer.length() > 0 && (millis() - callback.lastKeyPressTime > 3000)) {
       callback.inputBuffer = ""; // Limpa o buffer
       // Redesenha a tela atual para remover o "Digitado: " que estava aparecendo
@@ -283,10 +298,10 @@ void stateMachineTask(void *pvParameters) {
       }
       // Tratamento para o estado FINISHED_MESSAGE
       else if (statechart.isStateActive(Statechart::main_region_FINISHED_MESSAGE)) {
-          // A tela FINISHED_MESSAGE já tem um timer para voltar, não precisa redesenhar por timeout.
-          // Se o usuário digitou algo, apenas limpamos o buffer sem redesenhar.
+          // A tela FINISHED_MESSAGE já tem um timer para voltar, não precisa redesenhar por timeout
+          // Se o usuário digitou algo, apenas limpa o buffer sem redesenhar
       }
-      // TODO: Adicionar outros estados relevantes aqui.
+      // TODO: Adicionar outros estados se tiver aqui
     }
   } // Fim do loop for(;;)
 }
@@ -297,18 +312,6 @@ void stateMachineTask(void *pvParameters) {
  */
 void displayTask(void *pvParameters) {
   (void) pvParameters; // Evita warning de parâmetro não utilizado
-
-  // Inicialização REAL e única do display OLED
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("DisplayTask: ERRO! Falha ao inicializar o display. Sistema parado."));
-    for(;;); // Loop infinito em caso de erro crítico
-  }
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println("DisplayTask OK!");
-  display.display();
-  vTaskDelay(1000 / portTICK_PERIOD_MS); // Breve delay para mostrar a mensagem inicial
 
   DisplayCommand cmd;
   for (;;) { // Loop infinito da tarefa
@@ -435,6 +438,10 @@ void controlTask(void *pvParameters) {
   int activeRecipeIdx = -1;
   int activeStepIdx = -1;
 
+  // --- Histerese e Estado do Aquecedor (para controle ON-OFF) ---
+  int hysteresis = 2; // Histerese de 2 graus C -- Mudar
+  bool heater_is_on = false; // Estado do aquecedor (ligado/desligado)
+
 
   for (;;) {
     // --- Processar Comandos da Fila de Controle ---
@@ -453,16 +460,21 @@ void controlTask(void *pvParameters) {
               currentDurationMinutes = receivedControlCmd.durationMinutes; // Pega do comando
               stepStartTimeMillis = millis();
               stepActive = true;
+
+              heater_is_on = false; // Começa desligado para a nova etapa
+              callback.controlHeaterPWM(0); // Garante que o PWM esteja em 0
+            
               Serial.printf("ControlTask: INICIADA ETAPA '%s'. Alvo: %dC, Duracao: %dmin\n",
-                            currentStepData.name.c_str(), currentTargetTemp, currentDurationMinutes);
-              // TODO: Ligar aquecedor (quando implementado).
+                          (activeRecipeIdx == 4 ? "Customizada" : recipes[activeRecipeIdx].steps[activeStepIdx].name.c_str()), currentTargetTemp, currentDurationMinutes);
             }
           }
           break;
         case CMD_ABORT_PROCESS:
           Serial.println("ControlTask: Processo ABORTADO por comando.");
           stepActive = false;
-          // TODO: Desligar atuadores.
+          heater_is_on = false; // SÓ DESLIGA AQUI NO ABORT
+          callback.controlHeaterPWM(0); // SÓ DESLIGA AQUI NO ABORT
+          // TODO: Desligar atuadores
           break;
       }
     }
@@ -476,8 +488,6 @@ void controlTask(void *pvParameters) {
 
     // --- Lógica de Controle/Monitoramento da Etapa ---
     if (stepActive) {
-      // Simulação de Temperatura REMOVIDA, agora vai ser usado o valor da variável actualCurrentTemp
-  
       // Cálculo do Tempo Restante
       unsigned long elapsedTimeMillis = millis() - stepStartTimeMillis;
 
@@ -489,18 +499,35 @@ void controlTask(void *pvParameters) {
       int displayMinutes = remainingTimeSeconds / 60;
       int displaySeconds = remainingTimeSeconds % 60;
 
+      // --- Lógica de Controle ON-OFF com Histerese ---
+      if (actualCurrentTemp < (currentTargetTemp - hysteresis)) {
+        heater_is_on = true;
+      } else if (actualCurrentTemp > (currentTargetTemp + hysteresis)) {
+        heater_is_on = false;
+      }
+
+      // Definir o duty cycle do PWM
+      int calculated_duty_cycle = (heater_is_on) ? ((1 << statechart.getPwm_resolution_bits()) - 1) : 0; // Max duty cycle ou 0
+      callback.controlHeaterPWM(calculated_duty_cycle); // Setar PWM
+
       // Atualizar Display de Status Periodicamente (a cada 1 segundo)
       static unsigned long lastDisplayUpdate = 0;
       if (millis() - lastDisplayUpdate > 1000) {
         lastDisplayUpdate = millis();
-        // Acessa os dados da etapa através dos índices locais 'activeRecipeIdx' e 'activeStepIdx'
         const Recipe& recipeForDisplay = recipes[activeRecipeIdx];
-        const RecipeStep& stepForDisplay = recipeForDisplay.steps[activeStepIdx];
+        const char* stepNameForDisplay;
+        if (activeRecipeIdx == 4) { // Receita customizada
+          char tempBuffer[20];
+          sprintf(tempBuffer, "Etapa %d", activeStepIdx + 1);
+          stepNameForDisplay = tempBuffer;
+        } else {
+          stepNameForDisplay = recipeForDisplay.steps[activeStepIdx].name.c_str();
+        }
         
         callback.showProcessStatus(static_cast<sc_integer>(actualCurrentTemp), currentTargetTemp, 
-                                   displayMinutes, displaySeconds,
-                                   const_cast<sc_string>(stepForDisplay.name.c_str()),
-                                   activeStepIdx + 1, recipeForDisplay.numSteps);
+                              displayMinutes, displaySeconds,
+                              const_cast<sc_string>(stepNameForDisplay), 
+                              activeStepIdx + 1, (activeRecipeIdx == 4 ? statechart.getCustom_num_steps() : recipeForDisplay.numSteps));
       }
 
       // --- Detecção de Término de Etapa ---
@@ -508,14 +535,25 @@ void controlTask(void *pvParameters) {
       bool tempReached = (actualCurrentTemp >= currentTargetTemp - 0.5 && actualCurrentTemp <= currentTargetTemp + 0.5); // Dentro de uma faixa
       bool durationPassed = (remainingTimeSeconds == 0); // Duraçao passou se remainingTimeSeconds é 0
 
-      if (durationPassed) { // Por enquanto, só o tempo, para testes.
-        // Para o teste inicial com copo d'água, se não tiver aquecimento, talvez queira usar SÓ durationPassed
-        // if (durationPassed) { // Apenas para teste de tempo decorrido
+      if (durationPassed) {
         Serial.println("ControlTask: ETAPA CONCLUIDA! Disparando step_finished.");
         stepActive = false;
-        // TODO: Desligar atuadores (heater, mixer)
+        heater_is_on = false;
+        callback.controlHeaterPWM(0);
         statechart.raiseStep_finished();
+      
+      } else { // Se a etapa não está ativa (processo parado/abortado/não iniciado)
+        // Se stepActive virar false (por abort ou fim da etapa), vou querer garantir que o PWM seja desligado
+        // Se stepActive ainda for true, a lógica de histerese de acima já está controlando o PWM
+        // Então esse else é mais para quando stepActive é false e o loop continua rodando
+        if (!stepActive) { // Essa verificação é para evitar que o PWM seja desligado constantemente
+             heater_is_on = false;
+             callback.controlHeaterPWM(0);
+        }
       }
+    } else { // Se a etapa não está ativa (processo parado/abortado/não iniciado)
+       heater_is_on = false;
+       callback.controlHeaterPWM(0); // Garante que o PWM esteja desligado quando não tem etapa ativa
     }
 
     vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -524,64 +562,40 @@ void controlTask(void *pvParameters) {
 
 // --- TAREFA DO SENSOR DE TEMPERATURA: temperatureSensorTask ---
 /**
- * @brief Tarefa responsável por ler periodicamente os sensores de temperatura DS18B20.
+ * @brief Tarefa responsável por ler periodicamente a temperatura do ESP32 simulador via I2C.
  * Envia as leituras para a xSensorQueue.
  */
 void temperatureSensorTask(void *pvParameters) {
   (void) pvParameters;
 
-  callback.beginWaterSensor(); // Inicializa o sensor OneWire/DS18B20
-
   float tempC = -1000.0; // Variável para a temperatura lida
   TemperatureData tempDataToSend; // Estrutura para enviar via fila
 
-  // Aguarda um pouco para o sensor inicializar e realizar a primeira leitura
-  vTaskDelay(2000 / portTICK_PERIOD_MS); // Este delay é bom para a inicialização
-
-  // Verificação do dispositivo (para ter certeza que ele é visto)
-  if (callback.waterThermometer != nullptr) {
-      Serial.print("TempSensorTask: Numero de dispositivos DS18B20 encontrados: ");
-      Serial.println(callback.waterThermometer->getDeviceCount());
-      if (callback.waterThermometer->getDeviceCount() == 0) {
-          Serial.println("TempSensorTask: NENHUM SENSOR DS18B20 ENCONTRADO NO BARRAMENTO ONE-WIRE!");
-          for(;;); // Parar aqui se nenhum sensor for encontrado
-      }
-      // Se apenas um sensor é esperado, podemos opcionalmente obter seu endereço (futuramente teremos dois)
-      DeviceAddress tempSensorAddress;
-      if (callback.waterThermometer->getAddress(tempSensorAddress, 0)) {
-          Serial.print("TempSensorTask: Endereco do sensor 0: ");
-          for (uint8_t i = 0; i < 8; i++) {
-              if (tempSensorAddress[i] < 16) Serial.print("0");
-              Serial.print(tempSensorAddress[i], HEX);
-          }
-          Serial.println();
-      } else {
-          Serial.println("TempSensorTask: Nao foi possivel obter o endereco do sensor 0.");
-      }
-  }
-
+  Serial.println("TempSensorTask: Iniciando leitura I2C do sensor simulado...");
 
   for (;;) {
-    // Solicita a leitura da temperatura
-    if (callback.waterThermometer != nullptr) {
-        callback.waterThermometer->requestTemperatures(); // Solicita conversão
-        // vTaskDelay(750 / portTICK_PERIOD_MS); // <-- Opcional: Adicionar um delay aqui para garantir a conversão
-                                               // Se a leitura for mais rápida que 750ms, os dados podem não estar prontos
-                                               // A biblioteca geralmente gerencia isso internamente, mas pode ser um problema de timing do RTOS
-    }
+    // Solicita 4 bytes (para um float) do ESP32 escravo no endereço I2C_SLAVE_ADDRESS
+    Wire.requestFrom(I2C_SLAVE_ADDRESS, 4); // Solicita 4 bytes (para um float)
 
-    tempC = callback.readWaterTemperature(); // Realiza a leitura
+    if (Wire.available()) {
+      // Receber os 4 bytes e reconstruir o float
+      byte i2c_data[4];
+      for (int i = 0; i < 4; i++) {
+        i2c_data[i] = Wire.read();
+      }
+      // Reinterpretar os bytes como um float
+      memcpy(&tempC, i2c_data, 4);
 
-    if (tempC != -1000.0) {
-        tempDataToSend.temperature1 = tempC;
-        xQueueOverwrite(xSensorQueue, &tempDataToSend);
-        Serial.printf("TempSensorTask: Leitura de temperatura: %.2f C\n", tempC); // <-- DEBUG DETALHADO
+      tempDataToSend.temperature1 = tempC;
+      xQueueOverwrite(xSensorQueue, &tempDataToSend); // Envia para a fila do sensor
+      Serial.printf("TempSensorTask: Leitura I2C recebida: %.2f C\n", tempC);
     } else {
-        Serial.println("TempSensorTask: ERRO DE LEITURA DO SENSOR!"); // Isso indica DEVICE_DISCONNECTED_C
+      Serial.println("TempSensorTask: ERRO! Nao ha bytes disponiveis para leitura I2C.");
+      tempDataToSend.temperature1 = -999.0; // Sinaliza erro de leitura
+      xQueueOverwrite(xSensorQueue, &tempDataToSend);
     }
     
-    // Atraso entre leituras. Ajustar se precisar de leituras mais rápidas.
-    // O DS18B20 precisa de tempo entre requests. 1 segundo é um bom ponto de partida.
-    vTaskDelay(1000 / portTICK_PERIOD_MS); 
+    // Atraso entre leituras I2C. Ajustar conforme a necessidade.
+    vTaskDelay(1000 / portTICK_PERIOD_MS); // Lê a cada 1 segundo
   }
 }
