@@ -40,5 +40,6 @@ var searchData=
   ['raisestep_5ffinished_37',['raiseStep_finished',['../class_statechart.html#a2ed7ee36649b062beeb95158b8d29754',1,'Statechart']]],
   ['raisetemp_5ffinished_38',['raiseTemp_finished',['../class_statechart.html#aee7f50eed90d24b08367bb6a14a8320f',1,'Statechart']]],
   ['raisetimeevent_39',['raiseTimeEvent',['../classsc_1_1timer_1_1_timed_interface.html#a0ad07835d195e9e8d617ead1fd2c4dc0',1,'sc::timer::TimedInterface::raiseTimeEvent()'],['../class_statechart.html#a30eb259481ec30dd17fdeac3f4cfe781',1,'Statechart::raiseTimeEvent()']]],
-  ['readkeypadchar_40',['readKeypadChar',['../class_statechart_callback.html#accdea45556fad26adb2a7714d5c69c7d',1,'StatechartCallback']]]
+  ['readandprintlog_40',['readAndPrintLog',['../main_8cpp.html#a1c52182662da62d394e157877ca0dc4f',1,'main.cpp']]],
+  ['readkeypadchar_41',['readKeypadChar',['../class_statechart_callback.html#accdea45556fad26adb2a7714d5c69c7d',1,'StatechartCallback']]]
 ];

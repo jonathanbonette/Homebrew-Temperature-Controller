@@ -2,7 +2,7 @@
 \hypertarget{class_statechart_callback}{}\label{class_statechart_callback}\index{StatechartCallback@{StatechartCallback}}
 
 
-Implementação da interface de Operation\+Callback para a máquina de estados Yakindu. Esta classe é responsável por abstrair as operações de hardware e serviços, enviando comandos para as Tasks Free\+RTOS apropriadas.  
+Implementação da interface de Operation\+Callback para a máquina de estados.  
 
 
 
@@ -20,57 +20,57 @@ Inheritance diagram for Statechart\+Callback\+:\begin{figure}[H]
 \item 
 \Hypertarget{class_statechart_callback_a0c1b1d3d630dee0f849b1d0bd94b0c4f}\label{class_statechart_callback_a0c1b1d3d630dee0f849b1d0bd94b0c4f} 
 {\bfseries Statechart\+Callback} ()
-\begin{DoxyCompactList}\small\item\em Construtor padrão da classe \doxylink{class_statechart_callback}{Statechart\+Callback}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Construtor padrão da classe. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a71f68e8972a472764d5cf158b397fcf7}{set\+Statechart}} (\mbox{\hyperlink{class_statechart}{Statechart}} \texorpdfstring{$\ast$}{*}sc)
-\begin{DoxyCompactList}\small\item\em Define a instância da \doxylink{class_statechart}{Statechart} para que os callbacks possam disparar eventos. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Define a instância da \doxylink{class_statechart}{Statechart}. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a6512d1f0ee6b8e4889bb713912a9d846}{begin\+Display}} () override
-\begin{DoxyCompactList}\small\item\em Solicita a inicialização do display OLED na display\+Task. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Solicita a inicialização do display OLED na display\+Task. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{pin\+Mode}} (sc\+\_\+integer pin, sc\+\_\+integer mode) override
-\begin{DoxyCompactList}\small\item\em Configura o modo de um pino GPIO. Chamado por operações do Yakindu que precisam configurar pinos (ex\+: LED). \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Configura o modo de um pino GPIO. Chamado por operações do Itemis que precisam configurar pinos (ex\+: LED). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{digital\+Write}} (sc\+\_\+integer pin, sc\+\_\+integer value) override
-\begin{DoxyCompactList}\small\item\em Define o nível digital de um pino GPIO. Chamado por operações do Yakindu que controlam saídas digitais (ex\+: LED). \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Define o nível digital de um pino GPIO. Chamado por operações do Itemis que controlam saídas digitais (ex\+: LED). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a3284e955756a933d45e0bc353478cdb2}{show\+Startup}} () override
-\begin{DoxyCompactList}\small\item\em Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a7312ea56019093e99340f326156ad0ef}{show\+Recipes}} () override
-\begin{DoxyCompactList}\small\item\em Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a79ccb2fd5cd9782ae04202fc81a8eb2a}{show\+Recipe}} (sc\+\_\+integer recipe\+Id) override
-\begin{DoxyCompactList}\small\item\em Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE\+\_\+X do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE\+\_\+X do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a0060eb65c22e39e622d1076448a29e1f}{initialize\+Process}} () override
-\begin{DoxyCompactList}\small\item\em Inicializa o processo de cozimento. Chamado pelo estado START\+\_\+\+PROCESS do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Inicializa o processo de cozimento. Chamado pelo estado START\+\_\+\+PROCESS do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a366ba128bf01272f1d554f43b248b0b5}{start\+Next\+Recipe\+Step}} (sc\+\_\+integer recipe\+Index) override
-\begin{DoxyCompactList}\small\item\em Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Yakindu na entrada de CONTROL\+\_\+\+PROCESS\+\_\+\+LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Itemis na entrada de CONTROL\+\_\+\+PROCESS\+\_\+\+LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. \end{DoxyCompactList}\item 
 sc\+\_\+boolean \mbox{\hyperlink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{has\+More\+Steps}} () override
-\begin{DoxyCompactList}\small\item\em Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação \doxylink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{has\+More\+Steps()} do Yakindu (usada nas guardas de transição). \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação \doxylink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{has\+More\+Steps()} do Itemis (usada nas guardas de transição). \end{DoxyCompactList}\item 
 sc\+\_\+integer \mbox{\hyperlink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{get\+Current\+Recipe\+Index}} () override
-\begin{DoxyCompactList}\small\item\em Retorna o índice da receita atualmente em processamento (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{get\+Current\+Recipe\+Index()} do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Retorna o índice da receita atualmente em processamento (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{get\+Current\+Recipe\+Index()} do Itemis. \end{DoxyCompactList}\item 
 sc\+\_\+integer \mbox{\hyperlink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{get\+Current\+Step\+Index}} () override
-\begin{DoxyCompactList}\small\item\em Retorna o índice da etapa atual dentro da receita (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{get\+Current\+Step\+Index()} do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Retorna o índice da etapa atual dentro da receita (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{get\+Current\+Step\+Index()} do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_ada2c780738f608c405b2f5eab33aca79}{show\+Process\+Status}} (sc\+\_\+integer current\+Temp, sc\+\_\+integer target\+Temp, sc\+\_\+integer remaining\+Minutes, sc\+\_\+integer remaining\+Seconds, sc\+\_\+string step\+Name, sc\+\_\+integer step\+Num, sc\+\_\+integer total\+Steps, sc\+\_\+boolean is\+Ramping) override
 \begin{DoxyCompactList}\small\item\em Exibe o status do processo de cozimento no display OLED. Chamado pela máquina de estados ou por tarefas de controle para atualizar o UI. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a52e80be024b7f897449ae5738ac28eb7}{show\+Finished}} () override
-\begin{DoxyCompactList}\small\item\em Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH\+\_\+\+PROCESS do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH\+\_\+\+PROCESS do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a6830f5cc9a7625ef7c91a65491ddd5c2}{show\+Finished\+Message}} () override
-\begin{DoxyCompactList}\small\item\em Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED\+\_\+\+MESSAGE do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED\+\_\+\+MESSAGE do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a0b153376b4a3d937102602051ac50c80}{show\+State}} (sc\+\_\+string state) override
-\begin{DoxyCompactList}\small\item\em Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a40d4b821ee479a29fa16d5bb65f60f16}{show\+Idle\+Screen}} () override
-\begin{DoxyCompactList}\small\item\em Exibe a tela inicial de IDLE ("{}\+Bem-\/vindo!"{}, "{}1-\/ Iniciar"{}, "{}2-\/ Sair"{}). Chamado pelo estado IDLE do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Exibe a tela inicial de IDLE ("{}\+Bem-\/vindo!"{}, "{}1-\/ Iniciar"{}, "{}2-\/ Sair"{}). Chamado pelo estado IDLE do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a9bec19382c76a6631cbbba5b1c025bed}{begin\+Matrix}} () override
-\begin{DoxyCompactList}\small\item\em Inicializa o teclado matricial. Chamado pelo estado IDLE do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Inicializa o teclado matricial. Chamado pelo estado IDLE do Itemis. \end{DoxyCompactList}\item 
 char \mbox{\hyperlink{class_statechart_callback_accdea45556fad26adb2a7714d5c69c7d}{read\+Keypad\+Char}} ()
 \begin{DoxyCompactList}\small\item\em Lê uma tecla do teclado matricial. Esta função é chamada pela keypad\+Task. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a9b0bc6caa3dadb23e26d8c77a19196df}{print\+Keypad\+Input}} ()
 \begin{DoxyCompactList}\small\item\em Envia um comando para a display\+Task para imprimir o buffer de entrada. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a244c879e69bb717bcc87c9970b988bc5}{begin\+Semaphore}} () override
-\begin{DoxyCompactList}\small\item\em Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a991e9ac6e43b6990de74162c38277efc}{setup\+Heater\+PWM}} () override
-\begin{DoxyCompactList}\small\item\em Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Yakindu (ex\+: no INIT\+\_\+\+SYSTEM). \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Itemis (ex\+: no INIT\+\_\+\+SYSTEM). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a275fd2a117f0fa221e75cabd98aa53f1}{control\+Heater\+PWM}} (sc\+\_\+integer duty\+\_\+cycle) override
-\begin{DoxyCompactList}\small\item\em Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação \textquotesingle{}heat\textquotesingle{} do Yakindu e pela \textquotesingle{}control\+Task\textquotesingle{}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação \textquotesingle{}heat\textquotesingle{} do Itemis e pela \textquotesingle{}control\+Task\textquotesingle{}. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a50763df935fa54557772578384635977}{heat}} (sc\+\_\+integer target\+\_\+temp) override
-\begin{DoxyCompactList}\small\item\em Mapeia a temperatura alvo para o duty cycle do PWM e envia para control\+Heater\+PWM. Chamado pelo Yakindu (operação \textquotesingle{}heat\textquotesingle{}). \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Mapeia a temperatura alvo para o duty cycle do PWM e envia para control\+Heater\+PWM. Chamado pelo Itemis (operação \textquotesingle{}heat\textquotesingle{}). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a44358dc04ef8676039de3189deffc315}{begin\+Water\+Sensor}} () override
-\begin{DoxyCompactList}\small\item\em Inicializa o sensor de temperatura DS18\+B20. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Inicializa o sensor de temperatura DS18\+B20. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{class_statechart_callback_a257da5ccd1613839c2021101b7166c6c}{shutdown\+System}} () override
 \item 
 void \mbox{\hyperlink{class_statechart_callback_a698544ac53955fe2e26bb383266b0b87}{time}} (sc\+\_\+integer) override
@@ -110,19 +110,19 @@ void \mbox{\hyperlink{class_statechart_callback_a736fcbb96f193a940c85b6c98877b05
 \item 
 \Hypertarget{class_statechart_callback_ada1474cd318abbde5b3a3edcbbd7e5d4}\label{class_statechart_callback_ada1474cd318abbde5b3a3edcbbd7e5d4} 
 bool {\bfseries oled\+OK} = false
-\begin{DoxyCompactList}\small\item\em Flag para indicar se o display OLED foi inicializado com sucesso. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}\label{class_statechart_callback_a67cf4a2a95426739746963113a1f1920} 
 Keypad \texorpdfstring{$\ast$}{*} {\bfseries keypad} = nullptr
-\begin{DoxyCompactList}\small\item\em Ponteiro para o objeto do teclado matricial. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8}\label{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8} 
 bool {\bfseries matrix\+OK} = false
-\begin{DoxyCompactList}\small\item\em Flag para indicar se o teclado matricial foi inicializado com sucesso. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}\label{class_statechart_callback_af85dce0caa18b8191733814492a9f34e} 
 String {\bfseries input\+Buffer} = "{}"{}
-\begin{DoxyCompactList}\small\item\em Buffer para armazenar a entrada digitada pelo teclado. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{class_statechart_callback_ac3e180b5e78cba51f139952ae2bc0646}\label{class_statechart_callback_ac3e180b5e78cba51f139952ae2bc0646} 
 unsigned long {\bfseries last\+Key\+Press\+Time} = 0
-\begin{DoxyCompactList}\small\item\em Timestamp da última tecla pressionada (para timeout de buffer) \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{class_statechart_callback_a02d8925ae74f01a54440cbddf8a27188}\label{class_statechart_callback_a02d8925ae74f01a54440cbddf8a27188} 
 int {\bfseries current\+Recipe\+Idx} = -\/1
 \item 
@@ -135,7 +135,9 @@ float {\bfseries last\+Read\+Temperature} = 0.\+0
 
 
 \doxysubsection{Detailed Description}
-Implementação da interface de Operation\+Callback para a máquina de estados Yakindu. Esta classe é responsável por abstrair as operações de hardware e serviços, enviando comandos para as Tasks Free\+RTOS apropriadas. 
+Implementação da interface de Operation\+Callback para a máquina de estados. 
+
+Esta classe gerencia a comunicação entre a máquina de estados e o hardware, utilizando filas Free\+RTOS para interagir com outras tarefas de forma segura. 
 
 \label{doc-func-members}
 \Hypertarget{class_statechart_callback_doc-func-members}
@@ -158,7 +160,7 @@ void Statechart\+Callback\+::begin\+Display (\begin{DoxyParamCaption}{}{}\end{Do
 
 
 
-Solicita a inicialização do display OLED na display\+Task. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. 
+Solicita a inicialização do display OLED na display\+Task. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. 
 
 
 
@@ -172,7 +174,7 @@ void Statechart\+Callback\+::begin\+Matrix (\begin{DoxyParamCaption}{}{}\end{Dox
 
 
 
-Inicializa o teclado matricial. Chamado pelo estado IDLE do Yakindu. 
+Inicializa o teclado matricial. Chamado pelo estado IDLE do Itemis. 
 
 
 
@@ -186,7 +188,7 @@ void Statechart\+Callback\+::begin\+Semaphore (\begin{DoxyParamCaption}{}{}\end{
 
 
 
-Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Yakindu. 
+Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Itemis. 
 
 
 
@@ -200,7 +202,7 @@ void Statechart\+Callback\+::begin\+Water\+Sensor (\begin{DoxyParamCaption}{}{}\
 
 
 
-Inicializa o sensor de temperatura DS18\+B20. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. 
+Inicializa o sensor de temperatura DS18\+B20. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. 
 
 
 
@@ -214,7 +216,7 @@ void Statechart\+Callback\+::control\+Heater\+PWM (\begin{DoxyParamCaption}\item
 
 
 
-Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação \textquotesingle{}heat\textquotesingle{} do Yakindu e pela \textquotesingle{}control\+Task\textquotesingle{}. 
+Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação \textquotesingle{}heat\textquotesingle{} do Itemis e pela \textquotesingle{}control\+Task\textquotesingle{}. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -233,7 +235,7 @@ void Statechart\+Callback\+::digital\+Write (\begin{DoxyParamCaption}\item[{sc\+
 
 
 
-Define o nível digital de um pino GPIO. Chamado por operações do Yakindu que controlam saídas digitais (ex\+: LED). 
+Define o nível digital de um pino GPIO. Chamado por operações do Itemis que controlam saídas digitais (ex\+: LED). 
 
 
 \begin{DoxyParams}{Parameters}
@@ -254,7 +256,7 @@ sc\+\_\+integer Statechart\+Callback\+::get\+Current\+Recipe\+Index (\begin{Doxy
 
 
 
-Retorna o índice da receita atualmente em processamento (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{get\+Current\+Recipe\+Index()} do Yakindu. 
+Retorna o índice da receita atualmente em processamento (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{get\+Current\+Recipe\+Index()} do Itemis. 
 
 \begin{DoxyReturn}{Returns}
 O índice da receita. 
@@ -271,7 +273,7 @@ sc\+\_\+integer Statechart\+Callback\+::get\+Current\+Step\+Index (\begin{DoxyPa
 
 
 
-Retorna o índice da etapa atual dentro da receita (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{get\+Current\+Step\+Index()} do Yakindu. 
+Retorna o índice da etapa atual dentro da receita (0-\/baseado). Implementa a operação \doxylink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{get\+Current\+Step\+Index()} do Itemis. 
 
 \begin{DoxyReturn}{Returns}
 O índice da etapa. 
@@ -288,7 +290,7 @@ sc\+\_\+boolean Statechart\+Callback\+::has\+More\+Steps (\begin{DoxyParamCaptio
 
 
 
-Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação \doxylink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{has\+More\+Steps()} do Yakindu (usada nas guardas de transição). 
+Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação \doxylink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{has\+More\+Steps()} do Itemis (usada nas guardas de transição). 
 
 \begin{DoxyReturn}{Returns}
 true se houver mais etapas, false caso contrário. 
@@ -315,7 +317,7 @@ void Statechart\+Callback\+::heat (\begin{DoxyParamCaption}\item[{sc\+\_\+intege
 
 
 
-Mapeia a temperatura alvo para o duty cycle do PWM e envia para control\+Heater\+PWM. Chamado pelo Yakindu (operação \textquotesingle{}heat\textquotesingle{}). 
+Mapeia a temperatura alvo para o duty cycle do PWM e envia para control\+Heater\+PWM. Chamado pelo Itemis (operação \textquotesingle{}heat\textquotesingle{}). 
 
 
 \begin{DoxyParams}{Parameters}
@@ -334,7 +336,7 @@ void Statechart\+Callback\+::initialize\+Process (\begin{DoxyParamCaption}{}{}\e
 
 
 
-Inicializa o processo de cozimento. Chamado pelo estado START\+\_\+\+PROCESS do Yakindu. 
+Inicializa o processo de cozimento. Chamado pelo estado START\+\_\+\+PROCESS do Itemis. 
 
 
 
@@ -388,7 +390,7 @@ void Statechart\+Callback\+::pin\+Mode (\begin{DoxyParamCaption}\item[{sc\+\_\+i
 
 
 
-Configura o modo de um pino GPIO. Chamado por operações do Yakindu que precisam configurar pinos (ex\+: LED). 
+Configura o modo de um pino GPIO. Chamado por operações do Itemis que precisam configurar pinos (ex\+: LED). 
 
 
 \begin{DoxyParams}{Parameters}
@@ -465,7 +467,7 @@ void Statechart\+Callback\+::set\+Statechart (\begin{DoxyParamCaption}\item[{\mb
 
 
 
-Define a instância da \doxylink{class_statechart}{Statechart} para que os callbacks possam disparar eventos. 
+Define a instância da \doxylink{class_statechart}{Statechart}. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -500,7 +502,7 @@ void Statechart\+Callback\+::setup\+Heater\+PWM (\begin{DoxyParamCaption}{}{}\en
 
 
 
-Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Yakindu (ex\+: no INIT\+\_\+\+SYSTEM). 
+Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Itemis (ex\+: no INIT\+\_\+\+SYSTEM). 
 
 
 
@@ -554,7 +556,7 @@ void Statechart\+Callback\+::show\+Finished (\begin{DoxyParamCaption}{}{}\end{Do
 
 
 
-Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH\+\_\+\+PROCESS do Yakindu. 
+Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH\+\_\+\+PROCESS do Itemis. 
 
 
 
@@ -568,7 +570,7 @@ void Statechart\+Callback\+::show\+Finished\+Message (\begin{DoxyParamCaption}{}
 
 
 
-Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED\+\_\+\+MESSAGE do Yakindu. 
+Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED\+\_\+\+MESSAGE do Itemis. 
 
 
 
@@ -582,7 +584,7 @@ void Statechart\+Callback\+::show\+Idle\+Screen (\begin{DoxyParamCaption}{}{}\en
 
 
 
-Exibe a tela inicial de IDLE ("{}\+Bem-\/vindo!"{}, "{}1-\/ Iniciar"{}, "{}2-\/ Sair"{}). Chamado pelo estado IDLE do Yakindu. 
+Exibe a tela inicial de IDLE ("{}\+Bem-\/vindo!"{}, "{}1-\/ Iniciar"{}, "{}2-\/ Sair"{}). Chamado pelo estado IDLE do Itemis. 
 
 
 
@@ -629,7 +631,7 @@ void Statechart\+Callback\+::show\+Recipe (\begin{DoxyParamCaption}\item[{sc\+\_
 
 
 
-Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE\+\_\+X do Yakindu. 
+Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE\+\_\+X do Itemis. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -648,7 +650,7 @@ void Statechart\+Callback\+::show\+Recipes (\begin{DoxyParamCaption}{}{}\end{Dox
 
 
 
-Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Yakindu. 
+Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Itemis. 
 
 
 
@@ -662,7 +664,7 @@ void Statechart\+Callback\+::show\+Startup (\begin{DoxyParamCaption}{}{}\end{Dox
 
 
 
-Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT\+\_\+\+SYSTEM do Yakindu. 
+Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT\+\_\+\+SYSTEM do Itemis. 
 
 
 
@@ -676,7 +678,7 @@ void Statechart\+Callback\+::show\+State (\begin{DoxyParamCaption}\item[{sc\+\_\
 
 
 
-Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Yakindu. 
+Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Itemis. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -705,7 +707,7 @@ void Statechart\+Callback\+::start\+Next\+Recipe\+Step (\begin{DoxyParamCaption}
 
 
 
-Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Yakindu na entrada de CONTROL\+\_\+\+PROCESS\+\_\+\+LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. 
+Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Itemis na entrada de CONTROL\+\_\+\+PROCESS\+\_\+\+LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. 
 
 
 \begin{DoxyParams}{Parameters}
@@ -730,4 +732,4 @@ Implements \mbox{\hyperlink{class_statechart_1_1_operation_callback}{Statechart\
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-src/Statechart\+Callback.\+h\end{DoxyCompactItemize}
+src/\mbox{\hyperlink{_statechart_callback_8h}{Statechart\+Callback.\+h}}\end{DoxyCompactItemize}

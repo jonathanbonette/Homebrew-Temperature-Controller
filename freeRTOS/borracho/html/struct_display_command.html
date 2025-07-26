@@ -92,7 +92,7 @@ $(function(){initNavTree('struct_display_command.html','','struct_display_comman
 </div><!--header-->
 <div class="contents">
 
-<p>Estrutura de dados para os comandos enviados para a displayTask. Contém o tipo de comando, texto opcional, flag de limpeza de tela e ID da receita.  
+<p>Estrutura para os comandos de display, enviados via fila.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_statechart_callback_8h_source.html">StatechartCallback.h</a>&gt;</code></p>
@@ -100,20 +100,16 @@ $(function(){initNavTree('struct_display_command.html','','struct_display_comman
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:acc4955eb4ee527dd15e3feeeb29a9008" id="r_acc4955eb4ee527dd15e3feeeb29a9008"><td class="memItemLeft" align="right" valign="top"><a id="acc4955eb4ee527dd15e3feeeb29a9008" name="acc4955eb4ee527dd15e3feeeb29a9008"></a>
-DisplayCommandType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="memdesc:acc4955eb4ee527dd15e3feeeb29a9008"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tipo do comando. <br /></td></tr>
+<a class="el" href="_statechart_callback_8h.html#a44948d591f0564ddb54a1b8c392a6a22">DisplayCommandType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
 <tr class="memitem:a31e28be302f17a62ef53ec9428784e94" id="r_a31e28be302f17a62ef53ec9428784e94"><td class="memItemLeft" align="right" valign="top"><a id="a31e28be302f17a62ef53ec9428784e94" name="a31e28be302f17a62ef53ec9428784e94"></a>
 String&#160;</td><td class="memItemRight" valign="bottom"><b>text</b></td></tr>
-<tr class="memdesc:a31e28be302f17a62ef53ec9428784e94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Texto associado ao comando (ex: nome do estado, texto digitado) <br /></td></tr>
 <tr class="memitem:a939bb524ef88e6fddf03870a456000f1" id="r_a939bb524ef88e6fddf03870a456000f1"><td class="memItemLeft" align="right" valign="top"><a id="a939bb524ef88e6fddf03870a456000f1" name="a939bb524ef88e6fddf03870a456000f1"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>clearScreen</b></td></tr>
-<tr class="memdesc:a939bb524ef88e6fddf03870a456000f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag para indicar se a tela deve ser limpa antes de exibir o conteúdo. <br /></td></tr>
 <tr class="memitem:a9365e28a42d1609582be0e849aa4305a" id="r_a9365e28a42d1609582be0e849aa4305a"><td class="memItemLeft" align="right" valign="top"><a id="a9365e28a42d1609582be0e849aa4305a" name="a9365e28a42d1609582be0e849aa4305a"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>recipeId</b></td></tr>
-<tr class="memdesc:a9365e28a42d1609582be0e849aa4305a"><td class="mdescLeft">&#160;</td><td class="mdescRight">ID da receita (para comandos de detalhes de receita) <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Estrutura de dados para os comandos enviados para a displayTask. Contém o tipo de comando, texto opcional, flag de limpeza de tela e ID da receita. </p>
+<div class="textblock"><p>Estrutura para os comandos de display, enviados via fila. </p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>src/<a class="el" href="_statechart_callback_8h_source.html">StatechartCallback.h</a></li>
 </ul>

@@ -25,10 +25,5 @@ var class_statechart_callback =
     [ "showRecipes", "class_statechart_callback.html#a7312ea56019093e99340f326156ad0ef", null ],
     [ "showStartup", "class_statechart_callback.html#a3284e955756a933d45e0bc353478cdb2", null ],
     [ "showState", "class_statechart_callback.html#a0b153376b4a3d937102602051ac50c80", null ],
-    [ "startNextRecipeStep", "class_statechart_callback.html#a366ba128bf01272f1d554f43b248b0b5", null ],
-    [ "inputBuffer", "class_statechart_callback.html#af85dce0caa18b8191733814492a9f34e", null ],
-    [ "keypad", "class_statechart_callback.html#a67cf4a2a95426739746963113a1f1920", null ],
-    [ "lastKeyPressTime", "class_statechart_callback.html#ac3e180b5e78cba51f139952ae2bc0646", null ],
-    [ "matrixOK", "class_statechart_callback.html#a9344dc81ba0a66c98837b8b73e266fe8", null ],
-    [ "oledOK", "class_statechart_callback.html#ada1474cd318abbde5b3a3edcbbd7e5d4", null ]
+    [ "startNextRecipeStep", "class_statechart_callback.html#a366ba128bf01272f1d554f43b248b0b5", null ]
 ];

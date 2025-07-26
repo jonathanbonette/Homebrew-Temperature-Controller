@@ -2,7 +2,7 @@
 \hypertarget{struct_display_command}{}\label{struct_display_command}\index{DisplayCommand@{DisplayCommand}}
 
 
-Estrutura de dados para os comandos enviados para a display\+Task. Contém o tipo de comando, texto opcional, flag de limpeza de tela e ID da receita.  
+Estrutura para os comandos de display, enviados via fila.  
 
 
 
@@ -13,22 +13,22 @@ Estrutura de dados para os comandos enviados para a display\+Task. Contém o tip
 \begin{DoxyCompactItemize}
 \item 
 \Hypertarget{struct_display_command_acc4955eb4ee527dd15e3feeeb29a9008}\label{struct_display_command_acc4955eb4ee527dd15e3feeeb29a9008} 
-Display\+Command\+Type {\bfseries type}
-\begin{DoxyCompactList}\small\item\em Tipo do comando. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{_statechart_callback_8h_a44948d591f0564ddb54a1b8c392a6a22}{Display\+Command\+Type}} {\bfseries type}
+\item 
 \Hypertarget{struct_display_command_a31e28be302f17a62ef53ec9428784e94}\label{struct_display_command_a31e28be302f17a62ef53ec9428784e94} 
 String {\bfseries text}
-\begin{DoxyCompactList}\small\item\em Texto associado ao comando (ex\+: nome do estado, texto digitado) \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{struct_display_command_a939bb524ef88e6fddf03870a456000f1}\label{struct_display_command_a939bb524ef88e6fddf03870a456000f1} 
 bool {\bfseries clear\+Screen}
-\begin{DoxyCompactList}\small\item\em Flag para indicar se a tela deve ser limpa antes de exibir o conteúdo. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{struct_display_command_a9365e28a42d1609582be0e849aa4305a}\label{struct_display_command_a9365e28a42d1609582be0e849aa4305a} 
 int {\bfseries recipe\+Id}
-\begin{DoxyCompactList}\small\item\em ID da receita (para comandos de detalhes de receita) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-Estrutura de dados para os comandos enviados para a display\+Task. Contém o tipo de comando, texto opcional, flag de limpeza de tela e ID da receita. 
+Estrutura para os comandos de display, enviados via fila. 
 
 The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-src/Statechart\+Callback.\+h\end{DoxyCompactItemize}
+src/\mbox{\hyperlink{_statechart_callback_8h}{Statechart\+Callback.\+h}}\end{DoxyCompactItemize}
