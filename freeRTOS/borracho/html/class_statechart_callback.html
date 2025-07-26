@@ -92,7 +92,7 @@ $(function(){initNavTree('class_statechart_callback.html','','class_statechart_c
 </div><!--header-->
 <div class="contents">
 
-<p>Implementação da interface de OperationCallback para a máquina de estados Yakindu. Esta classe é responsável por abstrair as operações de hardware e serviços, enviando comandos para as Tasks FreeRTOS apropriadas.  
+<p>Implementação da interface de OperationCallback para a máquina de estados.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_statechart_callback_8h_source.html">StatechartCallback.h</a>&gt;</code></p>
@@ -110,57 +110,57 @@ Inheritance diagram for StatechartCallback:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0c1b1d3d630dee0f849b1d0bd94b0c4f" id="r_a0c1b1d3d630dee0f849b1d0bd94b0c4f"><td class="memItemLeft" align="right" valign="top"><a id="a0c1b1d3d630dee0f849b1d0bd94b0c4f" name="a0c1b1d3d630dee0f849b1d0bd94b0c4f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>StatechartCallback</b> ()</td></tr>
-<tr class="memdesc:a0c1b1d3d630dee0f849b1d0bd94b0c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construtor padrão da classe <a class="el" href="class_statechart_callback.html" title="Implementação da interface de OperationCallback para a máquina de estados Yakindu....">StatechartCallback</a>. <br /></td></tr>
+<tr class="memdesc:a0c1b1d3d630dee0f849b1d0bd94b0c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construtor padrão da classe. <br /></td></tr>
 <tr class="memitem:a71f68e8972a472764d5cf158b397fcf7" id="r_a71f68e8972a472764d5cf158b397fcf7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71f68e8972a472764d5cf158b397fcf7">setStatechart</a> (<a class="el" href="class_statechart.html">Statechart</a> *sc)</td></tr>
-<tr class="memdesc:a71f68e8972a472764d5cf158b397fcf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define a instância da <a class="el" href="class_statechart.html">Statechart</a> para que os callbacks possam disparar eventos.  <br /></td></tr>
+<tr class="memdesc:a71f68e8972a472764d5cf158b397fcf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define a instância da <a class="el" href="class_statechart.html">Statechart</a>.  <br /></td></tr>
 <tr class="memitem:a6512d1f0ee6b8e4889bb713912a9d846" id="r_a6512d1f0ee6b8e4889bb713912a9d846"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6512d1f0ee6b8e4889bb713912a9d846">beginDisplay</a> () override</td></tr>
-<tr class="memdesc:a6512d1f0ee6b8e4889bb713912a9d846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solicita a inicialização do display OLED na displayTask. Chamado pelo estado INIT_SYSTEM do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a6512d1f0ee6b8e4889bb713912a9d846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solicita a inicialização do display OLED na displayTask. Chamado pelo estado INIT_SYSTEM do Itemis.  <br /></td></tr>
 <tr class="memitem:a2ca18e895e1180b30e3704de1620f2c4" id="r_a2ca18e895e1180b30e3704de1620f2c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2ca18e895e1180b30e3704de1620f2c4">pinMode</a> (sc_integer pin, sc_integer mode) override</td></tr>
-<tr class="memdesc:a2ca18e895e1180b30e3704de1620f2c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configura o modo de um pino GPIO. Chamado por operações do Yakindu que precisam configurar pinos (ex: LED).  <br /></td></tr>
+<tr class="memdesc:a2ca18e895e1180b30e3704de1620f2c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configura o modo de um pino GPIO. Chamado por operações do Itemis que precisam configurar pinos (ex: LED).  <br /></td></tr>
 <tr class="memitem:a32d603cc5924d81e7bae26df2a58cdd5" id="r_a32d603cc5924d81e7bae26df2a58cdd5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a32d603cc5924d81e7bae26df2a58cdd5">digitalWrite</a> (sc_integer pin, sc_integer value) override</td></tr>
-<tr class="memdesc:a32d603cc5924d81e7bae26df2a58cdd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define o nível digital de um pino GPIO. Chamado por operações do Yakindu que controlam saídas digitais (ex: LED).  <br /></td></tr>
+<tr class="memdesc:a32d603cc5924d81e7bae26df2a58cdd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define o nível digital de um pino GPIO. Chamado por operações do Itemis que controlam saídas digitais (ex: LED).  <br /></td></tr>
 <tr class="memitem:a3284e955756a933d45e0bc353478cdb2" id="r_a3284e955756a933d45e0bc353478cdb2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3284e955756a933d45e0bc353478cdb2">showStartup</a> () override</td></tr>
-<tr class="memdesc:a3284e955756a933d45e0bc353478cdb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT_SYSTEM do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a3284e955756a933d45e0bc353478cdb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT_SYSTEM do Itemis.  <br /></td></tr>
 <tr class="memitem:a7312ea56019093e99340f326156ad0ef" id="r_a7312ea56019093e99340f326156ad0ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7312ea56019093e99340f326156ad0ef">showRecipes</a> () override</td></tr>
-<tr class="memdesc:a7312ea56019093e99340f326156ad0ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a7312ea56019093e99340f326156ad0ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Itemis.  <br /></td></tr>
 <tr class="memitem:a79ccb2fd5cd9782ae04202fc81a8eb2a" id="r_a79ccb2fd5cd9782ae04202fc81a8eb2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a79ccb2fd5cd9782ae04202fc81a8eb2a">showRecipe</a> (sc_integer recipeId) override</td></tr>
-<tr class="memdesc:a79ccb2fd5cd9782ae04202fc81a8eb2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE_X do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a79ccb2fd5cd9782ae04202fc81a8eb2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE_X do Itemis.  <br /></td></tr>
 <tr class="memitem:a0060eb65c22e39e622d1076448a29e1f" id="r_a0060eb65c22e39e622d1076448a29e1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0060eb65c22e39e622d1076448a29e1f">initializeProcess</a> () override</td></tr>
-<tr class="memdesc:a0060eb65c22e39e622d1076448a29e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o processo de cozimento. Chamado pelo estado START_PROCESS do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a0060eb65c22e39e622d1076448a29e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o processo de cozimento. Chamado pelo estado START_PROCESS do Itemis.  <br /></td></tr>
 <tr class="memitem:a366ba128bf01272f1d554f43b248b0b5" id="r_a366ba128bf01272f1d554f43b248b0b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a366ba128bf01272f1d554f43b248b0b5">startNextRecipeStep</a> (sc_integer recipeIndex) override</td></tr>
-<tr class="memdesc:a366ba128bf01272f1d554f43b248b0b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Yakindu na entrada de CONTROL_PROCESS_LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo.  <br /></td></tr>
+<tr class="memdesc:a366ba128bf01272f1d554f43b248b0b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Itemis na entrada de CONTROL_PROCESS_LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo.  <br /></td></tr>
 <tr class="memitem:a0b352beed274ffe9240b759d717daab2" id="r_a0b352beed274ffe9240b759d717daab2"><td class="memItemLeft" align="right" valign="top">sc_boolean&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b352beed274ffe9240b759d717daab2">hasMoreSteps</a> () override</td></tr>
-<tr class="memdesc:a0b352beed274ffe9240b759d717daab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação <a class="el" href="#a0b352beed274ffe9240b759d717daab2" title="Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação hasMoreSteps(...">hasMoreSteps()</a> do Yakindu (usada nas guardas de transição).  <br /></td></tr>
+<tr class="memdesc:a0b352beed274ffe9240b759d717daab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação <a class="el" href="#a0b352beed274ffe9240b759d717daab2" title="Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação hasMoreSteps(...">hasMoreSteps()</a> do Itemis (usada nas guardas de transição).  <br /></td></tr>
 <tr class="memitem:a805b1c8d0c6b7d772ea2352a66c23708" id="r_a805b1c8d0c6b7d772ea2352a66c23708"><td class="memItemLeft" align="right" valign="top">sc_integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a805b1c8d0c6b7d772ea2352a66c23708">getCurrentRecipeIndex</a> () override</td></tr>
-<tr class="memdesc:a805b1c8d0c6b7d772ea2352a66c23708"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação <a class="el" href="#a805b1c8d0c6b7d772ea2352a66c23708" title="Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação getCurrent...">getCurrentRecipeIndex()</a> do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a805b1c8d0c6b7d772ea2352a66c23708"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação <a class="el" href="#a805b1c8d0c6b7d772ea2352a66c23708" title="Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação getCurrent...">getCurrentRecipeIndex()</a> do Itemis.  <br /></td></tr>
 <tr class="memitem:a569b34e99acca77703710d4504780a70" id="r_a569b34e99acca77703710d4504780a70"><td class="memItemLeft" align="right" valign="top">sc_integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a569b34e99acca77703710d4504780a70">getCurrentStepIndex</a> () override</td></tr>
-<tr class="memdesc:a569b34e99acca77703710d4504780a70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação <a class="el" href="#a569b34e99acca77703710d4504780a70" title="Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação getCurrentStepIn...">getCurrentStepIndex()</a> do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a569b34e99acca77703710d4504780a70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação <a class="el" href="#a569b34e99acca77703710d4504780a70" title="Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação getCurrentStepIn...">getCurrentStepIndex()</a> do Itemis.  <br /></td></tr>
 <tr class="memitem:ada2c780738f608c405b2f5eab33aca79" id="r_ada2c780738f608c405b2f5eab33aca79"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada2c780738f608c405b2f5eab33aca79">showProcessStatus</a> (sc_integer currentTemp, sc_integer targetTemp, sc_integer remainingMinutes, sc_integer remainingSeconds, sc_string stepName, sc_integer stepNum, sc_integer totalSteps, sc_boolean isRamping) override</td></tr>
 <tr class="memdesc:ada2c780738f608c405b2f5eab33aca79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe o status do processo de cozimento no display OLED. Chamado pela máquina de estados ou por tarefas de controle para atualizar o UI.  <br /></td></tr>
 <tr class="memitem:a52e80be024b7f897449ae5738ac28eb7" id="r_a52e80be024b7f897449ae5738ac28eb7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a52e80be024b7f897449ae5738ac28eb7">showFinished</a> () override</td></tr>
-<tr class="memdesc:a52e80be024b7f897449ae5738ac28eb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH_PROCESS do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a52e80be024b7f897449ae5738ac28eb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH_PROCESS do Itemis.  <br /></td></tr>
 <tr class="memitem:a6830f5cc9a7625ef7c91a65491ddd5c2" id="r_a6830f5cc9a7625ef7c91a65491ddd5c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6830f5cc9a7625ef7c91a65491ddd5c2">showFinishedMessage</a> () override</td></tr>
-<tr class="memdesc:a6830f5cc9a7625ef7c91a65491ddd5c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED_MESSAGE do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a6830f5cc9a7625ef7c91a65491ddd5c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED_MESSAGE do Itemis.  <br /></td></tr>
 <tr class="memitem:a0b153376b4a3d937102602051ac50c80" id="r_a0b153376b4a3d937102602051ac50c80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b153376b4a3d937102602051ac50c80">showState</a> (sc_string state) override</td></tr>
-<tr class="memdesc:a0b153376b4a3d937102602051ac50c80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a0b153376b4a3d937102602051ac50c80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Itemis.  <br /></td></tr>
 <tr class="memitem:a40d4b821ee479a29fa16d5bb65f60f16" id="r_a40d4b821ee479a29fa16d5bb65f60f16"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40d4b821ee479a29fa16d5bb65f60f16">showIdleScreen</a> () override</td></tr>
-<tr class="memdesc:a40d4b821ee479a29fa16d5bb65f60f16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a tela inicial de IDLE ("Bem-vindo!", "1- Iniciar", "2- Sair"). Chamado pelo estado IDLE do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a40d4b821ee479a29fa16d5bb65f60f16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exibe a tela inicial de IDLE ("Bem-vindo!", "1- Iniciar", "2- Sair"). Chamado pelo estado IDLE do Itemis.  <br /></td></tr>
 <tr class="memitem:a9bec19382c76a6631cbbba5b1c025bed" id="r_a9bec19382c76a6631cbbba5b1c025bed"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9bec19382c76a6631cbbba5b1c025bed">beginMatrix</a> () override</td></tr>
-<tr class="memdesc:a9bec19382c76a6631cbbba5b1c025bed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o teclado matricial. Chamado pelo estado IDLE do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a9bec19382c76a6631cbbba5b1c025bed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o teclado matricial. Chamado pelo estado IDLE do Itemis.  <br /></td></tr>
 <tr class="memitem:accdea45556fad26adb2a7714d5c69c7d" id="r_accdea45556fad26adb2a7714d5c69c7d"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#accdea45556fad26adb2a7714d5c69c7d">readKeypadChar</a> ()</td></tr>
 <tr class="memdesc:accdea45556fad26adb2a7714d5c69c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lê uma tecla do teclado matricial. Esta função é chamada pela keypadTask.  <br /></td></tr>
 <tr class="memitem:a9b0bc6caa3dadb23e26d8c77a19196df" id="r_a9b0bc6caa3dadb23e26d8c77a19196df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b0bc6caa3dadb23e26d8c77a19196df">printKeypadInput</a> ()</td></tr>
 <tr class="memdesc:a9b0bc6caa3dadb23e26d8c77a19196df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Envia um comando para a displayTask para imprimir o buffer de entrada.  <br /></td></tr>
 <tr class="memitem:a244c879e69bb717bcc87c9970b988bc5" id="r_a244c879e69bb717bcc87c9970b988bc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a244c879e69bb717bcc87c9970b988bc5">beginSemaphore</a> () override</td></tr>
-<tr class="memdesc:a244c879e69bb717bcc87c9970b988bc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a244c879e69bb717bcc87c9970b988bc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Itemis.  <br /></td></tr>
 <tr class="memitem:a991e9ac6e43b6990de74162c38277efc" id="r_a991e9ac6e43b6990de74162c38277efc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a991e9ac6e43b6990de74162c38277efc">setupHeaterPWM</a> () override</td></tr>
-<tr class="memdesc:a991e9ac6e43b6990de74162c38277efc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Yakindu (ex: no INIT_SYSTEM).  <br /></td></tr>
+<tr class="memdesc:a991e9ac6e43b6990de74162c38277efc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Itemis (ex: no INIT_SYSTEM).  <br /></td></tr>
 <tr class="memitem:a275fd2a117f0fa221e75cabd98aa53f1" id="r_a275fd2a117f0fa221e75cabd98aa53f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a275fd2a117f0fa221e75cabd98aa53f1">controlHeaterPWM</a> (sc_integer duty_cycle) override</td></tr>
-<tr class="memdesc:a275fd2a117f0fa221e75cabd98aa53f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação 'heat' do Yakindu e pela 'controlTask'.  <br /></td></tr>
+<tr class="memdesc:a275fd2a117f0fa221e75cabd98aa53f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação 'heat' do Itemis e pela 'controlTask'.  <br /></td></tr>
 <tr class="memitem:a50763df935fa54557772578384635977" id="r_a50763df935fa54557772578384635977"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50763df935fa54557772578384635977">heat</a> (sc_integer target_temp) override</td></tr>
-<tr class="memdesc:a50763df935fa54557772578384635977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mapeia a temperatura alvo para o duty cycle do PWM e envia para controlHeaterPWM. Chamado pelo Yakindu (operação 'heat').  <br /></td></tr>
+<tr class="memdesc:a50763df935fa54557772578384635977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mapeia a temperatura alvo para o duty cycle do PWM e envia para controlHeaterPWM. Chamado pelo Itemis (operação 'heat').  <br /></td></tr>
 <tr class="memitem:a44358dc04ef8676039de3189deffc315" id="r_a44358dc04ef8676039de3189deffc315"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44358dc04ef8676039de3189deffc315">beginWaterSensor</a> () override</td></tr>
-<tr class="memdesc:a44358dc04ef8676039de3189deffc315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o sensor de temperatura DS18B20. Chamado pelo estado INIT_SYSTEM do Yakindu.  <br /></td></tr>
+<tr class="memdesc:a44358dc04ef8676039de3189deffc315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializa o sensor de temperatura DS18B20. Chamado pelo estado INIT_SYSTEM do Itemis.  <br /></td></tr>
 <tr class="memitem:a257da5ccd1613839c2021101b7166c6c" id="r_a257da5ccd1613839c2021101b7166c6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a257da5ccd1613839c2021101b7166c6c">shutdownSystem</a> () override</td></tr>
 <tr class="memitem:a698544ac53955fe2e26bb383266b0b87" id="r_a698544ac53955fe2e26bb383266b0b87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a698544ac53955fe2e26bb383266b0b87">time</a> (sc_integer) override</td></tr>
 <tr class="memitem:a8df69a6df50252b056d8e368747a2ebf" id="r_a8df69a6df50252b056d8e368747a2ebf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8df69a6df50252b056d8e368747a2ebf">setTemperature</a> (sc_integer) override</td></tr>
@@ -183,19 +183,14 @@ Public Member Functions</h2></td></tr>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ada1474cd318abbde5b3a3edcbbd7e5d4" id="r_ada1474cd318abbde5b3a3edcbbd7e5d4"><td class="memItemLeft" align="right" valign="top"><a id="ada1474cd318abbde5b3a3edcbbd7e5d4" name="ada1474cd318abbde5b3a3edcbbd7e5d4"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>oledOK</b> = false</td></tr>
-<tr class="memdesc:ada1474cd318abbde5b3a3edcbbd7e5d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag para indicar se o display OLED foi inicializado com sucesso. <br /></td></tr>
 <tr class="memitem:a67cf4a2a95426739746963113a1f1920" id="r_a67cf4a2a95426739746963113a1f1920"><td class="memItemLeft" align="right" valign="top"><a id="a67cf4a2a95426739746963113a1f1920" name="a67cf4a2a95426739746963113a1f1920"></a>
 Keypad *&#160;</td><td class="memItemRight" valign="bottom"><b>keypad</b> = nullptr</td></tr>
-<tr class="memdesc:a67cf4a2a95426739746963113a1f1920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ponteiro para o objeto do teclado matricial. <br /></td></tr>
 <tr class="memitem:a9344dc81ba0a66c98837b8b73e266fe8" id="r_a9344dc81ba0a66c98837b8b73e266fe8"><td class="memItemLeft" align="right" valign="top"><a id="a9344dc81ba0a66c98837b8b73e266fe8" name="a9344dc81ba0a66c98837b8b73e266fe8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>matrixOK</b> = false</td></tr>
-<tr class="memdesc:a9344dc81ba0a66c98837b8b73e266fe8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag para indicar se o teclado matricial foi inicializado com sucesso. <br /></td></tr>
 <tr class="memitem:af85dce0caa18b8191733814492a9f34e" id="r_af85dce0caa18b8191733814492a9f34e"><td class="memItemLeft" align="right" valign="top"><a id="af85dce0caa18b8191733814492a9f34e" name="af85dce0caa18b8191733814492a9f34e"></a>
 String&#160;</td><td class="memItemRight" valign="bottom"><b>inputBuffer</b> = &quot;&quot;</td></tr>
-<tr class="memdesc:af85dce0caa18b8191733814492a9f34e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Buffer para armazenar a entrada digitada pelo teclado. <br /></td></tr>
 <tr class="memitem:ac3e180b5e78cba51f139952ae2bc0646" id="r_ac3e180b5e78cba51f139952ae2bc0646"><td class="memItemLeft" align="right" valign="top"><a id="ac3e180b5e78cba51f139952ae2bc0646" name="ac3e180b5e78cba51f139952ae2bc0646"></a>
 unsigned long&#160;</td><td class="memItemRight" valign="bottom"><b>lastKeyPressTime</b> = 0</td></tr>
-<tr class="memdesc:ac3e180b5e78cba51f139952ae2bc0646"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timestamp da última tecla pressionada (para timeout de buffer) <br /></td></tr>
 <tr class="memitem:a02d8925ae74f01a54440cbddf8a27188" id="r_a02d8925ae74f01a54440cbddf8a27188"><td class="memItemLeft" align="right" valign="top"><a id="a02d8925ae74f01a54440cbddf8a27188" name="a02d8925ae74f01a54440cbddf8a27188"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>currentRecipeIdx</b> = -1</td></tr>
 <tr class="memitem:ab0b71368440345e8ade69400eedae844" id="r_ab0b71368440345e8ade69400eedae844"><td class="memItemLeft" align="right" valign="top"><a id="ab0b71368440345e8ade69400eedae844" name="ab0b71368440345e8ade69400eedae844"></a>
@@ -204,7 +199,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>currentStepIdx</b> = -
 float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature</b> = 0.0</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implementação da interface de OperationCallback para a máquina de estados Yakindu. Esta classe é responsável por abstrair as operações de hardware e serviços, enviando comandos para as Tasks FreeRTOS apropriadas. </p>
+<div class="textblock"><p>Implementação da interface de OperationCallback para a máquina de estados. </p>
+<p>Esta classe gerencia a comunicação entre a máquina de estados e o hardware, utilizando filas FreeRTOS para interagir com outras tarefas de forma segura. </p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="ad0e87371061c75a81b653b93af85e290" name="ad0e87371061c75a81b653b93af85e290"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad0e87371061c75a81b653b93af85e290">&#9670;&#160;</a></span>advanceToNextCustomStep()</h2>
@@ -256,7 +252,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Solicita a inicialização do display OLED na displayTask. Chamado pelo estado INIT_SYSTEM do Yakindu. </p>
+<p>Solicita a inicialização do display OLED na displayTask. Chamado pelo estado INIT_SYSTEM do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -285,7 +281,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Inicializa o teclado matricial. Chamado pelo estado IDLE do Yakindu. </p>
+<p>Inicializa o teclado matricial. Chamado pelo estado IDLE do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -314,7 +310,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Yakindu. </p>
+<p>Inicializa os pinos do módulo semáforo LED. Chamado pelo estado IDLE do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -343,7 +339,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Inicializa o sensor de temperatura DS18B20. Chamado pelo estado INIT_SYSTEM do Yakindu. </p>
+<p>Inicializa o sensor de temperatura DS18B20. Chamado pelo estado INIT_SYSTEM do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -372,7 +368,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação 'heat' do Yakindu e pela 'controlTask'. </p>
+<p>Controla o aquecedor através do sinal PWM. Esta função é chamada pela operação 'heat' do Itemis e pela 'controlTask'. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">duty_cycle</td><td>O ciclo de trabalho do PWM (valor de 0 até (2^resolution)-1). </td></tr>
@@ -411,7 +407,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Define o nível digital de um pino GPIO. Chamado por operações do Yakindu que controlam saídas digitais (ex: LED). </p>
+<p>Define o nível digital de um pino GPIO. Chamado por operações do Itemis que controlam saídas digitais (ex: LED). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pin</td><td>Número do pino. </td></tr>
@@ -447,7 +443,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação <a class="el" href="#a805b1c8d0c6b7d772ea2352a66c23708" title="Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação getCurrent...">getCurrentRecipeIndex()</a> do Yakindu. </p>
+<p>Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação <a class="el" href="#a805b1c8d0c6b7d772ea2352a66c23708" title="Retorna o índice da receita atualmente em processamento (0-baseado). Implementa a operação getCurrent...">getCurrentRecipeIndex()</a> do Itemis. </p>
 <dl class="section return"><dt>Returns</dt><dd>O índice da receita. </dd></dl>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
@@ -477,7 +473,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação <a class="el" href="#a569b34e99acca77703710d4504780a70" title="Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação getCurrentStepIn...">getCurrentStepIndex()</a> do Yakindu. </p>
+<p>Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação <a class="el" href="#a569b34e99acca77703710d4504780a70" title="Retorna o índice da etapa atual dentro da receita (0-baseado). Implementa a operação getCurrentStepIn...">getCurrentStepIndex()</a> do Itemis. </p>
 <dl class="section return"><dt>Returns</dt><dd>O índice da etapa. </dd></dl>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
@@ -507,7 +503,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação <a class="el" href="#a0b352beed274ffe9240b759d717daab2" title="Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação hasMoreSteps(...">hasMoreSteps()</a> do Yakindu (usada nas guardas de transição). </p>
+<p>Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação <a class="el" href="#a0b352beed274ffe9240b759d717daab2" title="Verifica se ainda há etapas a serem processadas na receita atual. Implementa a operação hasMoreSteps(...">hasMoreSteps()</a> do Itemis (usada nas guardas de transição). </p>
 <dl class="section return"><dt>Returns</dt><dd>true se houver mais etapas, false caso contrário. </dd></dl>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
@@ -564,7 +560,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Mapeia a temperatura alvo para o duty cycle do PWM e envia para controlHeaterPWM. Chamado pelo Yakindu (operação 'heat'). </p>
+<p>Mapeia a temperatura alvo para o duty cycle do PWM e envia para controlHeaterPWM. Chamado pelo Itemis (operação 'heat'). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">target_temp</td><td>A temperatura alvo desejada (ex: 25C a 100C). </td></tr>
@@ -599,7 +595,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Inicializa o processo de cozimento. Chamado pelo estado START_PROCESS do Yakindu. </p>
+<p>Inicializa o processo de cozimento. Chamado pelo estado START_PROCESS do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -740,7 +736,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Configura o modo de um pino GPIO. Chamado por operações do Yakindu que precisam configurar pinos (ex: LED). </p>
+<p>Configura o modo de um pino GPIO. Chamado por operações do Itemis que precisam configurar pinos (ex: LED). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pin</td><td>Número do pino. </td></tr>
@@ -921,7 +917,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Define a instância da <a class="el" href="class_statechart.html">Statechart</a> para que os callbacks possam disparar eventos. </p>
+<p>Define a instância da <a class="el" href="class_statechart.html">Statechart</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">sc</td><td>Ponteiro para o objeto <a class="el" href="class_statechart.html">Statechart</a>. </td></tr>
@@ -1008,7 +1004,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Yakindu (ex: no INIT_SYSTEM). </p>
+<p>Configura o pino GPIO especificado para operar como saída PWM para o aquecedor. Chamado pelo Itemis (ex: no INIT_SYSTEM). </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1145,7 +1141,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH_PROCESS do Yakindu. </p>
+<p>Sinaliza o término do processo e desliga atuadores. Chamado pelo estado FINISH_PROCESS do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1174,7 +1170,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED_MESSAGE do Yakindu. </p>
+<p>Exibe a mensagem de receita concluída no display. Chamado pelo estado FINISHED_MESSAGE do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1203,7 +1199,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe a tela inicial de IDLE ("Bem-vindo!", "1- Iniciar", "2- Sair"). Chamado pelo estado IDLE do Yakindu. </p>
+<p>Exibe a tela inicial de IDLE ("Bem-vindo!", "1- Iniciar", "2- Sair"). Chamado pelo estado IDLE do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1308,7 +1304,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE_X do Yakindu. </p>
+<p>Exibe os detalhes de uma receita específica no display. Chamado pelos estados RECIPE_X do Itemis. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">recipeId</td><td>O ID da receita a ser exibida (1-baseado). </td></tr>
@@ -1343,7 +1339,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Yakindu. </p>
+<p>Exibe o menu de seleção de receitas no display. Chamado pelo estado MENU do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1372,7 +1368,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT_SYSTEM do Yakindu. </p>
+<p>Exibe a mensagem de inicialização do sistema no display. Chamado pelo estado INIT_SYSTEM do Itemis. </p>
 
 <p>Implements <a class="el" href="class_statechart_1_1_operation_callback.html">Statechart::OperationCallback</a>.</p>
 
@@ -1401,7 +1397,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Yakindu. </p>
+<p>Exibe o nome do estado atual no Serial Monitor e no display (geralmente no topo). Chamado por várias entradas de estado do Itemis. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">state</td><td>String contendo o nome do estado. </td></tr>
@@ -1463,7 +1459,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>lastReadTemperature<
 </table>
 </div><div class="memdoc">
 
-<p>Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Yakindu na entrada de CONTROL_PROCESS_LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. </p>
+<p>Inicia ou avança para a próxima etapa da receita sendo processada. Esta operação é chamada pelo Itemis na entrada de CONTROL_PROCESS_LOOP. Ela é responsável por configurar o hardware para a etapa atual e pode sinalizar o início da monitoração de temperatura/tempo. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">recipeIndex</td><td>O índice da receita que está sendo processada (0-baseado). </td></tr>

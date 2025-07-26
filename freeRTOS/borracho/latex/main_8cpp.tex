@@ -2,7 +2,7 @@
 \hypertarget{main_8cpp}{}\label{main_8cpp}\index{src/main.cpp@{src/main.cpp}}
 
 
-main file of project  
+Ponto de entrada principal do firmware para o sistema de brassagem de cerveja.  
 
 
 {\ttfamily \#include $<$Arduino.\+h$>$}\newline
@@ -14,92 +14,247 @@ main file of project
 {\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
 {\ttfamily \#include $<$Wire.\+h$>$}\newline
 {\ttfamily \#include $<$PID\+\_\+v1.\+h$>$}\newline
+{\ttfamily \#include "{}FS.\+h"{}}\newline
+{\ttfamily \#include "{}Little\+FS.\+h"{}}\newline
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
 \Hypertarget{main_8cpp_ae780a76d06cb56e14435ebfe3db3f6d3}\label{main_8cpp_ae780a76d06cb56e14435ebfe3db3f6d3} 
 Adafruit\+\_\+\+SSD1306 {\bfseries display} (SCREEN\+\_\+\+WIDTH, SCREEN\+\_\+\+HEIGHT, \&Wire, OLED\+\_\+\+RESET)
 \item 
-\Hypertarget{main_8cpp_a2ef2a9c92b10e34d69cbc0dee697bc21}\label{main_8cpp_a2ef2a9c92b10e34d69cbc0dee697bc21} 
-void {\bfseries keypad\+Task} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
-\begin{DoxyCompactList}\small\item\em Tarefa responsável pela leitura contínua do teclado matricial. Envia as teclas pressionadas para a fila do teclado (x\+Keypad\+Queue). \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_ae55f6b1960380efdac97d26cde941c07}\label{main_8cpp_ae55f6b1960380efdac97d26cde941c07} 
-void {\bfseries state\+Machine\+Task} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
-\begin{DoxyCompactList}\small\item\em Tarefa responsável por gerenciar a máquina de estados Yakindu e processar a entrada do teclado. \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_ac55d0909bfe96e544bb1324d9e0be983}\label{main_8cpp_ac55d0909bfe96e544bb1324d9e0be983} 
-void {\bfseries display\+Task} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
-\begin{DoxyCompactList}\small\item\em Tarefa responsável por gerenciar todas as operações de exibição no display OLED. Recebe comandos da x\+Display\+Queue e desenha o conteúdo correspondente. \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_a67a8d726e911bbb9d70f976f8ca7357b}\label{main_8cpp_a67a8d726e911bbb9d70f976f8ca7357b} 
-void {\bfseries control\+Task} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
-\begin{DoxyCompactList}\small\item\em Tarefa responsável por gerenciar o processo de cozimento (contagem regressiva e leitura dos dados do sensor de temperatura/atuadores). \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_a3ffdb9552c1874edee2a03bfe16a641d}\label{main_8cpp_a3ffdb9552c1874edee2a03bfe16a641d} 
-void {\bfseries temperature\+Sensor\+Task} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
-\begin{DoxyCompactList}\small\item\em Tarefa responsável por ler periodicamente a temperatura do ESP32 simulador via I2C. Envia as leituras para a x\+Sensor\+Queue. \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d}\label{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d} 
-void {\bfseries setup} ()
-\begin{DoxyCompactList}\small\item\em Função de inicialização do sistema. Configura a comunicação serial, I2C, inicializa a máquina de estados e cria as tarefas Free\+RTOS. \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_afe461d27b9c48d5921c00d521181f12f}\label{main_8cpp_afe461d27b9c48d5921c00d521181f12f} 
-void {\bfseries loop} ()
-\begin{DoxyCompactList}\small\item\em Loop principal do Free\+RTOS. No contexto Free\+RTOS, esta função geralmente contém um delay ou é usada para uma tarefa de baixa prioridade, pois a maioria da lógica é executada pelas tasks criadas. \end{DoxyCompactList}\end{DoxyCompactItemize}
+void \mbox{\hyperlink{main_8cpp_a2ef2a9c92b10e34d69cbc0dee697bc21}{keypad\+Task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Tarefa para a leitura contínua do teclado matricial. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_ae55f6b1960380efdac97d26cde941c07}{state\+Machine\+Task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Tarefa para gerenciar a máquina de estados Yakindu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_ac55d0909bfe96e544bb1324d9e0be983}{display\+Task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Tarefa para gerenciar todas as operações de exibição no display OLED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_a67a8d726e911bbb9d70f976f8ca7357b}{control\+Task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Tarefa para gerenciar o processo de aquecimento e contagem regressiva. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_a3ffdb9552c1874edee2a03bfe16a641d}{temperature\+Sensor\+Task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Tarefa para ler periodicamente a temperatura do sensor simulado via I2C. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_a1c52182662da62d394e157877ca0dc4f}{read\+And\+Print\+Log}} ()
+\begin{DoxyCompactList}\small\item\em Lê o conteúdo completo do arquivo de log e imprime na Serial. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d}{setup}} ()
+\begin{DoxyCompactList}\small\item\em Função de inicialização do sistema. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8cpp_afe461d27b9c48d5921c00d521181f12f}{loop}} ()
+\begin{DoxyCompactList}\small\item\em Loop principal do Free\+RTOS. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{main_8cpp_aea9933162002533cb0b8d9b2edc8124e}\label{main_8cpp_aea9933162002533cb0b8d9b2edc8124e} 
-\mbox{\hyperlink{class_statechart}{Statechart}} {\bfseries statechart}
-\begin{DoxyCompactList}\small\item\em Instância da máquina de estados Yakindu. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{class_statechart}{Statechart}} \mbox{\hyperlink{main_8cpp_aea9933162002533cb0b8d9b2edc8124e}{statechart}}
+\begin{DoxyCompactList}\small\item\em Instâncias e recursos globais compartilhados entre as tarefas. \end{DoxyCompactList}\item 
 \Hypertarget{main_8cpp_a1036045cb8334a73b0aa7fc5bd1b995a}\label{main_8cpp_a1036045cb8334a73b0aa7fc5bd1b995a} 
 \mbox{\hyperlink{class_statechart_callback}{Statechart\+Callback}} {\bfseries callback}
-\begin{DoxyCompactList}\small\item\em Instância da classe de callbacks para operações do Yakindu. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{main_8cpp_acf33d650daf1a8e4b4bfcd2a47ec7fbc}\label{main_8cpp_acf33d650daf1a8e4b4bfcd2a47ec7fbc} 
 \mbox{\hyperlink{class_statechart_timer}{Statechart\+Timer}} {\bfseries timer\+Service}
-\begin{DoxyCompactList}\small\item\em Instância do serviço de timer para a máquina de estados. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{main_8cpp_aa63b118af57eeb18597abe006808610d}\label{main_8cpp_aa63b118af57eeb18597abe006808610d} 
 Queue\+Handle\+\_\+t {\bfseries x\+Keypad\+Queue}
-\begin{DoxyCompactList}\small\item\em Fila para enviar teclas lidas da keypad\+Task para a state\+Machine\+Task. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{main_8cpp_a51e8f735c66d2f4634819af0c5a43301}\label{main_8cpp_a51e8f735c66d2f4634819af0c5a43301} 
 Queue\+Handle\+\_\+t {\bfseries x\+Display\+Queue}
-\begin{DoxyCompactList}\small\item\em Fila para enviar comandos de exibição para a display\+Task. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{main_8cpp_a4a467a81ab512fc4a226ef182b8e2196}\label{main_8cpp_a4a467a81ab512fc4a226ef182b8e2196} 
 Queue\+Handle\+\_\+t {\bfseries x\+Control\+Queue}
-\begin{DoxyCompactList}\small\item\em Fila para comandos da control\+Task. \end{DoxyCompactList}\item 
+\item 
 \Hypertarget{main_8cpp_a0927c92b68493a1c4ad301b66b6eef1b}\label{main_8cpp_a0927c92b68493a1c4ad301b66b6eef1b} 
 Queue\+Handle\+\_\+t {\bfseries x\+Sensor\+Queue}
-\begin{DoxyCompactList}\small\item\em Fila para leitura do sensor de temperatura. \end{DoxyCompactList}\item 
-\Hypertarget{main_8cpp_acee1cd9c13bb54e0c4109273a19f4945}\label{main_8cpp_acee1cd9c13bb54e0c4109273a19f4945} 
-const byte {\bfseries I2\+C\+\_\+\+SLAVE\+\_\+\+ADDRESS} = 0x08
 \item 
-\Hypertarget{main_8cpp_a75c4a1f32ff8946a7e4880300dc7d309}\label{main_8cpp_a75c4a1f32ff8946a7e4880300dc7d309} 
-double {\bfseries Setpoint}
-\item 
-\Hypertarget{main_8cpp_a1650ded891a8683614e014008c96278c}\label{main_8cpp_a1650ded891a8683614e014008c96278c} 
-double {\bfseries Input}
-\item 
+const byte \mbox{\hyperlink{main_8cpp_acee1cd9c13bb54e0c4109273a19f4945}{I2\+C\+\_\+\+SLAVE\+\_\+\+ADDRESS}} = 0x08
+\begin{DoxyCompactList}\small\item\em Endereço I2C do ESP32 escravo (simulador de sensor). \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{main_8cpp_a75c4a1f32ff8946a7e4880300dc7d309}{Setpoint}}
+\begin{DoxyCompactList}\small\item\em Parâmetros para o controlador PID. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{main_8cpp_a1650ded891a8683614e014008c96278c}{Input}}
+\begin{DoxyCompactList}\small\item\em Objeto do controlador PID. \end{DoxyCompactList}\item 
 \Hypertarget{main_8cpp_abe306616e5964581019974a7d94cffe2}\label{main_8cpp_abe306616e5964581019974a7d94cffe2} 
 double {\bfseries Output}
 \item 
 \Hypertarget{main_8cpp_afd070d90e3f8bb3e9bb9c6dff310503b}\label{main_8cpp_afd070d90e3f8bb3e9bb9c6dff310503b} 
-double {\bfseries Kp} =30
+double {\bfseries Kp} = 30
 \item 
 \Hypertarget{main_8cpp_aad5977a9e83736178f3b724a1d228652}\label{main_8cpp_aad5977a9e83736178f3b724a1d228652} 
-double {\bfseries Ki} =5.\+0
+double {\bfseries Ki} = 5.\+0
 \item 
 \Hypertarget{main_8cpp_ab9e6bbb0361dc98bc2f5399d014c6c01}\label{main_8cpp_ab9e6bbb0361dc98bc2f5399d014c6c01} 
-double {\bfseries Kd} =0.\+5
+double {\bfseries Kd} = 0.\+5
 \end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-main file of project 
+Ponto de entrada principal do firmware para o sistema de brassagem de cerveja. 
 
-\begin{DoxyAuthor}{Author}
-Jonathan Chrysostomo Cabral Bonette (\href{mailto:jonathanbonette@hotmail.com}{\texttt{jonathanbonette@hotmail.\+com}}) 
+Este arquivo configura o ambiente Free\+RTOS, a máquina de estados Yakindu, o display OLED, o controlador PID e outros periféricos. Ele cria e gerencia as tarefas (tasks) que executam a lógica principal do sistema, como leitura do teclado, controle da máquina de estados, exibição no display, controle do processo de aquecimento e o registro de dados em um sistema de arquivos (Little\+FS). \begin{DoxyAuthor}{Author}
+Jonathan Chrysostomo Cabral Bonette 
 \end{DoxyAuthor}
-\begin{DoxyVersion}{Version}
-0.\+1 
-\end{DoxyVersion}
 \begin{DoxyDate}{Date}
-2025-\/07-\/26
+26/07/2025 
 \end{DoxyDate}
+\begin{DoxyNote}{Note}
+Este firmware utiliza Free\+RTOS para gerenciamento de tarefas, a biblioteca Yakindu para a máquina de estados, o protocolo I2C para comunicação com sensores externos e o Little\+FS para armazenamento de logs de processo. 
+\end{DoxyNote}
 \begin{DoxyCopyright}{Copyright}
 Copyright (c) 2025 
 \end{DoxyCopyright}
+
+
+\label{doc-func-members}
+\Hypertarget{main_8cpp_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8cpp_a67a8d726e911bbb9d70f976f8ca7357b}\index{main.cpp@{main.cpp}!controlTask@{controlTask}}
+\index{controlTask@{controlTask}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{controlTask()}{controlTask()}}
+{\footnotesize\ttfamily \label{main_8cpp_a67a8d726e911bbb9d70f976f8ca7357b} 
+void control\+Task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Tarefa para gerenciar o processo de aquecimento e contagem regressiva. 
+
+Tarefa para gerenciar o processo de cozimento e controle PID.
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & Parâmetro da tarefa (não utilizado).\\
+\hline
+\end{DoxyParams}
+Esta tarefa atua como o "{}cérebro"{} do processo de cozimento, executando o PID, monitorando a temperatura, controlando a contagem regressiva e registrando os dados do processo no Little\+FS a cada segundo. \Hypertarget{main_8cpp_ac55d0909bfe96e544bb1324d9e0be983}\index{main.cpp@{main.cpp}!displayTask@{displayTask}}
+\index{displayTask@{displayTask}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{displayTask()}{displayTask()}}
+{\footnotesize\ttfamily \label{main_8cpp_ac55d0909bfe96e544bb1324d9e0be983} 
+void display\+Task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Tarefa para gerenciar todas as operações de exibição no display OLED. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & Parâmetro da tarefa (não utilizado). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{main_8cpp_a2ef2a9c92b10e34d69cbc0dee697bc21}\index{main.cpp@{main.cpp}!keypadTask@{keypadTask}}
+\index{keypadTask@{keypadTask}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{keypadTask()}{keypadTask()}}
+{\footnotesize\ttfamily \label{main_8cpp_a2ef2a9c92b10e34d69cbc0dee697bc21} 
+void keypad\+Task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Tarefa para a leitura contínua do teclado matricial. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & Parâmetro da tarefa (não utilizado). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{main_8cpp_afe461d27b9c48d5921c00d521181f12f}\index{main.cpp@{main.cpp}!loop@{loop}}
+\index{loop@{loop}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{loop()}{loop()}}
+{\footnotesize\ttfamily \label{main_8cpp_afe461d27b9c48d5921c00d521181f12f} 
+void loop (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Loop principal do Free\+RTOS. 
+
+Esta função apenas permite que o escalonador do Free\+RTOS execute as tarefas criadas. \Hypertarget{main_8cpp_a1c52182662da62d394e157877ca0dc4f}\index{main.cpp@{main.cpp}!readAndPrintLog@{readAndPrintLog}}
+\index{readAndPrintLog@{readAndPrintLog}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{readAndPrintLog()}{readAndPrintLog()}}
+{\footnotesize\ttfamily \label{main_8cpp_a1c52182662da62d394e157877ca0dc4f} 
+void read\+And\+Print\+Log (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Lê o conteúdo completo do arquivo de log e imprime na Serial. 
+
+Esta função é chamada a partir da {\ttfamily state\+Machine\+Task} para fins de depuração. Ela abre o arquivo de log no Little\+FS, lê linha por linha e imprime na porta serial.
+
+Esta função é chamada quando o botão \textquotesingle{}\texorpdfstring{$\ast$}{*}\textquotesingle{} é pressionado no estado {\ttfamily IDLE}. Ela abre o arquivo de log no Little\+FS, lê todo o seu conteúdo e o imprime. \Hypertarget{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d}\index{main.cpp@{main.cpp}!setup@{setup}}
+\index{setup@{setup}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{setup()}{setup()}}
+{\footnotesize\ttfamily \label{main_8cpp_a4fc01d736fe50cf5b977f755b675f11d} 
+void setup (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Função de inicialização do sistema. 
+
+Esta função é executada uma vez no início. Ela configura todos os periféricos e recursos, como serial, I2C, Little\+FS, e cria todas as tarefas Free\+RTOS antes de iniciar a máquina de estados. \Hypertarget{main_8cpp_ae55f6b1960380efdac97d26cde941c07}\index{main.cpp@{main.cpp}!stateMachineTask@{stateMachineTask}}
+\index{stateMachineTask@{stateMachineTask}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{stateMachineTask()}{stateMachineTask()}}
+{\footnotesize\ttfamily \label{main_8cpp_ae55f6b1960380efdac97d26cde941c07} 
+void state\+Machine\+Task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Tarefa para gerenciar a máquina de estados Yakindu. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & Parâmetro da tarefa (não utilizado). \\
+\hline
+\end{DoxyParams}
+\Hypertarget{main_8cpp_a3ffdb9552c1874edee2a03bfe16a641d}\index{main.cpp@{main.cpp}!temperatureSensorTask@{temperatureSensorTask}}
+\index{temperatureSensorTask@{temperatureSensorTask}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{temperatureSensorTask()}{temperatureSensorTask()}}
+{\footnotesize\ttfamily \label{main_8cpp_a3ffdb9552c1874edee2a03bfe16a641d} 
+void temperature\+Sensor\+Task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Tarefa para ler periodicamente a temperatura do sensor simulado via I2C. 
+
+Tarefa para ler periodicamente a temperatura do ESP32 simulador via I2C.
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & Parâmetro da tarefa (não utilizado). \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-var-members}
+\Hypertarget{main_8cpp_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{main_8cpp_acee1cd9c13bb54e0c4109273a19f4945}\index{main.cpp@{main.cpp}!I2C\_SLAVE\_ADDRESS@{I2C\_SLAVE\_ADDRESS}}
+\index{I2C\_SLAVE\_ADDRESS@{I2C\_SLAVE\_ADDRESS}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{I2C\_SLAVE\_ADDRESS}{I2C\_SLAVE\_ADDRESS}}
+{\footnotesize\ttfamily \label{main_8cpp_acee1cd9c13bb54e0c4109273a19f4945} 
+const byte I2\+C\+\_\+\+SLAVE\+\_\+\+ADDRESS = 0x08}
+
+
+
+Endereço I2C do ESP32 escravo (simulador de sensor). 
+
+Endereço I2C escolhido para o ESP32 que simula o sensor de temperatura. Este endereço deve ser único na rede I2C. \Hypertarget{main_8cpp_a1650ded891a8683614e014008c96278c}\index{main.cpp@{main.cpp}!Input@{Input}}
+\index{Input@{Input}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{Input}{Input}}
+{\footnotesize\ttfamily \label{main_8cpp_a1650ded891a8683614e014008c96278c} 
+PID my\+PID \& Input}
+
+
+
+Objeto do controlador PID. 
+
+Instância da classe PID\+\_\+v1 configurada para controle de aquecimento. \Hypertarget{main_8cpp_a75c4a1f32ff8946a7e4880300dc7d309}\index{main.cpp@{main.cpp}!Setpoint@{Setpoint}}
+\index{Setpoint@{Setpoint}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{Setpoint}{Setpoint}}
+{\footnotesize\ttfamily \label{main_8cpp_a75c4a1f32ff8946a7e4880300dc7d309} 
+double Setpoint}
+
+
+
+Parâmetros para o controlador PID. 
+
+Define as variáveis de entrada ({\ttfamily Input}), saída ({\ttfamily Output}) e setpoint ({\ttfamily Setpoint}) para o PID, juntamente com os coeficientes Kp, Ki e Kd. \Hypertarget{main_8cpp_aea9933162002533cb0b8d9b2edc8124e}\index{main.cpp@{main.cpp}!statechart@{statechart}}
+\index{statechart@{statechart}!main.cpp@{main.cpp}}
+\doxysubsubsection{\texorpdfstring{statechart}{statechart}}
+{\footnotesize\ttfamily \label{main_8cpp_aea9933162002533cb0b8d9b2edc8124e} 
+\mbox{\hyperlink{class_statechart}{Statechart}} statechart}
+
+
+
+Instâncias e recursos globais compartilhados entre as tarefas. 
+
+Esta seção define os objetos principais do sistema, como a máquina de estados, seus callbacks, serviços de timer, as filas de comunicação Free\+RTOS e a instância do display OLED. 
