@@ -1,0 +1,55 @@
+\doxysection{sc\+\_\+timer.\+h}
+\hypertarget{sc__timer_8h_source}{}\label{sc__timer_8h_source}\index{src/src-\/gen/sc\_timer.h@{src/src-\/gen/sc\_timer.h}}
+\mbox{\hyperlink{sc__timer_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ Generated\ by\ itemis\ CREATE\ code\ generator.\ */}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#ifndef\ SC\_TIMER\_H\_}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#define\ SC\_TIMER\_H\_}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}sc\_types.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }sc\ \{}
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }timer\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{TimedInterface}};}
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{TimerServiceInterface}};}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{TimedInterface}}\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00020\ \ \ \ \ }
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{\string~TimedInterface}}()\ =\ 0;}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a470dc6b4b9c760fb77cca3331d131639}{setTimerService}}(\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc::timer::TimerServiceInterface}}*\ \mbox{\hyperlink{main_8cpp_acf33d650daf1a8e4b4bfcd2a47ec7fbc}{timerService}})\ =\ 0;}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc::timer::TimerServiceInterface}}*\ \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a45c8c63a653c247bead8aa1f65f34e70}{getTimerService}}()\ =\ 0;}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a0ad07835d195e9e8d617ead1fd2c4dc0}{raiseTimeEvent}}(sc\_eventid\ event)\ =\ 0;}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ sc\_integer\ \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_aeaeffef3b4c6c7e803d98f8de2003806}{getNumberOfParallelTimeEvents}}()\ =\ 0;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00044\ \};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{keyword}{inline}\ TimedInterface::\string~TimedInterface()\ \{\}}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00052\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{TimerServiceInterface}}}
+\DoxyCodeLine{00053\ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{\string~TimerServiceInterface}}()\ =\ 0;}
+\DoxyCodeLine{00057\ \ \ \ \ \ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface_acec3284a153635da521da46d96cdaf89}{setTimer}}(\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{TimedInterface}}*\ statemachine,\ sc\_eventid\ event,\ sc\_time\ time\_ms,\ sc\_boolean\ isPeriodic)\ =\ 0;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface_a03ef77388be5d8b25f8b537c2d8fa203}{unsetTimer}}(\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{TimedInterface}}*\ statemachine,\ sc\_eventid\ event)\ =\ 0;}
+\DoxyCodeLine{00067\ \};}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{keyword}{inline}\ TimerServiceInterface::\string~TimerServiceInterface()\ \{\}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \}\ \textcolor{comment}{/*\ namespace\ sc::timer\ */}}
+\DoxyCodeLine{00072\ \}\ \textcolor{comment}{/*\ namespace\ sc\ */}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ SC\_TIMER\_H\_\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

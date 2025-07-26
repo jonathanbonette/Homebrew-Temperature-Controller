@@ -1,0 +1,50 @@
+\doxysection{Statechart\+Timer.\+h}
+\hypertarget{_statechart_timer_8h_source}{}\label{_statechart_timer_8h_source}\index{src/StatechartTimer.h@{src/StatechartTimer.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ -\/-\/-\/\ StatechartTimer.h\ -\/-\/-\/\ */}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#ifndef\ STATECHARTTIMER\_H}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#define\ STATECHARTTIMER\_H}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_statechart_8h}{src-\/gen/Statechart.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <Ticker.h>}\ }
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }StatechartTimer\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc::timer::TimerServiceInterface}}\ \{}
+\DoxyCodeLine{00009\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00010\ \ \ StatechartTimer()\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ instance\ =\ \textcolor{keyword}{this};}
+\DoxyCodeLine{00012\ \ \ \}}
+\DoxyCodeLine{00013\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_timer_a2fea3baa1c10963e7cc30c637c751655}{setTimer}}(\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{sc::timer::TimedInterface}}*\ sm,\ sc\_eventid\ event,\ sc\_time\ time\_ms,\ sc\_boolean\ isPeriodic)\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ store\ context}}
+\DoxyCodeLine{00015\ \ \ \ \ this-\/>sm\ =\ sm;}
+\DoxyCodeLine{00016\ \ \ \ \ this-\/>eventId\ =\ event;}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ detach\ any\ previous}}
+\DoxyCodeLine{00018\ \ \ \ \ ticker.detach();}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//\ use\ static\ callback}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordflow}{if}\ (isPeriodic)\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ ticker.attach\_ms((uint32\_t)time\_ms,\ onTimeout);}
+\DoxyCodeLine{00022\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ ticker.once\_ms((uint32\_t)time\_ms,\ onTimeout);}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ \ \ \}}
+\DoxyCodeLine{00026\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_timer_a58e80a8d4f0857bfa2f3b46688e3c097}{unsetTimer}}(\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface}{sc::timer::TimedInterface}}*\ \textcolor{comment}{/*sm*/},\ sc\_eventid\ \textcolor{comment}{/*event*/})\textcolor{keyword}{\ override\ }\{}
+\DoxyCodeLine{00027\ \ \ \ \ ticker.detach();}
+\DoxyCodeLine{00028\ \ \ \}}
+\DoxyCodeLine{00029\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00030\ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ onTimeout()\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordflow}{if}\ (instance\ \&\&\ instance-\/>sm)\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ instance-\/>sm-\/>\mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a0ad07835d195e9e8d617ead1fd2c4dc0}{raiseTimeEvent}}(instance-\/>eventId);}
+\DoxyCodeLine{00033\ \ \ \ \ \}}
+\DoxyCodeLine{00034\ \ \ \}}
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{static}\ StatechartTimer*\ instance;}
+\DoxyCodeLine{00036\ \ \ sc::timer::TimedInterface*\ sm\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00037\ \ \ sc\_eventid\ eventId\ =\ 0;}
+\DoxyCodeLine{00038\ \ \ Ticker\ ticker;}
+\DoxyCodeLine{00039\ \};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{comment}{//\ define\ static\ instance\ pointer}}
+\DoxyCodeLine{00042\ \mbox{\hyperlink{class_statechart_timer}{StatechartTimer}}*\ StatechartTimer::instance\ =\ \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ STATECHARTTIMER\_H}}
+
+\end{DoxyCode}
