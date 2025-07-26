@@ -1,0 +1,528 @@
+\doxysection{Statechart\+Callback.\+h}
+\hypertarget{_statechart_callback_8h_source}{}\label{_statechart_callback_8h_source}\index{src/StatechartCallback.h@{src/StatechartCallback.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ STATECHARTCALLBACK\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ STATECHARTCALLBACK\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_statechart_8h}{src-\/gen/Statechart.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <Arduino.h>}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ DisplayOLED}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <Wire.h>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <Adafruit\_GFX.h>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <Adafruit\_SSD1306.h>}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ Matrix4x4}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <Keypad.h>}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ -\/-\/-\/\ Sensor\ de\ Temperatura\ DS18B20\ -\/-\/-\/}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ \#include\ <OneWire.h>}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ \#include\ <DallasTemperature.h>}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ FreeRTOS\ Headers}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}\ \textcolor{comment}{//\ Para\ filas}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{comment}{//\ -\/-\/-\/\ DEFINES\ DO\ HARDWARE\ -\/-\/-\/}}
+\DoxyCodeLine{00020\ \textcolor{comment}{//\ Parâmetros\ do\ DisplayOLED}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#define\ SCREEN\_WIDTH\ 128}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#define\ SCREEN\_HEIGHT\ 64}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#define\ OLED\_RESET\ -\/1}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ -\/-\/-\/\ DEFINES\ ESPECÍFICAS\ DO\ PWM\ LEDC\ (ESP32)\ -\/-\/-\/}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#define\ LEDC\_CHANNEL\_PWM\_HEATER\ 0\ }\textcolor{comment}{//\ Usar\ o\ canal\ 0\ do\ LEDC\ (ESP32\ tem\ vários\ canais\ PWM)}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ LEDC\_TIMER\_BIT\_PWM\_HEATER\ e\ LEDC\_BASE\_FREQ\_PWM\_HEATER\ serão\ lidos\ do\ Yakindu,\ mas\ podemos\ ter\ defaults.}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ Mapeamento\ do\ teclado\ 4x4}}
+\DoxyCodeLine{00030\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{byte}\ ROWS\ =\ 4;}
+\DoxyCodeLine{00031\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{byte}\ COLS\ =\ 4;}
+\DoxyCodeLine{00032\ \textcolor{keywordtype}{char}\ keys[ROWS][COLS]\ =\ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \{\textcolor{charliteral}{'1'},\ \textcolor{charliteral}{'2'},\ \textcolor{charliteral}{'3'},\ \textcolor{charliteral}{'A'}\},}
+\DoxyCodeLine{00034\ \ \ \ \ \{\textcolor{charliteral}{'4'},\ \textcolor{charliteral}{'5'},\ \textcolor{charliteral}{'6'},\ \textcolor{charliteral}{'B'}\},}
+\DoxyCodeLine{00035\ \ \ \ \ \{\textcolor{charliteral}{'7'},\ \textcolor{charliteral}{'8'},\ \textcolor{charliteral}{'9'},\ \textcolor{charliteral}{'C'}\},}
+\DoxyCodeLine{00036\ \ \ \ \ \{\textcolor{charliteral}{'*'},\ \textcolor{charliteral}{'0'},\ \textcolor{charliteral}{'\#'},\ \textcolor{charliteral}{'D'}\}\};}
+\DoxyCodeLine{00037\ \textcolor{keywordtype}{byte}\ rowPins[ROWS]\ =\ \{13,\ 12,\ 14,\ 27\};}
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{byte}\ colPins[COLS]\ =\ \{26,\ 25,\ 33,\ 32\};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{comment}{//\ -\/-\/-\/\ ENUMS\ E\ ESTRUTURAS\ DE\ COMANDO\ PARA\ O\ DISPLAY\ -\/-\/-\/}}
+\DoxyCodeLine{00045\ \textcolor{keyword}{enum}\ DisplayCommandType}
+\DoxyCodeLine{00046\ \{}
+\DoxyCodeLine{00047\ \ \ CMD\_CLEAR\_DISPLAY,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00048\ \ \ CMD\_SHOW\_STATE\_INFO,\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00049\ \ \ CMD\_SHOW\_MAIN\_MENU\_SCREEN,\ \ \ \ \ \ \ }
+\DoxyCodeLine{00050\ \ \ CMD\_SHOW\_STARTUP\_MESSAGE,\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00051\ \ \ CMD\_SHOW\_RECIPES\_LIST,\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00052\ \ \ CMD\_SHOW\_RECIPE\_DETAILS\_SCREEN,\ \ }
+\DoxyCodeLine{00053\ \ \ CMD\_PRINT\_KEYPAD\_INPUT,\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00054\ \ \ CMD\_SHOW\_PROCESS\_STATUS\_SCREEN,\ \ }
+\DoxyCodeLine{00055\ \ \ CMD\_SHOW\_FINISHED\_MESSAGE\_SCREEN\ }
+\DoxyCodeLine{00056\ \};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00062\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_display_command}{DisplayCommand}}}
+\DoxyCodeLine{00063\ \{}
+\DoxyCodeLine{00064\ \ \ DisplayCommandType\ \mbox{\hyperlink{struct_display_command_acc4955eb4ee527dd15e3feeeb29a9008}{type}};\ }
+\DoxyCodeLine{00065\ \ \ String\ \mbox{\hyperlink{struct_display_command_a31e28be302f17a62ef53ec9428784e94}{text}};\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00067\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_display_command_a9365e28a42d1609582be0e849aa4305a}{recipeId}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00068\ \};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{comment}{//\ -\/-\/-\/\ ENUMS\ E\ ESTRUTURAS\ DE\ COMANDO\ PARA\ O\ CONTROLE\ DO\ PROCESSO\ -\/-\/-\/}}
+\DoxyCodeLine{00075\ \textcolor{keyword}{enum}\ ControlCommandType}
+\DoxyCodeLine{00076\ \{}
+\DoxyCodeLine{00077\ \ \ CMD\_START\_RECIPE\_STEP,\ }
+\DoxyCodeLine{00078\ \ \ CMD\_ABORT\_PROCESS\ \ \ \ \ \ }
+\DoxyCodeLine{00079\ \};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00085\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_control_command}{ControlCommand}}}
+\DoxyCodeLine{00086\ \{}
+\DoxyCodeLine{00087\ \ \ ControlCommandType\ \mbox{\hyperlink{struct_control_command_a911d632a131e4823955a9d17bfd2ad33}{type}};\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_control_command_aa351b079249fdf9c083696a54f50f4d6}{targetTemperature}};\ \ \ }
+\DoxyCodeLine{00089\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_control_command_a4c25b9953ca6dc5da20af98628ac204b}{durationMinutes}};\ \ \ \ \ }
+\DoxyCodeLine{00090\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_control_command_acb74dfba2b7c8c011c4deba3be8179fd}{recipeIndex}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00091\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_control_command_aa0bb6dee0021a221e0e341750c400b14}{stepIndex}};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00092\ \};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \textcolor{comment}{//\ -\/-\/-\/\ ESTRUTURAS\ DE\ DADOS\ PARA\ AS\ RECEITAS\ -\/-\/-\/}}
+\DoxyCodeLine{00098\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_recipe_step}{RecipeStep}}}
+\DoxyCodeLine{00099\ \{}
+\DoxyCodeLine{00100\ \ \ String\ \mbox{\hyperlink{struct_recipe_step_a39f0c2ea976619bdab3538af52b0dc15}{name}};\ \ \ \ \ }
+\DoxyCodeLine{00101\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_recipe_step_ae06864cd8aeb270ddf27402ae8a6768b}{temperature}};\ }
+\DoxyCodeLine{00102\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_recipe_step_a7373461c1abd988c0536b0969c04682f}{duration}};\ \ \ \ }
+\DoxyCodeLine{00103\ \};}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00108\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_recipe}{Recipe}}}
+\DoxyCodeLine{00109\ \{}
+\DoxyCodeLine{00110\ \ \ String\ \mbox{\hyperlink{struct_recipe_a992713719a2033597c07d09a6634b491}{name}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_recipe_a4de52a4c97c0cba578902c11bd6ddb06}{numSteps}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00112\ \ \ \mbox{\hyperlink{struct_recipe_step}{RecipeStep}}\ \mbox{\hyperlink{struct_recipe_a26c88794e024691e1ce016a08304e81b}{steps}}[5];\ }
+\DoxyCodeLine{00113\ \};}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00119\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_temperature_data}{TemperatureData}}}
+\DoxyCodeLine{00120\ \{}
+\DoxyCodeLine{00121\ \ \ \textcolor{keywordtype}{float}\ temperature1;\ \textcolor{comment}{//\ Temperatura\ do\ sensor\ 1\ (em\ ºC)}}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ float\ temperature2;\ //\ Futuro:\ Temperatura\ do\ sensor\ 2}}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ bool\ valid1;\ \ \ \ \ \ \ //\ Flag\ para\ indicar\ se\ a\ leitura\ do\ sensor\ 1\ é\ válida}}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ bool\ valid2;\ \ \ \ \ \ \ //\ Futuro:\ Flag\ para\ indicar\ se\ a\ leitura\ do\ sensor\ 2\ é\ válida}}
+\DoxyCodeLine{00125\ \};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00130\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_recipe}{Recipe}}\ recipes[]\ =\ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{comment}{//\ Receita\ 1:\ American\ Pale\ Ale}}
+\DoxyCodeLine{00132\ \ \ \ \ \{\textcolor{stringliteral}{"{}American\ Pale\ Ale"{}},\ 2,\ \{}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \textcolor{comment}{//\ DEBUG\ -\/-\/>\ mudar\ os\ parâmetros\ no\ final\ do\ projeto}}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \{\textcolor{stringliteral}{"{}Curva\ 1"{}},\ 67,\ 1\},\ \textcolor{comment}{//\ \{"{}Curva\ 1"{},\ 67,\ 60\},}}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \{\textcolor{stringliteral}{"{}Curva\ 2"{}},\ 76,\ 1\}\ \ \textcolor{comment}{//\ \{"{}Curva\ 2"{},\ 76,\ 10\}}}
+\DoxyCodeLine{00136\ \ \ \ \ \}\},}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{comment}{//\ Receita\ 2:\ Witbier}}
+\DoxyCodeLine{00138\ \ \ \ \ \{\textcolor{stringliteral}{"{}Witbier"{}},\ 3,\ \{\{\textcolor{stringliteral}{"{}Curva\ 1"{}},\ 50,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 2"{}},\ 68,\ 60\},\ \{\textcolor{stringliteral}{"{}Curva\ 3"{}},\ 76,\ 10\}\}\},}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{comment}{//\ Receita\ 3:\ Belgian\ Dubbel}}
+\DoxyCodeLine{00140\ \ \ \ \ \{\textcolor{stringliteral}{"{}Belgian\ Dubbel"{}},\ 4,\ \{\{\textcolor{stringliteral}{"{}Curva\ 1"{}},\ 52,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 2"{}},\ 64,\ 45\},\ \{\textcolor{stringliteral}{"{}Curva\ 3"{}},\ 72,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 4"{}},\ 76,\ 10\}\}\},}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ Receita\ 4:\ Bohemian\ Pilsen}}
+\DoxyCodeLine{00142\ \ \ \ \ \{\textcolor{stringliteral}{"{}Bohemian\ Pilsen"{}},\ 5,\ \{\{\textcolor{stringliteral}{"{}Curva\ 1"{}},\ 45,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 2"{}},\ 52,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 3"{}},\ 63,\ 45\},\ \{\textcolor{stringliteral}{"{}Curva\ 4"{}},\ 72,\ 15\},\ \{\textcolor{stringliteral}{"{}Curva\ 5"{}},\ 76,\ 10\}\}\},}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{comment}{//\ Receita\ 5:\ Customizar\ (apenas\ um\ placeholder\ por\ enquanto)}}
+\DoxyCodeLine{00144\ \ \ \ \ \{\textcolor{stringliteral}{"{}Customizar"{}},\ 0,\ \{\}\}\ \textcolor{comment}{//\ Sem\ etapas\ definidas\ ainda}}
+\DoxyCodeLine{00145\ \};}
+\DoxyCodeLine{00149\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ NUM\_RECIPES\ =\ \textcolor{keyword}{sizeof}(recipes)\ /\ \textcolor{keyword}{sizeof}(recipes[0]);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \textcolor{comment}{//\ -\/-\/-\/\ FILAS\ GLOBAIS\ (Declaradas\ como\ 'extern'\ aqui,\ definidas\ em\ main.cpp)\ -\/-\/-\/}}
+\DoxyCodeLine{00152\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{main_8cpp_a51e8f735c66d2f4634819af0c5a43301}{xDisplayQueue}};\ \textcolor{comment}{//\ Fila\ para\ exibições\ no\ display}}
+\DoxyCodeLine{00153\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{main_8cpp_a4a467a81ab512fc4a226ef182b8e2196}{xControlQueue}};\ \textcolor{comment}{//\ Fila\ para\ comandos\ da\ controlTask}}
+\DoxyCodeLine{00154\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{main_8cpp_a0927c92b68493a1c4ad301b66b6eef1b}{xSensorQueue}};\ \ \textcolor{comment}{//\ Fila\ para\ receber\ dados\ do\ sensor}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00161\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_statechart_callback_a0c1b1d3d630dee0f849b1d0bd94b0c4f}{StatechartCallback}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{class_statechart_1_1_operation_callback}{Statechart::OperationCallback}}}
+\DoxyCodeLine{00162\ \{}
+\DoxyCodeLine{00163\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00164\ \ \ \textcolor{comment}{//\ Propriedades\ internas\ da\ classe\ para\ gerenciamento\ de\ hardware/estado}}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_statechart_callback_ada1474cd318abbde5b3a3edcbbd7e5d4}{oledOK}}\ =\ \textcolor{keyword}{false};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00166\ \ \ Keypad\ *\mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}\ =\ \textcolor{keyword}{nullptr};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8}{matrixOK}}\ =\ \textcolor{keyword}{false};\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00168\ \ \ String\ \mbox{\hyperlink{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}{inputBuffer}}\ =\ \textcolor{stringliteral}{"{}"{}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \mbox{\hyperlink{class_statechart_callback_ac3e180b5e78cba51f139952ae2bc0646}{lastKeyPressTime}}\ =\ 0;\ }
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \textcolor{comment}{//\ Variáveis\ para\ controle\ da\ receita\ e\ etapa\ atual\ em\ processamento}}
+\DoxyCodeLine{00172\ \ \ \textcolor{comment}{//\ (Inicializadas\ em\ -\/1\ para\ indicar\ que\ nenhuma\ receita\ está\ ativa)}}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{int}\ currentRecipeIdx\ =\ -\/1;}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{int}\ currentStepIdx\ =\ -\/1;}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{float}\ lastReadTemperature\ =\ 0.0;\ \textcolor{comment}{//\ Armazena\ a\ última\ temperatura\ lida\ para\ ser\ acessada}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00181\ \ \ \mbox{\hyperlink{class_statechart_callback_a0c1b1d3d630dee0f849b1d0bd94b0c4f}{StatechartCallback}}()\ \{\}}
+\DoxyCodeLine{00182\ }
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a71f68e8972a472764d5cf158b397fcf7}{setStatechart}}(\mbox{\hyperlink{class_statechart}{Statechart}}\ *sc)}
+\DoxyCodeLine{00188\ \ \ \{}
+\DoxyCodeLine{00189\ \ \ \ \ myStatechart\ =\ sc;}
+\DoxyCodeLine{00190\ \ \ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ MÉTODOS\ DE\ CALLBACK\ (IMPLEMENTAÇÃO\ DAS\ OPERAÇÕES\ DO\ YAKINDU)\ -\/-\/-\/}}
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a6512d1f0ee6b8e4889bb713912a9d846}{beginDisplay}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00198\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00199\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Solicitando\ inicio\ do\ display\ (Display\ Task\ irá\ inicializar)"{}});}
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{comment}{//\ A\ inicialização\ real\ do\ display\ é\ feita\ na\ displayTask.\ Aqui\ é\ apenas\ um\ debug\ para\ sinalizar\ sucesso}}
+\DoxyCodeLine{00201\ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_ada1474cd318abbde5b3a3edcbbd7e5d4}{oledOK}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00202\ \ \ \}}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{pinMode}}(sc\_integer\ pin,\ sc\_integer\ mode)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00211\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00212\ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{::pinMode}}(pin,\ mode\ ==\ 1\ ?\ OUTPUT\ :\ INPUT);}
+\DoxyCodeLine{00213\ \ \ \}}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{digitalWrite}}(sc\_integer\ pin,\ sc\_integer\ value)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00222\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00223\ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{::digitalWrite}}(pin,\ value);}
+\DoxyCodeLine{00224\ \ \ \}}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a3284e955756a933d45e0bc353478cdb2}{showStartup}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00231\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00232\ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_STARTUP\_MESSAGE\};}
+\DoxyCodeLine{00233\ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00234\ \ \ \}}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00240\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a7312ea56019093e99340f326156ad0ef}{showRecipes}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00241\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00242\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Executando\ showRecipes()\ -\/\ Menu\ de\ Receitas"{}});}
+\DoxyCodeLine{00243\ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_RECIPES\_LIST\};}
+\DoxyCodeLine{00244\ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{true};\ \textcolor{comment}{//\ Sempre\ limpa\ para\ o\ menu\ principal\ de\ receitas}}
+\DoxyCodeLine{00245\ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00246\ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}{inputBuffer}}\ =\ \textcolor{stringliteral}{"{}"{}};\ \textcolor{comment}{//\ Limpa\ o\ buffer\ do\ teclado\ para\ a\ nova\ tela}}
+\DoxyCodeLine{00247\ \ \ \}}
+\DoxyCodeLine{00248\ }
+\DoxyCodeLine{00254\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a79ccb2fd5cd9782ae04202fc81a8eb2a}{showRecipe}}(sc\_integer\ recipeId)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00255\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00256\ \ \ \ \ Serial.print(\textcolor{stringliteral}{"{}Callback:\ Executando\ showRecipe()\ para\ receita\ ID:\ "{}});}
+\DoxyCodeLine{00257\ \ \ \ \ Serial.println(recipeId);}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordflow}{if}\ (recipeId\ >=\ 1\ \&\&\ recipeId\ <=\ NUM\_RECIPES)}
+\DoxyCodeLine{00260\ \ \ \ \ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_RECIPE\_DETAILS\_SCREEN\};\ \textcolor{comment}{//\ Comando\ para\ detalhes\ da\ receita}}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a9365e28a42d1609582be0e849aa4305a}{recipeId}}\ =\ recipeId\ -\/\ 1;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ajusta\ para\ índice\ base\ 0\ do\ array\ \`{}recipes`}}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{true};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sempre\ limpa\ para\ os\ detalhes\ da\ receita}}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00265\ \ \ \ \ \}}
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00267\ \ \ \ \ \{}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Receita\ inválida\ solicitada."{}});}
+\DoxyCodeLine{00269\ \ \ \ \ \}}
+\DoxyCodeLine{00270\ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}{inputBuffer}}\ =\ \textcolor{stringliteral}{"{}"{}};\ \textcolor{comment}{//\ Limpa\ o\ buffer\ do\ teclado\ para\ a\ nova\ tela}}
+\DoxyCodeLine{00271\ \ \ \}}
+\DoxyCodeLine{00272\ }
+\DoxyCodeLine{00273\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ MÉTODOS\ DE\ CALLBACK\ PARA\ O\ STANDARD\_PROCESS\ -\/-\/-\/}}
+\DoxyCodeLine{00278\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a0060eb65c22e39e622d1076448a29e1f}{initializeProcess}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00279\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00280\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Processo\ de\ cozimento\ inicializado."{}});}
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{comment}{//\ TODO:\ Aqui\ faria\ qualquer\ inicialização\ de\ atuadores/sensores\ antes\ do\ ciclo\ de\ controle}}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{comment}{//\ Ex:\ garantir\ que\ resistências\ e\ mixer\ estejam\ desligados\ inicialmente}}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{comment}{//\ digital\_write(heater\_pin,\ LOW);}}
+\DoxyCodeLine{00284\ \ \ \ \ \textcolor{comment}{//\ digital\_write(mixer\_pin,\ LOW);}}
+\DoxyCodeLine{00285\ \ \ \}}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00294\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a366ba128bf01272f1d554f43b248b0b5}{startNextRecipeStep}}(sc\_integer\ recipeIndex)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00295\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{comment}{//\ Se\ a\ receita\ mudou\ ou\ é\ o\ início\ do\ processo\ (vinda\ do\ START\_PROCESS)}}
+\DoxyCodeLine{00297\ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>currentRecipeIdx\ !=\ recipeIndex)}
+\DoxyCodeLine{00298\ \ \ \ \ \{}
+\DoxyCodeLine{00299\ \ \ \ \ \ \ this-\/>currentRecipeIdx\ =\ recipeIndex;}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ this-\/>currentStepIdx\ =\ 0;\ \textcolor{comment}{//\ Começa\ da\ primeira\ etapa}}
+\DoxyCodeLine{00301\ \ \ \ \ \}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00303\ \ \ \ \ \{}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \textcolor{comment}{//\ Se\ já\ está\ na\ mesma\ receita,\ avança\ para\ a\ próxima\ etapa}}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ this-\/>currentStepIdx++;}
+\DoxyCodeLine{00306\ \ \ \ \ \}}
+\DoxyCodeLine{00307\ }
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>currentRecipeIdx\ >=\ 0\ \&\&\ this-\/>currentRecipeIdx\ <\ NUM\_RECIPES)}
+\DoxyCodeLine{00309\ \ \ \ \ \{}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_recipe}{Recipe}}\ \&recipe\ =\ recipes[this-\/>currentRecipeIdx];}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (this-\/>currentStepIdx\ <\ recipe.\mbox{\hyperlink{struct_recipe_a4de52a4c97c0cba578902c11bd6ddb06}{numSteps}})}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_recipe_step}{RecipeStep}}\ \&step\ =\ recipe.\mbox{\hyperlink{struct_recipe_a26c88794e024691e1ce016a08304e81b}{steps}}[this-\/>currentStepIdx];}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ INICIANDO\ ETAPA\ \%d/\%d:\ \%s\ (Temp:\ \%dC,\ Tempo:\ \%dmin)\(\backslash\)n"{}},}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>currentStepIdx\ +\ 1,\ recipe.\mbox{\hyperlink{struct_recipe_a4de52a4c97c0cba578902c11bd6ddb06}{numSteps}},\ step.\mbox{\hyperlink{struct_recipe_step_a39f0c2ea976619bdab3538af52b0dc15}{name}}.c\_str(),\ step.\mbox{\hyperlink{struct_recipe_step_ae06864cd8aeb270ddf27402ae8a6768b}{temperature}},\ step.\mbox{\hyperlink{struct_recipe_step_a7373461c1abd988c0536b0969c04682f}{duration}});}
+\DoxyCodeLine{00316\ }
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{struct_control_command}{ControlCommand}}\ controlCmd\ =\ \{CMD\_START\_RECIPE\_STEP\};}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ controlCmd.\mbox{\hyperlink{struct_control_command_acb74dfba2b7c8c011c4deba3be8179fd}{recipeIndex}}\ =\ this-\/>currentRecipeIdx;}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ controlCmd.\mbox{\hyperlink{struct_control_command_aa0bb6dee0021a221e0e341750c400b14}{stepIndex}}\ =\ this-\/>currentStepIdx;}
+\DoxyCodeLine{00320\ \ \ \ \ \ \ \ \ controlCmd.\mbox{\hyperlink{struct_control_command_aa351b079249fdf9c083696a54f50f4d6}{targetTemperature}}\ =\ step.\mbox{\hyperlink{struct_recipe_step_ae06864cd8aeb270ddf27402ae8a6768b}{temperature}};\ \ \ \ \ \ \ \textcolor{comment}{//\ Passa\ a\ temperatura\ alvo}}
+\DoxyCodeLine{00321\ \ \ \ \ \ \ \ \ controlCmd.\mbox{\hyperlink{struct_control_command_a4c25b9953ca6dc5da20af98628ac204b}{durationMinutes}}\ =\ step.\mbox{\hyperlink{struct_recipe_step_a7373461c1abd988c0536b0969c04682f}{duration}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Passa\ a\ duração}}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ xQueueSend(xControlQueue,\ \&controlCmd,\ portMAX\_DELAY);\ \textcolor{comment}{//\ Envia\ o\ comando\ para\ a\ ControlTask}}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Exibe\ o\ status\ inicial\ da\ etapa\ no\ display}}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Os\ valores\ de\ temperatura\ atual\ e\ tempo\ restante\ serão\ atualizados\ por\ uma\ tarefa\ de\ controle}}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_ada2c780738f608c405b2f5eab33aca79}{showProcessStatus}}(0,\ step.\mbox{\hyperlink{struct_recipe_step_ae06864cd8aeb270ddf27402ae8a6768b}{temperature}},\ step.\mbox{\hyperlink{struct_recipe_step_a7373461c1abd988c0536b0969c04682f}{duration}},\ 0,\ \textcolor{keyword}{const\_cast<}sc\_string\textcolor{keyword}{>}(step.\mbox{\hyperlink{struct_recipe_step_a39f0c2ea976619bdab3538af52b0dc15}{name}}.c\_str()),\ this-\/>currentStepIdx\ +\ 1,\ recipe.\mbox{\hyperlink{struct_recipe_a4de52a4c97c0cba578902c11bd6ddb06}{numSteps}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Este\ bloco\ não\ deveria\ ser\ alcançado\ se\ as\ guardas\ do\ Yakindu\ estiverem\ corretas\ -\/-\/\ Debug}}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Significa\ que\ startNextRecipeStep\ foi\ chamado\ mas\ não\ há\ mais\ etapas}}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Erro\ lógico:\ startNextRecipeStep\ chamada\ sem\ mais\ etapas."{}});}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00334\ \ \ \ \ \}}
+\DoxyCodeLine{00335\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00336\ \ \ \ \ \{}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Erro:\ Receita\ inválida\ em\ startNextRecipeStep."{}});}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Lógica\ de\ erro\ ou\ transição\ de\ falha\ na\ máquina\ de\ estados}}
+\DoxyCodeLine{00339\ \ \ \ \ \}}
+\DoxyCodeLine{00340\ \ \ \}}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00347\ \ \ sc\_boolean\ \mbox{\hyperlink{class_statechart_callback_a0b352beed274ffe9240b759d717daab2}{hasMoreSteps}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00348\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keywordflow}{if}\ (currentRecipeIdx\ >=\ 0\ \&\&\ currentRecipeIdx\ <\ NUM\_RECIPES)}
+\DoxyCodeLine{00350\ \ \ \ \ \{}
+\DoxyCodeLine{00351\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (currentStepIdx\ +\ 1)\ <\ recipes[currentRecipeIdx].numSteps;}
+\DoxyCodeLine{00352\ \ \ \ \ \}}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \textcolor{comment}{//\ Se\ não\ houver\ receita\ selecionada\ ou\ etapas\ inválidas,\ não\ há\ mais\ etapas}}
+\DoxyCodeLine{00354\ \ \ \}}
+\DoxyCodeLine{00355\ }
+\DoxyCodeLine{00361\ \ \ sc\_integer\ \mbox{\hyperlink{class_statechart_callback_a805b1c8d0c6b7d772ea2352a66c23708}{getCurrentRecipeIndex}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00362\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00363\ \ \ \ \ \textcolor{keywordflow}{return}\ currentRecipeIdx;}
+\DoxyCodeLine{00364\ \ \ \}}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00371\ \ \ sc\_integer\ \mbox{\hyperlink{class_statechart_callback_a569b34e99acca77703710d4504780a70}{getCurrentStepIndex}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00372\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00373\ \ \ \ \ \textcolor{keywordflow}{return}\ currentStepIdx;}
+\DoxyCodeLine{00374\ \ \ \}}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00388\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_ada2c780738f608c405b2f5eab33aca79}{showProcessStatus}}(sc\_integer\ currentTemp,\ sc\_integer\ targetTemp,\ sc\_integer\ remainingMinutes,\ sc\_integer\ remainingSeconds,\ sc\_string\ stepName,\ sc\_integer\ stepNum,\ sc\_integer\ totalSteps,\ sc\_boolean\ isRamping)\textcolor{keyword}{\ override\ }\{\ }
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \textcolor{comment}{//\ Debug}}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ Status\ Processo:\ Etapa\ \%d/\%d\ '\%s'\ -\/\ Atual:\ \%dC,\ Alvo:\ \%dC.\ Tempo:\ \%d:\%02d\ (Rampa:\ \%s)\(\backslash\)n"{}},\ }
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ stepNum,\ totalSteps,\ stepName,\ currentTemp,\ targetTemp,\ remainingMinutes,\ remainingSeconds,\ isRamping\ ?\ \textcolor{stringliteral}{"{}SIM"{}}\ :\ \textcolor{stringliteral}{"{}NAO"{}});}
+\DoxyCodeLine{00392\ }
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_PROCESS\_STATUS\_SCREEN\};}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{true};\ \textcolor{comment}{//\ Sempre\ limpa\ para\ esta\ tela\ de\ status}}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ LÓGICA\ DE\ MONTAGEM\ DA\ STRING\ AGORA\ DENTRO\ DESTE\ CALLBACK\ -\/-\/-\/}}
+\DoxyCodeLine{00397\ \ \ \ \ \ \ String\ statusMessage\_part1\ =\ \textcolor{stringliteral}{"{}Receita:\ "{}}\ +\ recipes[currentRecipeIdx].name;}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ String\ statusMessage\_part2\ =\ \textcolor{stringliteral}{"{}Etapa\ "{}}\ +\ String(stepNum)\ +\ \textcolor{stringliteral}{"{}/"{}}\ +\ String(totalSteps)\ +\ \textcolor{stringliteral}{"{}:\ "{}}\ +\ String(stepName);}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ String\ statusMessage\_part3;\ \textcolor{comment}{//\ Linha\ da\ temperatura}}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ String\ statusMessage\_part4;\ \textcolor{comment}{//\ Linha\ do\ tempo\ ou\ rampa}}
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (isRamping)\ \{\ \textcolor{comment}{//\ Se\ está\ em\ fase\ de\ rampa}}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ statusMessage\_part3\ =\ \textcolor{stringliteral}{"{}Rampa:\ "{}}\ +\ String(currentTemp)\ +\ \textcolor{stringliteral}{"{}C\ /\ "{}}\ +\ String(targetTemp)\ +\ \textcolor{stringliteral}{"{}C"{}};}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ statusMessage\_part4\ =\ \textcolor{stringliteral}{"{}Aguardando\ Setpoint..."{}};}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{\ \textcolor{comment}{//\ Se\ atingiu\ o\ setpoint,\ mostra\ temp\ e\ tempo}}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \ \ statusMessage\_part3\ =\ \textcolor{stringliteral}{"{}Temp:\ "{}}\ +\ String(currentTemp)\ +\ \textcolor{stringliteral}{"{}C\ /\ "{}}\ +\ String(targetTemp)\ +\ \textcolor{stringliteral}{"{}C"{}};}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ timeBuffer[10];}
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ \ \ sprintf(timeBuffer,\ \textcolor{stringliteral}{"{}\%d\ m\ \%02d\ s"{}},\ remainingMinutes,\ remainingSeconds);}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ \ \ statusMessage\_part4\ =\ \textcolor{stringliteral}{"{}Tempo:\ "{}}\ +\ String(timeBuffer);}
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ }
+\DoxyCodeLine{00412\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a31e28be302f17a62ef53ec9428784e94}{text}}\ =\ statusMessage\_part1\ +\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}\ +\ statusMessage\_part2\ +\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}\ +\ statusMessage\_part3\ +\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}\ +\ statusMessage\_part4;}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);\ \textcolor{comment}{//\ Envia\ para\ a\ displayTask}}
+\DoxyCodeLine{00414\ \ \ \}}
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00420\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a52e80be024b7f897449ae5738ac28eb7}{showFinished}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00421\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00422\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Processo\ de\ cozimento\ finalizado.\ Desligando\ atuadores."{}});}
+\DoxyCodeLine{00423\ \ \ \ \ \textcolor{comment}{//\ TODO:\ Implementar\ lógica\ para\ desligar\ resistências\ e\ mixer\ aqui}}
+\DoxyCodeLine{00424\ \ \ \ \ \textcolor{comment}{//\ myStatechart-\/>digitalWrite(heater\_pin,\ LOW);}}
+\DoxyCodeLine{00425\ \ \ \ \ \textcolor{comment}{//\ myStatechart-\/>digitalWrite(mixer\_pin,\ LOW);}}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{comment}{//\ Após\ desligar\ os\ atuadores\ (simulado\ por\ enquanto),\ disparar\ o\ evento\ finished\_process}}
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{comment}{//\ para\ a\ máquina\ de\ estados\ transitar\ para\ FINISHED\_MESSAGE}}
+\DoxyCodeLine{00429\ \ \ \ \ \textcolor{keywordflow}{if}\ (myStatechart\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00430\ \ \ \ \ \{}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ myStatechart-\/>raiseFinished\_process();}
+\DoxyCodeLine{00432\ \ \ \ \ \}}
+\DoxyCodeLine{00433\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00434\ \ \ \ \ \{}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Erro:\ myStatechart\ é\ nullptr\ em\ showFinished!"{}});}
+\DoxyCodeLine{00436\ \ \ \ \ \}}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \ \ \ \ \textcolor{comment}{//\ Resetar\ índices\ de\ receita/etapa\ após\ o\ fim\ do\ processo}}
+\DoxyCodeLine{00439\ \ \ \ \ currentRecipeIdx\ =\ -\/1;}
+\DoxyCodeLine{00440\ \ \ \ \ currentStepIdx\ =\ -\/1;}
+\DoxyCodeLine{00441\ \ \ \}}
+\DoxyCodeLine{00442\ }
+\DoxyCodeLine{00447\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a6830f5cc9a7625ef7c91a65491ddd5c2}{showFinishedMessage}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00448\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00449\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Exibindo\ mensagem\ 'Receita\ concluída'."{}});}
+\DoxyCodeLine{00450\ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_FINISHED\_MESSAGE\_SCREEN\};}
+\DoxyCodeLine{00451\ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{true};\ \textcolor{comment}{//\ Limpa\ a\ tela\ para\ exibir\ a\ mensagem\ final}}
+\DoxyCodeLine{00452\ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00453\ \ \ \}}
+\DoxyCodeLine{00454\ }
+\DoxyCodeLine{00460\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a0b153376b4a3d937102602051ac50c80}{showState}}(sc\_string\ state)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00461\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00462\ \ \ \ \ Serial.print(\textcolor{stringliteral}{"{}Callback:\ Estado\ atual:\ "{}});}
+\DoxyCodeLine{00463\ \ \ \ \ Serial.println(state);}
+\DoxyCodeLine{00464\ \ \ \ \ \textcolor{comment}{//\ Envia\ comando\ para\ a\ displayTask\ para\ mostrar\ o\ nome\ do\ estado}}
+\DoxyCodeLine{00465\ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_STATE\_INFO,\ String(state)\};}
+\DoxyCodeLine{00466\ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{false};\ \textcolor{comment}{//\ Não\ limpa\ a\ tela\ inteira,\ apenas\ a\ linha\ superior\ é\ reescrita}}
+\DoxyCodeLine{00467\ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00468\ \ \ \}}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a40d4b821ee479a29fa16d5bb65f60f16}{showIdleScreen}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00475\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00476\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Exibindo\ tela\ de\ IDLE"{}});}
+\DoxyCodeLine{00477\ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ cmd\ =\ \{CMD\_SHOW\_MAIN\_MENU\_SCREEN\};}
+\DoxyCodeLine{00478\ \ \ \ \ cmd.\mbox{\hyperlink{struct_display_command_a939bb524ef88e6fddf03870a456000f1}{clearScreen}}\ =\ \textcolor{keyword}{true};\ \textcolor{comment}{//\ Sempre\ limpa\ para\ esta\ tela}}
+\DoxyCodeLine{00479\ \ \ \ \ xQueueSend(xDisplayQueue,\ \&cmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00480\ \ \ \}}
+\DoxyCodeLine{00481\ }
+\DoxyCodeLine{00486\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a9bec19382c76a6631cbbba5b1c025bed}{beginMatrix}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00487\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00488\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Iniciando\ teclado\ matricial."{}});}
+\DoxyCodeLine{00489\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}\ ==\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00490\ \ \ \ \ \{}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}\ =\ \textcolor{keyword}{new}\ Keypad(makeKeymap(keys),\ rowPins,\ colPins,\ ROWS,\ COLS);}
+\DoxyCodeLine{00492\ \ \ \ \ \}}
+\DoxyCodeLine{00493\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00494\ \ \ \ \ \{}
+\DoxyCodeLine{00495\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8}{matrixOK}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Teclado\ iniciado\ com\ sucesso."{}});}
+\DoxyCodeLine{00497\ \ \ \ \ \}}
+\DoxyCodeLine{00498\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00499\ \ \ \ \ \{}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Falha\ ao\ iniciar\ teclado."{}});}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8}{matrixOK}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00502\ \ \ \ \ \}}
+\DoxyCodeLine{00503\ \ \ \}}
+\DoxyCodeLine{00504\ }
+\DoxyCodeLine{00505\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ FUNÇÕES\ AUXILIARES\ PARA\ GERENCIAMENTO\ DE\ ENTRADA\ DO\ TECLADO\ E\ DISPLAY\ -\/-\/-\/}}
+\DoxyCodeLine{00511\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{class_statechart_callback_accdea45556fad26adb2a7714d5c69c7d}{readKeypadChar}}()}
+\DoxyCodeLine{00512\ \ \ \{}
+\DoxyCodeLine{00513\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_statechart_callback_a9344dc81ba0a66c98837b8b73e266fe8}{matrixOK}}\ \&\&\ \mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00514\ \ \ \ \ \{}
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{class_statechart_callback_a67cf4a2a95426739746963113a1f1920}{keypad}}-\/>getKey();}
+\DoxyCodeLine{00516\ \ \ \ \ \}}
+\DoxyCodeLine{00517\ \ \ \ \ \textcolor{keywordflow}{return}\ NO\_KEY;}
+\DoxyCodeLine{00518\ \ \ \}}
+\DoxyCodeLine{00519\ }
+\DoxyCodeLine{00524\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a9b0bc6caa3dadb23e26d8c77a19196df}{printKeypadInput}}()}
+\DoxyCodeLine{00525\ \ \ \{}
+\DoxyCodeLine{00526\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}{inputBuffer}}.length()\ >\ 0)}
+\DoxyCodeLine{00527\ \ \ \ \ \{}
+\DoxyCodeLine{00528\ \ \ \ \ \ \ \mbox{\hyperlink{struct_display_command}{DisplayCommand}}\ printCmd\ =\ \{CMD\_PRINT\_KEYPAD\_INPUT,\ \textcolor{stringliteral}{"{}Digitado:\ "{}}\ +\ \mbox{\hyperlink{class_statechart_callback_af85dce0caa18b8191733814492a9f34e}{inputBuffer}}\};}
+\DoxyCodeLine{00529\ \ \ \ \ \ \ xQueueSend(xDisplayQueue,\ \&printCmd,\ portMAX\_DELAY);}
+\DoxyCodeLine{00530\ \ \ \ \ \}}
+\DoxyCodeLine{00531\ \ \ \}}
+\DoxyCodeLine{00532\ }
+\DoxyCodeLine{00533\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ SEMÁFORO\ -\/-\/-\/}}
+\DoxyCodeLine{00538\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a244c879e69bb717bcc87c9970b988bc5}{beginSemaphore}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00539\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00540\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Inicializando\ pinos\ do\ semáforo."{}});}
+\DoxyCodeLine{00541\ }
+\DoxyCodeLine{00542\ \ \ \ \ \textcolor{keywordflow}{if}\ (myStatechart\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00543\ \ \ \ \ \{}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \textcolor{comment}{//\ Obter\ os\ valores\ dos\ pinos\ e\ modo\ de\ saída\ definidos\ no\ Yakindu}}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ redPin\ =\ myStatechart-\/>getSemaphore\_red\_pin();}
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ yellowPin\ =\ myStatechart-\/>getSemaphore\_yellow\_pin();}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ greenPin\ =\ myStatechart-\/>getSemaphore\_green\_pin();}
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ outputMode\ =\ myStatechart-\/>getOutput();\ \textcolor{comment}{//\ Obter\ o\ valor\ de\ 'output'\ (1)}}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ lowValue\ =\ myStatechart-\/>getLow();\ \ \ \ \ \ \textcolor{comment}{//\ Obter\ o\ valor\ de\ 'low'\ (0)}}
+\DoxyCodeLine{00550\ }
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \textcolor{comment}{//\ CHAMAR\ AS\ IMPLEMENTAÇÕES\ DOS\ MÉTODOS\ DE\ CALLBACK\ DIRETAMENTE}}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \textcolor{comment}{//\ vai\ ser\ usado\ as\ implementações\ de\ ::pinMode\ e\ ::digitalWrite}}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{pinMode}}(redPin,\ outputMode);}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{pinMode}}(yellowPin,\ outputMode);}
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a2ca18e895e1180b30e3704de1620f2c4}{pinMode}}(greenPin,\ outputMode);}
+\DoxyCodeLine{00556\ }
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \textcolor{comment}{//\ E\ desligue\ todos\ os\ LEDs\ inicialmente\ para\ garantir\ um\ estado\ conhecido}}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{digitalWrite}}(redPin,\ lowValue);}
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{digitalWrite}}(yellowPin,\ lowValue);}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a32d603cc5924d81e7bae26df2a58cdd5}{digitalWrite}}(greenPin,\ lowValue);}
+\DoxyCodeLine{00561\ }
+\DoxyCodeLine{00562\ \ \ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ Semaforo\ R:\%d\ Y:\%d\ G:\%d\ configurados\ como\ OUTPUT\ e\ desligados.\(\backslash\)n"{}},\ redPin,\ yellowPin,\ greenPin);}
+\DoxyCodeLine{00563\ \ \ \ \ \}}
+\DoxyCodeLine{00564\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00565\ \ \ \ \ \{}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ ERRO:\ myStatechart\ e\ nullptr\ ao\ inicializar\ semaforo."{}});}
+\DoxyCodeLine{00567\ \ \ \ \ \}}
+\DoxyCodeLine{00568\ \ \ \}}
+\DoxyCodeLine{00569\ }
+\DoxyCodeLine{00570\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ NOVOS\ MÉTODOS\ DE\ CALLBACK\ PARA\ CONTROLE\ DO\ AQUECEDOR\ PWM\ -\/-\/-\/}}
+\DoxyCodeLine{00575\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a991e9ac6e43b6990de74162c38277efc}{setupHeaterPWM}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00576\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00577\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ Configurando\ PWM\ do\ aquecedor."{}});}
+\DoxyCodeLine{00578\ \ \ \ \ \textcolor{keywordflow}{if}\ (myStatechart\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00579\ \ \ \ \ \{}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ heaterPin\ =\ myStatechart-\/>getHeater\_pwm\_pin();\ \ \ \ \ \ \ \textcolor{comment}{//\ Pego\ do\ Yakindu}}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ pwmFreq\ =\ myStatechart-\/>getPwm\_frequency();\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pego\ do\ Yakindu}}
+\DoxyCodeLine{00582\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ pwmResBits\ =\ myStatechart-\/>getPwm\_resolution\_bits();\ \textcolor{comment}{//\ Pego\ do\ Yakindu}}
+\DoxyCodeLine{00583\ }
+\DoxyCodeLine{00584\ \ \ \ \ \ \ \textcolor{comment}{//\ Configura\ o\ timer\ LEDC\ do\ ESP32}}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ ledcSetup(LEDC\_CHANNEL\_PWM\_HEATER,\ pwmFreq,\ pwmResBits);}
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \textcolor{comment}{//\ Anexa\ o\ pino\ ao\ canal\ PWM}}
+\DoxyCodeLine{00587\ \ \ \ \ \ \ ledcAttachPin(heaterPin,\ LEDC\_CHANNEL\_PWM\_HEATER);}
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \textcolor{comment}{//\ Garante\ que\ o\ PWM\ começa\ desligado\ (0\%\ duty\ cycle)}}
+\DoxyCodeLine{00589\ \ \ \ \ \ \ ledcWrite(LEDC\_CHANNEL\_PWM\_HEATER,\ 0);}
+\DoxyCodeLine{00590\ }
+\DoxyCodeLine{00591\ \ \ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ PWM\ do\ aquecedor\ configurado\ no\ GPIO\%d\ (Freq:\ \%dHz,\ Res:\ \%d\ bits).\ Canal\ \%d.\(\backslash\)n"{}},}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ heaterPin,\ pwmFreq,\ pwmResBits,\ LEDC\_CHANNEL\_PWM\_HEATER);}
+\DoxyCodeLine{00593\ \ \ \ \ \}}
+\DoxyCodeLine{00594\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00595\ \ \ \ \ \{}
+\DoxyCodeLine{00596\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ ERRO:\ myStatechart\ é\ nullptr\ ao\ configurar\ PWM\ do\ aquecedor."{}});}
+\DoxyCodeLine{00597\ \ \ \ \ \}}
+\DoxyCodeLine{00598\ \ \ \}}
+\DoxyCodeLine{00599\ }
+\DoxyCodeLine{00605\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a275fd2a117f0fa221e75cabd98aa53f1}{controlHeaterPWM}}(sc\_integer\ duty\_cycle)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00606\ \textcolor{keyword}{\ \ }\{\ \textcolor{comment}{//\ Nova\ operação\ para\ controlar\ o\ PWM\ diretamente}}
+\DoxyCodeLine{00607\ \ \ \ \ ledcWrite(LEDC\_CHANNEL\_PWM\_HEATER,\ duty\_cycle);}
+\DoxyCodeLine{00608\ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ PWM\ Aquecedor\ -\/\ Duty\ Cycle:\ \%d\(\backslash\)n"{}},\ duty\_cycle);}
+\DoxyCodeLine{00609\ \ \ \}}
+\DoxyCodeLine{00610\ }
+\DoxyCodeLine{00616\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a50763df935fa54557772578384635977}{heat}}(sc\_integer\ target\_temp)\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00617\ \textcolor{keyword}{\ \ }\{\ \textcolor{comment}{//\ Implementação\ da\ operação\ 'heat'\ do\ Yakindu}}
+\DoxyCodeLine{00618\ \ \ \ \ \textcolor{keywordflow}{if}\ (myStatechart\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00619\ \ \ \ \ \{}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ minTemp\ =\ 25;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Temperatura\ mínima\ que\ o\ PWM\ representa\ 0\%}}
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ maxTemp\ =\ 100;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Temperatura\ máxima\ que\ o\ PWM\ representa\ 100\%}}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ maxDutyCycle\ =\ (1\ <<\ myStatechart-\/>getPwm\_resolution\_bits())\ -\/\ 1;\ \textcolor{comment}{//\ Ex:\ 1023\ para\ 10\ bits}}
+\DoxyCodeLine{00623\ }
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ dutyCycle\_calculated\ =\ 0;}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (target\_temp\ <=\ minTemp)}
+\DoxyCodeLine{00626\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00627\ \ \ \ \ \ \ \ \ dutyCycle\_calculated\ =\ 0;}
+\DoxyCodeLine{00628\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00629\ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (target\_temp\ >=\ maxTemp)}
+\DoxyCodeLine{00630\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00631\ \ \ \ \ \ \ \ \ dutyCycle\_calculated\ =\ maxDutyCycle;}
+\DoxyCodeLine{00632\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00633\ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Mapeamento\ linear:\ duty\ =\ (target\ -\/\ min)\ /\ (max\ -\/\ min)\ *\ maxDuty}}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ dutyCycle\_calculated\ =\ map(target\_temp,\ minTemp,\ maxTemp,\ 0,\ maxDutyCycle);}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00638\ }
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \mbox{\hyperlink{class_statechart_callback_a275fd2a117f0fa221e75cabd98aa53f1}{controlHeaterPWM}}(dutyCycle\_calculated);\ \textcolor{comment}{//\ Chamar\ a\ função\ de\ controle\ de\ PWM\ diretamente}}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ Serial.printf(\textcolor{stringliteral}{"{}Callback:\ Operacao\ 'heat'\ chamada.\ Alvo\ Temp:\ \%dC\ -\/>\ PWM\ Duty\ Calculado:\ \%d\ (max\ \%d)\(\backslash\)n"{}},\ target\_temp,\ dutyCycle\_calculated,\ maxDutyCycle);}
+\DoxyCodeLine{00641\ \ \ \ \ \}}
+\DoxyCodeLine{00642\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00643\ \ \ \ \ \{}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ ERRO:\ myStatechart\ é\ nullptr\ em\ heat()."{}});}
+\DoxyCodeLine{00645\ \ \ \ \ \}}
+\DoxyCodeLine{00646\ \ \ \}}
+\DoxyCodeLine{00647\ }
+\DoxyCodeLine{00648\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ MÉTODO\ DE\ CALLBACK\ PARA\ O\ SENSOR\ DE\ ÁGUA\ -\/-\/-\/}}
+\DoxyCodeLine{00653\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_statechart_callback_a44358dc04ef8676039de3189deffc315}{beginWaterSensor}}()\textcolor{keyword}{\ override}}
+\DoxyCodeLine{00654\ \textcolor{keyword}{\ \ }\{}
+\DoxyCodeLine{00655\ \ \ \ \ Serial.println(\textcolor{stringliteral}{"{}Callback:\ beginWaterSensor()\ chamado,\ mas\ nao\ inicializa\ mais\ sensor\ 1-\/Wire."{}});}
+\DoxyCodeLine{00656\ \ \ \ \ \textcolor{comment}{//\ A\ inicialização\ do\ I2C\ Master\ é\ feita\ no\ setup()\ do\ main.cpp}}
+\DoxyCodeLine{00657\ \ \ \ \ \textcolor{comment}{//\ Nenhuma\ ação\ específica\ aqui\ para\ o\ sensor\ de\ temperatura\ simulado\ via\ I2C}}
+\DoxyCodeLine{00658\ \ \ \}}
+\DoxyCodeLine{00659\ }
+\DoxyCodeLine{00660\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ MÉTODOS\ DE\ CALLBACK\ PARA\ FUNÇÕES\ AINDA\ NÃO\ IMPLEMENTADAS\ OU\ SIMPLES\ -\/-\/-\/}}
+\DoxyCodeLine{00661\ \ \ \textcolor{keywordtype}{void}\ shutdownSystem()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00662\ \ \ \textcolor{keywordtype}{void}\ time(sc\_integer)\textcolor{keyword}{\ override\ }\{\}\ \textcolor{comment}{//\ TODO:\ Será\ implementado\ para\ controlar\ o\ tempo\ de\ etapa}}
+\DoxyCodeLine{00663\ \ \ \textcolor{keywordtype}{void}\ setTemperature(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00664\ \ \ \textcolor{keywordtype}{void}\ setTime(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00665\ \ \ \textcolor{keywordtype}{void}\ initializeSetupProcess()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00666\ }
+\DoxyCodeLine{00667\ \ \ \textcolor{comment}{//\ -\/-\/-\/\ MÉTODOS\ DE\ CUSTOMIZAÇÃO\ (NÃO\ PRIORIZADO\ AGORA)\ -\/-\/-\/}}
+\DoxyCodeLine{00668\ \ \ \textcolor{keywordtype}{void}\ showCustomSetup\_GetNumSteps()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00669\ \ \ sc\_boolean\ isValidNumSteps(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00670\ \ \ \textcolor{keywordtype}{void}\ setNumCustomSteps(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00671\ \ \ \textcolor{keywordtype}{void}\ initializeStepDataCollection()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00672\ \ \ \textcolor{keywordtype}{void}\ showCustomSetup\_PromptTemp(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00673\ \ \ \textcolor{keywordtype}{void}\ showCustomSetup\_PromptTime(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00674\ \ \ sc\_boolean\ isValidDataInput(sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00675\ \ \ \textcolor{keywordtype}{void}\ processTemperature(sc\_integer,\ sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00676\ \ \ \textcolor{keywordtype}{void}\ processDuration(sc\_integer,\ sc\_integer)\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00677\ \ \ sc\_boolean\ hasMoreStepsToDefine()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00678\ \ \ \textcolor{keywordtype}{void}\ advanceToNextCustomStep()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00679\ \ \ \textcolor{keywordtype}{void}\ showCustomSetup\_Summary()\textcolor{keyword}{\ override\ }\{\}}
+\DoxyCodeLine{00680\ }
+\DoxyCodeLine{00681\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00682\ \ \ Statechart\ *myStatechart\ =\ \textcolor{keyword}{nullptr};\ }
+\DoxyCodeLine{00683\ \};}
+\DoxyCodeLine{00684\ }
+\DoxyCodeLine{00685\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ STATECHARTCALLBACK\_H}}
+
+\end{DoxyCode}

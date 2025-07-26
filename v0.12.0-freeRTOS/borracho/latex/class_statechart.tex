@@ -1,0 +1,766 @@
+\doxysection{Statechart Class Reference}
+\hypertarget{class_statechart}{}\label{class_statechart}\index{Statechart@{Statechart}}
+Inheritance diagram for Statechart\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_statechart}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_statechart_1_1_operation_callback}{Operation\+Callback}}
+\begin{DoxyCompactList}\small\item\em Inner class for default interface scope operation callbacks. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{class_statechart_aa938026d2452435f7a6754879c959968}{Statechart\+States}} \{ \newline
+{\bfseries Statechart\+\_\+last\+\_\+state}
+, {\bfseries main\+\_\+region\+\_\+\+IDLE}
+, {\bfseries main\+\_\+region\+\_\+\+MENU}
+, {\bfseries main\+\_\+region\+\_\+\+EXIT}
+, \newline
+{\bfseries main\+\_\+region\+\_\+\+STANDARD\+\_\+\+PROCESS}
+, {\bfseries main\+\_\+region\+\_\+\+STANDARD\+\_\+\+PROCESS\+\_\+standard\+\_\+process\+\_\+\+START\+\_\+\+PROCESS}
+, {\bfseries main\+\_\+region\+\_\+\+STANDARD\+\_\+\+PROCESS\+\_\+standard\+\_\+process\+\_\+\+FINISH\+\_\+\+PROCESS}
+, {\bfseries main\+\_\+region\+\_\+\+STANDARD\+\_\+\+PROCESS\+\_\+standard\+\_\+process\+\_\+\+CONTROL\+\_\+\+PROCESS\+\_\+\+LOOP}
+, \newline
+{\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP}
+, {\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+custom\+\_\+setup\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+\+COMPLETE}
+, {\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+custom\+\_\+setup\+\_\+\+NUM\+\_\+\+STEPS}
+, {\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+custom\+\_\+setup\+\_\+\+LOOP\+\_\+\+TEMP\+\_\+\+TIME\+\_\+\+STEPS}
+, \newline
+{\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+custom\+\_\+setup\+\_\+\+LOOP\+\_\+\+TEMP\+\_\+\+TIME\+\_\+\+STEPS\+\_\+loop\+\_\+steps\+\_\+\+TEMP}
+, {\bfseries main\+\_\+region\+\_\+\+CUSTOM\+\_\+\+SETUP\+\_\+custom\+\_\+setup\+\_\+\+LOOP\+\_\+\+TEMP\+\_\+\+TIME\+\_\+\+STEPS\+\_\+loop\+\_\+steps\+\_\+\+TIME}
+, {\bfseries main\+\_\+region\+\_\+\+INIT\+\_\+\+SYSTEM}
+, {\bfseries main\+\_\+region\+\_\+\+RECIPE\+\_\+1}
+, \newline
+{\bfseries main\+\_\+region\+\_\+\+RECIPE\+\_\+2}
+, {\bfseries main\+\_\+region\+\_\+\+RECIPE\+\_\+3}
+, {\bfseries main\+\_\+region\+\_\+\+RECIPE\+\_\+4}
+, {\bfseries main\+\_\+region\+\_\+\+RECIPE\+\_\+5}
+, \newline
+{\bfseries main\+\_\+region\+\_\+\+FINISHED\+\_\+\+MESSAGE}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_statechart_abd11674af65bcf52d0721ed38adbebce}{raise\+Menu}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a1b32e4c6c3425f018fa65e6091735b31}{raise\+Standard\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a21698b79d295276c0ba61cc8fbd9189d}{raise\+Heating}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_aa071f24ebdc4e9f7a599a49fedb834c4}{raise\+Resting}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_afa92393e5d17cd71c16672bff6b15f20}{raise\+Heating\+\_\+2}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_ac4fdf5033871986141855bfc987a2484}{raise\+Resting\+\_\+2}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a9c829f468a77e32f5cafe2872c2bf999}{raise\+Idle}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_aacf2e550148f23b1ab9a0c9c8294dfcb}{raise\+Custom\+\_\+setup}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_adb72b4d1b72eac938e7a80f48dd0d591}{raise\+Set\+\_\+temperature}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a5288a271d57aff21bc3dadd00a3bbcd5}{raise\+Set\+\_\+time}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a2fea8159d5772df0042fafa8c292385d}{raise\+Set\+\_\+temperature\+\_\+2}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a5f71ed84ba7f4eb7a950102b0612c2ef}{raise\+Set\+\_\+time\+\_\+2}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a5ee32dc477c751b7a0fcf225e22096a9}{raise\+Add\+\_\+step}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a77b1ac2ef103fa978267f57e0b323bd7}{raise\+Standard\+\_\+process\+\_\+custom}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_afbcd5a74ca8d72b573d9a2653cbf3dd7}{raise\+Finish\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a58dc2a87b0661b2043dfaab8d610c574}{raise\+Finish\+\_\+process\+\_\+idle}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a1f334a1651afb5113fe63cddb6f30fb2}{raise\+Start\+\_\+button}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a8c3203c837d7aa6d8003e34845aee0c3}{raise\+Exit\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a753a213977aeadefd3af7864459c3f30}{raise\+Recipe\+\_\+1}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a247cab8aa5343d61caab7ae6967c9125}{raise\+Recipe\+\_\+2}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a36618a7b60a806abbd474243952e8910}{raise\+Recipe\+\_\+3}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_abc2459c31c6677336a71bcad120cf346}{raise\+Recipe\+\_\+4}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a6ba35c211afc2d3876971cb43adf3f54}{raise\+Recipe\+\_\+5}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a3ffadf10cfdc68edaf6956dc816c4506}{raise\+Recipe\+\_\+back\+\_\+menu}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a76fb6d35f3ef30a29a68c6e7903df8db}{raise\+Recipe\+\_\+1\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a9f27850ef61592dde91f7fccb51c98b9}{raise\+Recipe\+\_\+2\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_ad61a5da7fa8f29e5832acf9c2dac6ecc}{raise\+Recipe\+\_\+3\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a3ddb9ccf0313265cc213bf75ef2222d1}{raise\+Recipe\+\_\+4\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a2e60d5bb59cc673a93e47134ef478339}{raise\+Recipe\+\_\+5\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a6195a5db8926ff31132f36f10915b671}{raise\+Start\+\_\+first\+\_\+step}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a2ed7ee36649b062beeb95158b8d29754}{raise\+Step\+\_\+finished}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a05bc4708adfcfa0590697e821271fc78}{raise\+Finished\+\_\+process}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a5d7a9f670f1cc10a8769de9bf45ac9ba}{raise\+Keypad\+\_\+input\+\_\+confirm}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a4eb53bb0e5c6e3720aaaa2807f20c051}{raise\+Keypad\+\_\+input\+\_\+cancel}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a8c59f2b70f9f425833ade4301c369bb0}{raise\+Go\+\_\+to\+\_\+loop}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_aee7f50eed90d24b08367bb6a14a8320f}{raise\+Temp\+\_\+finished}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a52c0d1c0b59bf6a6692a2fb81e5119b8}{raise\+Loop\+\_\+finished}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a542b1ec90f1d6345e83d8752b5db8da2}{raise\+Start\+\_\+recipe\+\_\+custom}} ()
+\item 
+void \mbox{\hyperlink{class_statechart_a6c8da3e49a9df076bb4cfe819219f17f}{raise\+Go\+\_\+to\+\_\+menu}} ()
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a6b43a3ddd7aacabb9ca07ec0c18cd12a}{get\+Output}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_ac72fe495d0245744edd8d93e714ebc90}{set\+Output}} (sc\+\_\+integer output)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a48084c507a43195bb6eb74e35124b5d9}{get\+Delay}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a52600515ab4a828f64d84a5b10c700ed}{set\+Delay}} (sc\+\_\+integer delay)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a1153e9bf49f6bd6f63fcf7aec277c5b7}{get\+Low}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a4d7cb30c2697498bf9a016127c2c719e}{set\+Low}} (sc\+\_\+integer low)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a619b4476d58a36233fc6af37c007bb50}{get\+High}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a93b10744234ddc8bd8ddda1c1a400655}{set\+High}} (sc\+\_\+integer high)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_aefe8880a404460eeea00a451570bdcd6}{get\+Led\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_ae366838b25dad246824a220fb6eaa6bd}{set\+Led\+\_\+pin}} (sc\+\_\+integer led\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a5a149d5ec2a92a695abe727ea270e779}{get\+Water\+\_\+sensor\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_af950a322211a03f656f2804277c63646}{set\+Water\+\_\+sensor\+\_\+pin}} (sc\+\_\+integer water\+\_\+sensor\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a2501e1769a046912ccf37ca55f562b32}{get\+Semaphore\+\_\+red\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a2dfd00960a12a2132cfa13b9b835f04c}{set\+Semaphore\+\_\+red\+\_\+pin}} (sc\+\_\+integer semaphore\+\_\+red\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a4a11f4b4a87d15f272e9192bc23eebc9}{get\+Semaphore\+\_\+yellow\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a4f5ccc4fe3c8eaa0d524165adca0b0b6}{set\+Semaphore\+\_\+yellow\+\_\+pin}} (sc\+\_\+integer semaphore\+\_\+yellow\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a3607633a1b168b52383cf84527199014}{get\+Semaphore\+\_\+green\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a9213deb70e682ec304a7c2171defb534}{set\+Semaphore\+\_\+green\+\_\+pin}} (sc\+\_\+integer semaphore\+\_\+green\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_af00aa890c7e835941825c80a125f397c}{get\+Heater\+\_\+pwm\+\_\+pin}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_ab02eb16ddfcd2d306dc71df98296c33f}{set\+Heater\+\_\+pwm\+\_\+pin}} (sc\+\_\+integer heater\+\_\+pwm\+\_\+pin)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_adfa8dbf5c2c770df5ff7fcf4073b0287}{get\+Pwm\+\_\+frequency}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a043e7e9481ff0b23a8244d7ba93165b4}{set\+Pwm\+\_\+frequency}} (sc\+\_\+integer pwm\+\_\+frequency)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a4a2ab57dc477873cc5f6b1ed5a77ad59}{get\+Pwm\+\_\+resolution\+\_\+bits}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_aae8f4b91b3c1a7cecd352d7132d77cc5}{set\+Pwm\+\_\+resolution\+\_\+bits}} (sc\+\_\+integer pwm\+\_\+resolution\+\_\+bits)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_ab11fa97051d7967488295a6f636d0525}{get\+Custom\+\_\+num\+\_\+steps}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_ae0bc22ebd685f6ffc0b6b98d6f5c1aa1}{set\+Custom\+\_\+num\+\_\+steps}} (sc\+\_\+integer custom\+\_\+num\+\_\+steps)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_abd362a87e2981d66a00e99ff7af6d3ef}{get\+Current\+\_\+custom\+\_\+step\+\_\+idx}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_abe968a04127a044431c46742eb257faf}{set\+Current\+\_\+custom\+\_\+step\+\_\+idx}} (sc\+\_\+integer current\+\_\+custom\+\_\+step\+\_\+idx)
+\item 
+sc\+\_\+integer \mbox{\hyperlink{class_statechart_a6d73edcdb3eb80b7aaad6aa0d41d61df}{get\+Received\+\_\+value}} () const
+\item 
+void \mbox{\hyperlink{class_statechart_a975f32a0b4e838ca0dd5da5c5f972b1f}{set\+Received\+\_\+value}} (sc\+\_\+integer received\+\_\+value)
+\item 
+void \mbox{\hyperlink{class_statechart_a4156460d18d5a390bd3608d70efa8a0a}{set\+Operation\+Callback}} (\mbox{\hyperlink{class_statechart_1_1_operation_callback}{Operation\+Callback}} \texorpdfstring{$\ast$}{*}operation\+Callback)
+\item 
+void \mbox{\hyperlink{class_statechart_aef26f48a5bd790abaf97c06d06de4d87}{trigger\+Without\+Event}} ()
+\item 
+virtual void \mbox{\hyperlink{class_statechart_a06512d1519c84f01fedf9873aa61b5f1}{enter}} ()
+\item 
+virtual void \mbox{\hyperlink{class_statechart_a6bcf8be3234c41c6101e605f016def06}{exit}} ()
+\item 
+virtual sc\+\_\+boolean \mbox{\hyperlink{class_statechart_ad38e59a81f22c38faca4754d1d22d21b}{is\+Active}} () const
+\item 
+virtual sc\+\_\+boolean \mbox{\hyperlink{class_statechart_ae0e54bc24a6b71271093b4f0fff42349}{is\+Final}} () const
+\item 
+sc\+\_\+boolean \mbox{\hyperlink{class_statechart_abaf10290e547b2325ae183b72a288003}{check}} ()
+\item 
+virtual void \mbox{\hyperlink{class_statechart_a14e4b1461cb3b01e593b26b5e6455771}{set\+Timer\+Service}} (\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc\+::timer\+::\+Timer\+Service\+Interface}} \texorpdfstring{$\ast$}{*}timer\+Service\+\_\+)
+\item 
+virtual \mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc\+::timer\+::\+Timer\+Service\+Interface}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_statechart_aef9906749c36319bbbb3d9755f264295}{get\+Timer\+Service}} ()
+\item 
+virtual void \mbox{\hyperlink{class_statechart_a30eb259481ec30dd17fdeac3f4cfe781}{raise\+Time\+Event}} (sc\+\_\+eventid event)
+\item 
+virtual sc\+\_\+integer \mbox{\hyperlink{class_statechart_ae2c9e937ed4a4ffdc1748fd5a6230966}{get\+Number\+Of\+Parallel\+Time\+Events}} ()
+\item 
+sc\+\_\+boolean \mbox{\hyperlink{class_statechart_abf8a3028e8b0d003d28ece0d9b9fd89e}{is\+State\+Active}} (\mbox{\hyperlink{class_statechart_aa938026d2452435f7a6754879c959968}{Statechart\+States}} state) const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_statechart_a7c82890f878b784b38a55cde824fa5fd}\label{class_statechart_a7c82890f878b784b38a55cde824fa5fd} 
+static const sc\+\_\+integer {\bfseries num\+States} = 20
+\item 
+\Hypertarget{class_statechart_aaa839843f4c1795e9aae81c459b45d11}\label{class_statechart_aaa839843f4c1795e9aae81c459b45d11} 
+static const sc\+\_\+integer {\bfseries time\+Events\+Count} = 2
+\begin{DoxyCompactList}\small\item\em number of time events used by the state machine. \end{DoxyCompactList}\item 
+\Hypertarget{class_statechart_a4d40d17776a2270e3d1cb2d5c82f04a1}\label{class_statechart_a4d40d17776a2270e3d1cb2d5c82f04a1} 
+static const sc\+\_\+integer {\bfseries parallel\+Time\+Events\+Count} = 1
+\begin{DoxyCompactList}\small\item\em number of time events that can be active at once. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\label{doc-enum-members}
+\Hypertarget{class_statechart_doc-enum-members}
+\doxysubsection{Member Enumeration Documentation}
+\Hypertarget{class_statechart_aa938026d2452435f7a6754879c959968}\index{Statechart@{Statechart}!StatechartStates@{StatechartStates}}
+\index{StatechartStates@{StatechartStates}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{StatechartStates}{StatechartStates}}
+{\footnotesize\ttfamily \label{class_statechart_aa938026d2452435f7a6754879c959968} 
+enum \mbox{\hyperlink{class_statechart_aa938026d2452435f7a6754879c959968}{Statechart\+::\+Statechart\+States}}}
+
+Enumeration of all states 
+
+\label{doc-func-members}
+\Hypertarget{class_statechart_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_statechart_abaf10290e547b2325ae183b72a288003}\index{Statechart@{Statechart}!check@{check}}
+\index{check@{check}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{check()}{check()}}
+{\footnotesize\ttfamily \label{class_statechart_abaf10290e547b2325ae183b72a288003} 
+sc\+\_\+boolean Statechart\+::check (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Checks if member of the state machine must be set. For example an operation callback. \Hypertarget{class_statechart_a06512d1519c84f01fedf9873aa61b5f1}\index{Statechart@{Statechart}!enter@{enter}}
+\index{enter@{enter}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{enter()}{enter()}}
+{\footnotesize\ttfamily \label{class_statechart_a06512d1519c84f01fedf9873aa61b5f1} 
+void Statechart\+::enter (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Enters the state machine. Sets the state machine into a defined state. 
+
+Implements \mbox{\hyperlink{classsc_1_1_statemachine_interface_a05bfa96eaf85a416020533d00d2b79c8}{sc\+::\+Statemachine\+Interface}}.
+
+\Hypertarget{class_statechart_a6bcf8be3234c41c6101e605f016def06}\index{Statechart@{Statechart}!exit@{exit}}
+\index{exit@{exit}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{exit()}{exit()}}
+{\footnotesize\ttfamily \label{class_statechart_a6bcf8be3234c41c6101e605f016def06} 
+void Statechart\+::exit (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Exits the state machine. Leaves the state machine with a defined state. 
+
+Implements \mbox{\hyperlink{classsc_1_1_statemachine_interface_aaf403e4303d6b7237d8ad68537c3cff6}{sc\+::\+Statemachine\+Interface}}.
+
+\Hypertarget{class_statechart_abd362a87e2981d66a00e99ff7af6d3ef}\index{Statechart@{Statechart}!getCurrent\_custom\_step\_idx@{getCurrent\_custom\_step\_idx}}
+\index{getCurrent\_custom\_step\_idx@{getCurrent\_custom\_step\_idx}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getCurrent\_custom\_step\_idx()}{getCurrent\_custom\_step\_idx()}}
+{\footnotesize\ttfamily \label{class_statechart_abd362a87e2981d66a00e99ff7af6d3ef} 
+sc\+\_\+integer Statechart\+::get\+Current\+\_\+custom\+\_\+step\+\_\+idx (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}current\+\_\+custom\+\_\+step\+\_\+idx\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ab11fa97051d7967488295a6f636d0525}\index{Statechart@{Statechart}!getCustom\_num\_steps@{getCustom\_num\_steps}}
+\index{getCustom\_num\_steps@{getCustom\_num\_steps}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getCustom\_num\_steps()}{getCustom\_num\_steps()}}
+{\footnotesize\ttfamily \label{class_statechart_ab11fa97051d7967488295a6f636d0525} 
+sc\+\_\+integer Statechart\+::get\+Custom\+\_\+num\+\_\+steps (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}custom\+\_\+num\+\_\+steps\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a48084c507a43195bb6eb74e35124b5d9}\index{Statechart@{Statechart}!getDelay@{getDelay}}
+\index{getDelay@{getDelay}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getDelay()}{getDelay()}}
+{\footnotesize\ttfamily \label{class_statechart_a48084c507a43195bb6eb74e35124b5d9} 
+sc\+\_\+integer Statechart\+::get\+Delay (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}delay\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_af00aa890c7e835941825c80a125f397c}\index{Statechart@{Statechart}!getHeater\_pwm\_pin@{getHeater\_pwm\_pin}}
+\index{getHeater\_pwm\_pin@{getHeater\_pwm\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getHeater\_pwm\_pin()}{getHeater\_pwm\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_af00aa890c7e835941825c80a125f397c} 
+sc\+\_\+integer Statechart\+::get\+Heater\+\_\+pwm\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}heater\+\_\+pwm\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a619b4476d58a36233fc6af37c007bb50}\index{Statechart@{Statechart}!getHigh@{getHigh}}
+\index{getHigh@{getHigh}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getHigh()}{getHigh()}}
+{\footnotesize\ttfamily \label{class_statechart_a619b4476d58a36233fc6af37c007bb50} 
+sc\+\_\+integer Statechart\+::get\+High (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}high\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aefe8880a404460eeea00a451570bdcd6}\index{Statechart@{Statechart}!getLed\_pin@{getLed\_pin}}
+\index{getLed\_pin@{getLed\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getLed\_pin()}{getLed\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_aefe8880a404460eeea00a451570bdcd6} 
+sc\+\_\+integer Statechart\+::get\+Led\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}led\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a1153e9bf49f6bd6f63fcf7aec277c5b7}\index{Statechart@{Statechart}!getLow@{getLow}}
+\index{getLow@{getLow}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getLow()}{getLow()}}
+{\footnotesize\ttfamily \label{class_statechart_a1153e9bf49f6bd6f63fcf7aec277c5b7} 
+sc\+\_\+integer Statechart\+::get\+Low (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}low\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ae2c9e937ed4a4ffdc1748fd5a6230966}\index{Statechart@{Statechart}!getNumberOfParallelTimeEvents@{getNumberOfParallelTimeEvents}}
+\index{getNumberOfParallelTimeEvents@{getNumberOfParallelTimeEvents}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getNumberOfParallelTimeEvents()}{getNumberOfParallelTimeEvents()}}
+{\footnotesize\ttfamily \label{class_statechart_ae2c9e937ed4a4ffdc1748fd5a6230966} 
+sc\+\_\+integer Statechart\+::get\+Number\+Of\+Parallel\+Time\+Events (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Retrieve the number of time events that can be active at once in this state machine. 
+
+Implements \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_aeaeffef3b4c6c7e803d98f8de2003806}{sc\+::timer\+::\+Timed\+Interface}}.
+
+\Hypertarget{class_statechart_a6b43a3ddd7aacabb9ca07ec0c18cd12a}\index{Statechart@{Statechart}!getOutput@{getOutput}}
+\index{getOutput@{getOutput}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getOutput()}{getOutput()}}
+{\footnotesize\ttfamily \label{class_statechart_a6b43a3ddd7aacabb9ca07ec0c18cd12a} 
+sc\+\_\+integer Statechart\+::get\+Output (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}output\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_adfa8dbf5c2c770df5ff7fcf4073b0287}\index{Statechart@{Statechart}!getPwm\_frequency@{getPwm\_frequency}}
+\index{getPwm\_frequency@{getPwm\_frequency}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getPwm\_frequency()}{getPwm\_frequency()}}
+{\footnotesize\ttfamily \label{class_statechart_adfa8dbf5c2c770df5ff7fcf4073b0287} 
+sc\+\_\+integer Statechart\+::get\+Pwm\+\_\+frequency (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}pwm\+\_\+frequency\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4a2ab57dc477873cc5f6b1ed5a77ad59}\index{Statechart@{Statechart}!getPwm\_resolution\_bits@{getPwm\_resolution\_bits}}
+\index{getPwm\_resolution\_bits@{getPwm\_resolution\_bits}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getPwm\_resolution\_bits()}{getPwm\_resolution\_bits()}}
+{\footnotesize\ttfamily \label{class_statechart_a4a2ab57dc477873cc5f6b1ed5a77ad59} 
+sc\+\_\+integer Statechart\+::get\+Pwm\+\_\+resolution\+\_\+bits (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}pwm\+\_\+resolution\+\_\+bits\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a6d73edcdb3eb80b7aaad6aa0d41d61df}\index{Statechart@{Statechart}!getReceived\_value@{getReceived\_value}}
+\index{getReceived\_value@{getReceived\_value}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getReceived\_value()}{getReceived\_value()}}
+{\footnotesize\ttfamily \label{class_statechart_a6d73edcdb3eb80b7aaad6aa0d41d61df} 
+sc\+\_\+integer Statechart\+::get\+Received\+\_\+value (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}received\+\_\+value\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a3607633a1b168b52383cf84527199014}\index{Statechart@{Statechart}!getSemaphore\_green\_pin@{getSemaphore\_green\_pin}}
+\index{getSemaphore\_green\_pin@{getSemaphore\_green\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getSemaphore\_green\_pin()}{getSemaphore\_green\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a3607633a1b168b52383cf84527199014} 
+sc\+\_\+integer Statechart\+::get\+Semaphore\+\_\+green\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}semaphore\+\_\+green\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a2501e1769a046912ccf37ca55f562b32}\index{Statechart@{Statechart}!getSemaphore\_red\_pin@{getSemaphore\_red\_pin}}
+\index{getSemaphore\_red\_pin@{getSemaphore\_red\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getSemaphore\_red\_pin()}{getSemaphore\_red\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a2501e1769a046912ccf37ca55f562b32} 
+sc\+\_\+integer Statechart\+::get\+Semaphore\+\_\+red\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}semaphore\+\_\+red\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4a11f4b4a87d15f272e9192bc23eebc9}\index{Statechart@{Statechart}!getSemaphore\_yellow\_pin@{getSemaphore\_yellow\_pin}}
+\index{getSemaphore\_yellow\_pin@{getSemaphore\_yellow\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getSemaphore\_yellow\_pin()}{getSemaphore\_yellow\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a4a11f4b4a87d15f272e9192bc23eebc9} 
+sc\+\_\+integer Statechart\+::get\+Semaphore\+\_\+yellow\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}semaphore\+\_\+yellow\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aef9906749c36319bbbb3d9755f264295}\index{Statechart@{Statechart}!getTimerService@{getTimerService}}
+\index{getTimerService@{getTimerService}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getTimerService()}{getTimerService()}}
+{\footnotesize\ttfamily \label{class_statechart_aef9906749c36319bbbb3d9755f264295} 
+\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc\+::timer\+::\+Timer\+Service\+Interface}} \texorpdfstring{$\ast$}{*} Statechart\+::get\+Timer\+Service (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Return the currently used timer service. 
+
+Implements \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a45c8c63a653c247bead8aa1f65f34e70}{sc\+::timer\+::\+Timed\+Interface}}.
+
+\Hypertarget{class_statechart_a5a149d5ec2a92a695abe727ea270e779}\index{Statechart@{Statechart}!getWater\_sensor\_pin@{getWater\_sensor\_pin}}
+\index{getWater\_sensor\_pin@{getWater\_sensor\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{getWater\_sensor\_pin()}{getWater\_sensor\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a5a149d5ec2a92a695abe727ea270e779} 
+sc\+\_\+integer Statechart\+::get\+Water\+\_\+sensor\+\_\+pin (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+Gets the value of the variable \textquotesingle{}water\+\_\+sensor\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ad38e59a81f22c38faca4754d1d22d21b}\index{Statechart@{Statechart}!isActive@{isActive}}
+\index{isActive@{isActive}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{isActive()}{isActive()}}
+{\footnotesize\ttfamily \label{class_statechart_ad38e59a81f22c38faca4754d1d22d21b} 
+sc\+\_\+boolean Statechart\+::is\+Active (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Checks if the state machine is active (until 2.\+4.\+1 this method was used for states). A state machine is active if it has been entered. It is inactive if it has not been entered at all or if it has been exited. 
+
+Implements \mbox{\hyperlink{classsc_1_1_statemachine_interface_ae87b7d54a21077b067ad957aa7063c60}{sc\+::\+Statemachine\+Interface}}.
+
+\Hypertarget{class_statechart_ae0e54bc24a6b71271093b4f0fff42349}\index{Statechart@{Statechart}!isFinal@{isFinal}}
+\index{isFinal@{isFinal}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{isFinal()}{isFinal()}}
+{\footnotesize\ttfamily \label{class_statechart_ae0e54bc24a6b71271093b4f0fff42349} 
+sc\+\_\+boolean Statechart\+::is\+Final (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Checks if all active states are final. If there are no active states then the state machine is considered being inactive. In this case this method returns false. 
+
+Implements \mbox{\hyperlink{classsc_1_1_statemachine_interface_a9998ad1afc6090c268a5ff502acb78a4}{sc\+::\+Statemachine\+Interface}}.
+
+\Hypertarget{class_statechart_abf8a3028e8b0d003d28ece0d9b9fd89e}\index{Statechart@{Statechart}!isStateActive@{isStateActive}}
+\index{isStateActive@{isStateActive}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{isStateActive()}{isStateActive()}}
+{\footnotesize\ttfamily \label{class_statechart_abf8a3028e8b0d003d28ece0d9b9fd89e} 
+sc\+\_\+boolean Statechart\+::is\+State\+Active (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_statechart_aa938026d2452435f7a6754879c959968}{Statechart\+States}}}]{state}{}\end{DoxyParamCaption}) const}
+
+Checks if the specified state is active (until 2.\+4.\+1 the used method for states was calles \doxylink{class_statechart_ad38e59a81f22c38faca4754d1d22d21b}{is\+Active()}). \Hypertarget{class_statechart_a5ee32dc477c751b7a0fcf225e22096a9}\index{Statechart@{Statechart}!raiseAdd\_step@{raiseAdd\_step}}
+\index{raiseAdd\_step@{raiseAdd\_step}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseAdd\_step()}{raiseAdd\_step()}}
+{\footnotesize\ttfamily \label{class_statechart_a5ee32dc477c751b7a0fcf225e22096a9} 
+void Statechart\+::raise\+Add\+\_\+step (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}add\+\_\+step\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aacf2e550148f23b1ab9a0c9c8294dfcb}\index{Statechart@{Statechart}!raiseCustom\_setup@{raiseCustom\_setup}}
+\index{raiseCustom\_setup@{raiseCustom\_setup}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseCustom\_setup()}{raiseCustom\_setup()}}
+{\footnotesize\ttfamily \label{class_statechart_aacf2e550148f23b1ab9a0c9c8294dfcb} 
+void Statechart\+::raise\+Custom\+\_\+setup (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}custom\+\_\+setup\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a8c3203c837d7aa6d8003e34845aee0c3}\index{Statechart@{Statechart}!raiseExit\_process@{raiseExit\_process}}
+\index{raiseExit\_process@{raiseExit\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseExit\_process()}{raiseExit\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a8c3203c837d7aa6d8003e34845aee0c3} 
+void Statechart\+::raise\+Exit\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}exit\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_afbcd5a74ca8d72b573d9a2653cbf3dd7}\index{Statechart@{Statechart}!raiseFinish\_process@{raiseFinish\_process}}
+\index{raiseFinish\_process@{raiseFinish\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseFinish\_process()}{raiseFinish\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_afbcd5a74ca8d72b573d9a2653cbf3dd7} 
+void Statechart\+::raise\+Finish\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}finish\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a58dc2a87b0661b2043dfaab8d610c574}\index{Statechart@{Statechart}!raiseFinish\_process\_idle@{raiseFinish\_process\_idle}}
+\index{raiseFinish\_process\_idle@{raiseFinish\_process\_idle}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseFinish\_process\_idle()}{raiseFinish\_process\_idle()}}
+{\footnotesize\ttfamily \label{class_statechart_a58dc2a87b0661b2043dfaab8d610c574} 
+void Statechart\+::raise\+Finish\+\_\+process\+\_\+idle (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}finish\+\_\+process\+\_\+idle\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a05bc4708adfcfa0590697e821271fc78}\index{Statechart@{Statechart}!raiseFinished\_process@{raiseFinished\_process}}
+\index{raiseFinished\_process@{raiseFinished\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseFinished\_process()}{raiseFinished\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a05bc4708adfcfa0590697e821271fc78} 
+void Statechart\+::raise\+Finished\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}finished\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a8c59f2b70f9f425833ade4301c369bb0}\index{Statechart@{Statechart}!raiseGo\_to\_loop@{raiseGo\_to\_loop}}
+\index{raiseGo\_to\_loop@{raiseGo\_to\_loop}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseGo\_to\_loop()}{raiseGo\_to\_loop()}}
+{\footnotesize\ttfamily \label{class_statechart_a8c59f2b70f9f425833ade4301c369bb0} 
+void Statechart\+::raise\+Go\+\_\+to\+\_\+loop (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}go\+\_\+to\+\_\+loop\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a6c8da3e49a9df076bb4cfe819219f17f}\index{Statechart@{Statechart}!raiseGo\_to\_menu@{raiseGo\_to\_menu}}
+\index{raiseGo\_to\_menu@{raiseGo\_to\_menu}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseGo\_to\_menu()}{raiseGo\_to\_menu()}}
+{\footnotesize\ttfamily \label{class_statechart_a6c8da3e49a9df076bb4cfe819219f17f} 
+void Statechart\+::raise\+Go\+\_\+to\+\_\+menu (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}go\+\_\+to\+\_\+menu\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a21698b79d295276c0ba61cc8fbd9189d}\index{Statechart@{Statechart}!raiseHeating@{raiseHeating}}
+\index{raiseHeating@{raiseHeating}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseHeating()}{raiseHeating()}}
+{\footnotesize\ttfamily \label{class_statechart_a21698b79d295276c0ba61cc8fbd9189d} 
+void Statechart\+::raise\+Heating (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}heating\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_afa92393e5d17cd71c16672bff6b15f20}\index{Statechart@{Statechart}!raiseHeating\_2@{raiseHeating\_2}}
+\index{raiseHeating\_2@{raiseHeating\_2}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseHeating\_2()}{raiseHeating\_2()}}
+{\footnotesize\ttfamily \label{class_statechart_afa92393e5d17cd71c16672bff6b15f20} 
+void Statechart\+::raise\+Heating\+\_\+2 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}heating\+\_\+2\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a9c829f468a77e32f5cafe2872c2bf999}\index{Statechart@{Statechart}!raiseIdle@{raiseIdle}}
+\index{raiseIdle@{raiseIdle}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseIdle()}{raiseIdle()}}
+{\footnotesize\ttfamily \label{class_statechart_a9c829f468a77e32f5cafe2872c2bf999} 
+void Statechart\+::raise\+Idle (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}idle\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4eb53bb0e5c6e3720aaaa2807f20c051}\index{Statechart@{Statechart}!raiseKeypad\_input\_cancel@{raiseKeypad\_input\_cancel}}
+\index{raiseKeypad\_input\_cancel@{raiseKeypad\_input\_cancel}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseKeypad\_input\_cancel()}{raiseKeypad\_input\_cancel()}}
+{\footnotesize\ttfamily \label{class_statechart_a4eb53bb0e5c6e3720aaaa2807f20c051} 
+void Statechart\+::raise\+Keypad\+\_\+input\+\_\+cancel (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}keypad\+\_\+input\+\_\+cancel\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a5d7a9f670f1cc10a8769de9bf45ac9ba}\index{Statechart@{Statechart}!raiseKeypad\_input\_confirm@{raiseKeypad\_input\_confirm}}
+\index{raiseKeypad\_input\_confirm@{raiseKeypad\_input\_confirm}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseKeypad\_input\_confirm()}{raiseKeypad\_input\_confirm()}}
+{\footnotesize\ttfamily \label{class_statechart_a5d7a9f670f1cc10a8769de9bf45ac9ba} 
+void Statechart\+::raise\+Keypad\+\_\+input\+\_\+confirm (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}keypad\+\_\+input\+\_\+confirm\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a52c0d1c0b59bf6a6692a2fb81e5119b8}\index{Statechart@{Statechart}!raiseLoop\_finished@{raiseLoop\_finished}}
+\index{raiseLoop\_finished@{raiseLoop\_finished}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseLoop\_finished()}{raiseLoop\_finished()}}
+{\footnotesize\ttfamily \label{class_statechart_a52c0d1c0b59bf6a6692a2fb81e5119b8} 
+void Statechart\+::raise\+Loop\+\_\+finished (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}loop\+\_\+finished\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_abd11674af65bcf52d0721ed38adbebce}\index{Statechart@{Statechart}!raiseMenu@{raiseMenu}}
+\index{raiseMenu@{raiseMenu}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseMenu()}{raiseMenu()}}
+{\footnotesize\ttfamily \label{class_statechart_abd11674af65bcf52d0721ed38adbebce} 
+void Statechart\+::raise\+Menu (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}menu\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a753a213977aeadefd3af7864459c3f30}\index{Statechart@{Statechart}!raiseRecipe\_1@{raiseRecipe\_1}}
+\index{raiseRecipe\_1@{raiseRecipe\_1}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_1()}{raiseRecipe\_1()}}
+{\footnotesize\ttfamily \label{class_statechart_a753a213977aeadefd3af7864459c3f30} 
+void Statechart\+::raise\+Recipe\+\_\+1 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+1\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a76fb6d35f3ef30a29a68c6e7903df8db}\index{Statechart@{Statechart}!raiseRecipe\_1\_process@{raiseRecipe\_1\_process}}
+\index{raiseRecipe\_1\_process@{raiseRecipe\_1\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_1\_process()}{raiseRecipe\_1\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a76fb6d35f3ef30a29a68c6e7903df8db} 
+void Statechart\+::raise\+Recipe\+\_\+1\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+1\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a247cab8aa5343d61caab7ae6967c9125}\index{Statechart@{Statechart}!raiseRecipe\_2@{raiseRecipe\_2}}
+\index{raiseRecipe\_2@{raiseRecipe\_2}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_2()}{raiseRecipe\_2()}}
+{\footnotesize\ttfamily \label{class_statechart_a247cab8aa5343d61caab7ae6967c9125} 
+void Statechart\+::raise\+Recipe\+\_\+2 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+2\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a9f27850ef61592dde91f7fccb51c98b9}\index{Statechart@{Statechart}!raiseRecipe\_2\_process@{raiseRecipe\_2\_process}}
+\index{raiseRecipe\_2\_process@{raiseRecipe\_2\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_2\_process()}{raiseRecipe\_2\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a9f27850ef61592dde91f7fccb51c98b9} 
+void Statechart\+::raise\+Recipe\+\_\+2\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+2\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a36618a7b60a806abbd474243952e8910}\index{Statechart@{Statechart}!raiseRecipe\_3@{raiseRecipe\_3}}
+\index{raiseRecipe\_3@{raiseRecipe\_3}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_3()}{raiseRecipe\_3()}}
+{\footnotesize\ttfamily \label{class_statechart_a36618a7b60a806abbd474243952e8910} 
+void Statechart\+::raise\+Recipe\+\_\+3 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+3\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ad61a5da7fa8f29e5832acf9c2dac6ecc}\index{Statechart@{Statechart}!raiseRecipe\_3\_process@{raiseRecipe\_3\_process}}
+\index{raiseRecipe\_3\_process@{raiseRecipe\_3\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_3\_process()}{raiseRecipe\_3\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_ad61a5da7fa8f29e5832acf9c2dac6ecc} 
+void Statechart\+::raise\+Recipe\+\_\+3\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+3\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_abc2459c31c6677336a71bcad120cf346}\index{Statechart@{Statechart}!raiseRecipe\_4@{raiseRecipe\_4}}
+\index{raiseRecipe\_4@{raiseRecipe\_4}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_4()}{raiseRecipe\_4()}}
+{\footnotesize\ttfamily \label{class_statechart_abc2459c31c6677336a71bcad120cf346} 
+void Statechart\+::raise\+Recipe\+\_\+4 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+4\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a3ddb9ccf0313265cc213bf75ef2222d1}\index{Statechart@{Statechart}!raiseRecipe\_4\_process@{raiseRecipe\_4\_process}}
+\index{raiseRecipe\_4\_process@{raiseRecipe\_4\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_4\_process()}{raiseRecipe\_4\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a3ddb9ccf0313265cc213bf75ef2222d1} 
+void Statechart\+::raise\+Recipe\+\_\+4\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+4\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a6ba35c211afc2d3876971cb43adf3f54}\index{Statechart@{Statechart}!raiseRecipe\_5@{raiseRecipe\_5}}
+\index{raiseRecipe\_5@{raiseRecipe\_5}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_5()}{raiseRecipe\_5()}}
+{\footnotesize\ttfamily \label{class_statechart_a6ba35c211afc2d3876971cb43adf3f54} 
+void Statechart\+::raise\+Recipe\+\_\+5 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+5\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a2e60d5bb59cc673a93e47134ef478339}\index{Statechart@{Statechart}!raiseRecipe\_5\_process@{raiseRecipe\_5\_process}}
+\index{raiseRecipe\_5\_process@{raiseRecipe\_5\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_5\_process()}{raiseRecipe\_5\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a2e60d5bb59cc673a93e47134ef478339} 
+void Statechart\+::raise\+Recipe\+\_\+5\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+5\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a3ffadf10cfdc68edaf6956dc816c4506}\index{Statechart@{Statechart}!raiseRecipe\_back\_menu@{raiseRecipe\_back\_menu}}
+\index{raiseRecipe\_back\_menu@{raiseRecipe\_back\_menu}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseRecipe\_back\_menu()}{raiseRecipe\_back\_menu()}}
+{\footnotesize\ttfamily \label{class_statechart_a3ffadf10cfdc68edaf6956dc816c4506} 
+void Statechart\+::raise\+Recipe\+\_\+back\+\_\+menu (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}recipe\+\_\+back\+\_\+menu\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aa071f24ebdc4e9f7a599a49fedb834c4}\index{Statechart@{Statechart}!raiseResting@{raiseResting}}
+\index{raiseResting@{raiseResting}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseResting()}{raiseResting()}}
+{\footnotesize\ttfamily \label{class_statechart_aa071f24ebdc4e9f7a599a49fedb834c4} 
+void Statechart\+::raise\+Resting (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}resting\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ac4fdf5033871986141855bfc987a2484}\index{Statechart@{Statechart}!raiseResting\_2@{raiseResting\_2}}
+\index{raiseResting\_2@{raiseResting\_2}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseResting\_2()}{raiseResting\_2()}}
+{\footnotesize\ttfamily \label{class_statechart_ac4fdf5033871986141855bfc987a2484} 
+void Statechart\+::raise\+Resting\+\_\+2 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}resting\+\_\+2\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_adb72b4d1b72eac938e7a80f48dd0d591}\index{Statechart@{Statechart}!raiseSet\_temperature@{raiseSet\_temperature}}
+\index{raiseSet\_temperature@{raiseSet\_temperature}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseSet\_temperature()}{raiseSet\_temperature()}}
+{\footnotesize\ttfamily \label{class_statechart_adb72b4d1b72eac938e7a80f48dd0d591} 
+void Statechart\+::raise\+Set\+\_\+temperature (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}set\+\_\+temperature\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a2fea8159d5772df0042fafa8c292385d}\index{Statechart@{Statechart}!raiseSet\_temperature\_2@{raiseSet\_temperature\_2}}
+\index{raiseSet\_temperature\_2@{raiseSet\_temperature\_2}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseSet\_temperature\_2()}{raiseSet\_temperature\_2()}}
+{\footnotesize\ttfamily \label{class_statechart_a2fea8159d5772df0042fafa8c292385d} 
+void Statechart\+::raise\+Set\+\_\+temperature\+\_\+2 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}set\+\_\+temperature\+\_\+2\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a5288a271d57aff21bc3dadd00a3bbcd5}\index{Statechart@{Statechart}!raiseSet\_time@{raiseSet\_time}}
+\index{raiseSet\_time@{raiseSet\_time}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseSet\_time()}{raiseSet\_time()}}
+{\footnotesize\ttfamily \label{class_statechart_a5288a271d57aff21bc3dadd00a3bbcd5} 
+void Statechart\+::raise\+Set\+\_\+time (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}set\+\_\+time\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a5f71ed84ba7f4eb7a950102b0612c2ef}\index{Statechart@{Statechart}!raiseSet\_time\_2@{raiseSet\_time\_2}}
+\index{raiseSet\_time\_2@{raiseSet\_time\_2}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseSet\_time\_2()}{raiseSet\_time\_2()}}
+{\footnotesize\ttfamily \label{class_statechart_a5f71ed84ba7f4eb7a950102b0612c2ef} 
+void Statechart\+::raise\+Set\+\_\+time\+\_\+2 (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}set\+\_\+time\+\_\+2\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a1b32e4c6c3425f018fa65e6091735b31}\index{Statechart@{Statechart}!raiseStandard\_process@{raiseStandard\_process}}
+\index{raiseStandard\_process@{raiseStandard\_process}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStandard\_process()}{raiseStandard\_process()}}
+{\footnotesize\ttfamily \label{class_statechart_a1b32e4c6c3425f018fa65e6091735b31} 
+void Statechart\+::raise\+Standard\+\_\+process (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}standard\+\_\+process\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a77b1ac2ef103fa978267f57e0b323bd7}\index{Statechart@{Statechart}!raiseStandard\_process\_custom@{raiseStandard\_process\_custom}}
+\index{raiseStandard\_process\_custom@{raiseStandard\_process\_custom}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStandard\_process\_custom()}{raiseStandard\_process\_custom()}}
+{\footnotesize\ttfamily \label{class_statechart_a77b1ac2ef103fa978267f57e0b323bd7} 
+void Statechart\+::raise\+Standard\+\_\+process\+\_\+custom (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}standard\+\_\+process\+\_\+custom\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a1f334a1651afb5113fe63cddb6f30fb2}\index{Statechart@{Statechart}!raiseStart\_button@{raiseStart\_button}}
+\index{raiseStart\_button@{raiseStart\_button}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStart\_button()}{raiseStart\_button()}}
+{\footnotesize\ttfamily \label{class_statechart_a1f334a1651afb5113fe63cddb6f30fb2} 
+void Statechart\+::raise\+Start\+\_\+button (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}start\+\_\+button\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a6195a5db8926ff31132f36f10915b671}\index{Statechart@{Statechart}!raiseStart\_first\_step@{raiseStart\_first\_step}}
+\index{raiseStart\_first\_step@{raiseStart\_first\_step}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStart\_first\_step()}{raiseStart\_first\_step()}}
+{\footnotesize\ttfamily \label{class_statechart_a6195a5db8926ff31132f36f10915b671} 
+void Statechart\+::raise\+Start\+\_\+first\+\_\+step (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}start\+\_\+first\+\_\+step\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a542b1ec90f1d6345e83d8752b5db8da2}\index{Statechart@{Statechart}!raiseStart\_recipe\_custom@{raiseStart\_recipe\_custom}}
+\index{raiseStart\_recipe\_custom@{raiseStart\_recipe\_custom}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStart\_recipe\_custom()}{raiseStart\_recipe\_custom()}}
+{\footnotesize\ttfamily \label{class_statechart_a542b1ec90f1d6345e83d8752b5db8da2} 
+void Statechart\+::raise\+Start\+\_\+recipe\+\_\+custom (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}start\+\_\+recipe\+\_\+custom\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a2ed7ee36649b062beeb95158b8d29754}\index{Statechart@{Statechart}!raiseStep\_finished@{raiseStep\_finished}}
+\index{raiseStep\_finished@{raiseStep\_finished}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseStep\_finished()}{raiseStep\_finished()}}
+{\footnotesize\ttfamily \label{class_statechart_a2ed7ee36649b062beeb95158b8d29754} 
+void Statechart\+::raise\+Step\+\_\+finished (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}step\+\_\+finished\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aee7f50eed90d24b08367bb6a14a8320f}\index{Statechart@{Statechart}!raiseTemp\_finished@{raiseTemp\_finished}}
+\index{raiseTemp\_finished@{raiseTemp\_finished}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseTemp\_finished()}{raiseTemp\_finished()}}
+{\footnotesize\ttfamily \label{class_statechart_aee7f50eed90d24b08367bb6a14a8320f} 
+void Statechart\+::raise\+Temp\+\_\+finished (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Raises the in event \textquotesingle{}temp\+\_\+finished\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a30eb259481ec30dd17fdeac3f4cfe781}\index{Statechart@{Statechart}!raiseTimeEvent@{raiseTimeEvent}}
+\index{raiseTimeEvent@{raiseTimeEvent}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{raiseTimeEvent()}{raiseTimeEvent()}}
+{\footnotesize\ttfamily \label{class_statechart_a30eb259481ec30dd17fdeac3f4cfe781} 
+void Statechart\+::raise\+Time\+Event (\begin{DoxyParamCaption}\item[{sc\+\_\+eventid}]{event}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Callback method if a time event occurred. 
+
+Implements \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a0ad07835d195e9e8d617ead1fd2c4dc0}{sc\+::timer\+::\+Timed\+Interface}}.
+
+\Hypertarget{class_statechart_abe968a04127a044431c46742eb257faf}\index{Statechart@{Statechart}!setCurrent\_custom\_step\_idx@{setCurrent\_custom\_step\_idx}}
+\index{setCurrent\_custom\_step\_idx@{setCurrent\_custom\_step\_idx}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setCurrent\_custom\_step\_idx()}{setCurrent\_custom\_step\_idx()}}
+{\footnotesize\ttfamily \label{class_statechart_abe968a04127a044431c46742eb257faf} 
+void Statechart\+::set\+Current\+\_\+custom\+\_\+step\+\_\+idx (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{current\+\_\+custom\+\_\+step\+\_\+idx}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}current\+\_\+custom\+\_\+step\+\_\+idx\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ae0bc22ebd685f6ffc0b6b98d6f5c1aa1}\index{Statechart@{Statechart}!setCustom\_num\_steps@{setCustom\_num\_steps}}
+\index{setCustom\_num\_steps@{setCustom\_num\_steps}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setCustom\_num\_steps()}{setCustom\_num\_steps()}}
+{\footnotesize\ttfamily \label{class_statechart_ae0bc22ebd685f6ffc0b6b98d6f5c1aa1} 
+void Statechart\+::set\+Custom\+\_\+num\+\_\+steps (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{custom\+\_\+num\+\_\+steps}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}custom\+\_\+num\+\_\+steps\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a52600515ab4a828f64d84a5b10c700ed}\index{Statechart@{Statechart}!setDelay@{setDelay}}
+\index{setDelay@{setDelay}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setDelay()}{setDelay()}}
+{\footnotesize\ttfamily \label{class_statechart_a52600515ab4a828f64d84a5b10c700ed} 
+void Statechart\+::set\+Delay (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{delay}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}delay\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ab02eb16ddfcd2d306dc71df98296c33f}\index{Statechart@{Statechart}!setHeater\_pwm\_pin@{setHeater\_pwm\_pin}}
+\index{setHeater\_pwm\_pin@{setHeater\_pwm\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setHeater\_pwm\_pin()}{setHeater\_pwm\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_ab02eb16ddfcd2d306dc71df98296c33f} 
+void Statechart\+::set\+Heater\+\_\+pwm\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{heater\+\_\+pwm\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}heater\+\_\+pwm\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a93b10744234ddc8bd8ddda1c1a400655}\index{Statechart@{Statechart}!setHigh@{setHigh}}
+\index{setHigh@{setHigh}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setHigh()}{setHigh()}}
+{\footnotesize\ttfamily \label{class_statechart_a93b10744234ddc8bd8ddda1c1a400655} 
+void Statechart\+::set\+High (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{high}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}high\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_ae366838b25dad246824a220fb6eaa6bd}\index{Statechart@{Statechart}!setLed\_pin@{setLed\_pin}}
+\index{setLed\_pin@{setLed\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setLed\_pin()}{setLed\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_ae366838b25dad246824a220fb6eaa6bd} 
+void Statechart\+::set\+Led\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{led\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}led\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4d7cb30c2697498bf9a016127c2c719e}\index{Statechart@{Statechart}!setLow@{setLow}}
+\index{setLow@{setLow}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setLow()}{setLow()}}
+{\footnotesize\ttfamily \label{class_statechart_a4d7cb30c2697498bf9a016127c2c719e} 
+void Statechart\+::set\+Low (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{low}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}low\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4156460d18d5a390bd3608d70efa8a0a}\index{Statechart@{Statechart}!setOperationCallback@{setOperationCallback}}
+\index{setOperationCallback@{setOperationCallback}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setOperationCallback()}{setOperationCallback()}}
+{\footnotesize\ttfamily \label{class_statechart_a4156460d18d5a390bd3608d70efa8a0a} 
+void Statechart\+::set\+Operation\+Callback (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_statechart_1_1_operation_callback}{Operation\+Callback}} \texorpdfstring{$\ast$}{*}}]{operation\+Callback}{}\end{DoxyParamCaption})}
+
+Set the working instance of the operation callback interface \textquotesingle{}\doxylink{class_statechart_1_1_operation_callback}{Operation\+Callback}\textquotesingle{}. \Hypertarget{class_statechart_ac72fe495d0245744edd8d93e714ebc90}\index{Statechart@{Statechart}!setOutput@{setOutput}}
+\index{setOutput@{setOutput}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setOutput()}{setOutput()}}
+{\footnotesize\ttfamily \label{class_statechart_ac72fe495d0245744edd8d93e714ebc90} 
+void Statechart\+::set\+Output (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{output}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}output\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a043e7e9481ff0b23a8244d7ba93165b4}\index{Statechart@{Statechart}!setPwm\_frequency@{setPwm\_frequency}}
+\index{setPwm\_frequency@{setPwm\_frequency}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setPwm\_frequency()}{setPwm\_frequency()}}
+{\footnotesize\ttfamily \label{class_statechart_a043e7e9481ff0b23a8244d7ba93165b4} 
+void Statechart\+::set\+Pwm\+\_\+frequency (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{pwm\+\_\+frequency}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}pwm\+\_\+frequency\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aae8f4b91b3c1a7cecd352d7132d77cc5}\index{Statechart@{Statechart}!setPwm\_resolution\_bits@{setPwm\_resolution\_bits}}
+\index{setPwm\_resolution\_bits@{setPwm\_resolution\_bits}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setPwm\_resolution\_bits()}{setPwm\_resolution\_bits()}}
+{\footnotesize\ttfamily \label{class_statechart_aae8f4b91b3c1a7cecd352d7132d77cc5} 
+void Statechart\+::set\+Pwm\+\_\+resolution\+\_\+bits (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{pwm\+\_\+resolution\+\_\+bits}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}pwm\+\_\+resolution\+\_\+bits\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a975f32a0b4e838ca0dd5da5c5f972b1f}\index{Statechart@{Statechart}!setReceived\_value@{setReceived\_value}}
+\index{setReceived\_value@{setReceived\_value}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setReceived\_value()}{setReceived\_value()}}
+{\footnotesize\ttfamily \label{class_statechart_a975f32a0b4e838ca0dd5da5c5f972b1f} 
+void Statechart\+::set\+Received\+\_\+value (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{received\+\_\+value}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}received\+\_\+value\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a9213deb70e682ec304a7c2171defb534}\index{Statechart@{Statechart}!setSemaphore\_green\_pin@{setSemaphore\_green\_pin}}
+\index{setSemaphore\_green\_pin@{setSemaphore\_green\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setSemaphore\_green\_pin()}{setSemaphore\_green\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a9213deb70e682ec304a7c2171defb534} 
+void Statechart\+::set\+Semaphore\+\_\+green\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{semaphore\+\_\+green\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}semaphore\+\_\+green\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a2dfd00960a12a2132cfa13b9b835f04c}\index{Statechart@{Statechart}!setSemaphore\_red\_pin@{setSemaphore\_red\_pin}}
+\index{setSemaphore\_red\_pin@{setSemaphore\_red\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setSemaphore\_red\_pin()}{setSemaphore\_red\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a2dfd00960a12a2132cfa13b9b835f04c} 
+void Statechart\+::set\+Semaphore\+\_\+red\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{semaphore\+\_\+red\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}semaphore\+\_\+red\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a4f5ccc4fe3c8eaa0d524165adca0b0b6}\index{Statechart@{Statechart}!setSemaphore\_yellow\_pin@{setSemaphore\_yellow\_pin}}
+\index{setSemaphore\_yellow\_pin@{setSemaphore\_yellow\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setSemaphore\_yellow\_pin()}{setSemaphore\_yellow\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_a4f5ccc4fe3c8eaa0d524165adca0b0b6} 
+void Statechart\+::set\+Semaphore\+\_\+yellow\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{semaphore\+\_\+yellow\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}semaphore\+\_\+yellow\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_a14e4b1461cb3b01e593b26b5e6455771}\index{Statechart@{Statechart}!setTimerService@{setTimerService}}
+\index{setTimerService@{setTimerService}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setTimerService()}{setTimerService()}}
+{\footnotesize\ttfamily \label{class_statechart_a14e4b1461cb3b01e593b26b5e6455771} 
+void Statechart\+::set\+Timer\+Service (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsc_1_1timer_1_1_timer_service_interface}{sc\+::timer\+::\+Timer\+Service\+Interface}} \texorpdfstring{$\ast$}{*}}]{timer\+Service}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Set the timer service for the state machine. It must be set externally on a timed state machine before a run cycle can be executed. 
+
+Implements \mbox{\hyperlink{classsc_1_1timer_1_1_timed_interface_a470dc6b4b9c760fb77cca3331d131639}{sc\+::timer\+::\+Timed\+Interface}}.
+
+\Hypertarget{class_statechart_af950a322211a03f656f2804277c63646}\index{Statechart@{Statechart}!setWater\_sensor\_pin@{setWater\_sensor\_pin}}
+\index{setWater\_sensor\_pin@{setWater\_sensor\_pin}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{setWater\_sensor\_pin()}{setWater\_sensor\_pin()}}
+{\footnotesize\ttfamily \label{class_statechart_af950a322211a03f656f2804277c63646} 
+void Statechart\+::set\+Water\+\_\+sensor\+\_\+pin (\begin{DoxyParamCaption}\item[{sc\+\_\+integer}]{water\+\_\+sensor\+\_\+pin}{}\end{DoxyParamCaption})}
+
+Sets the value of the variable \textquotesingle{}water\+\_\+sensor\+\_\+pin\textquotesingle{} that is defined in the default interface scope. \Hypertarget{class_statechart_aef26f48a5bd790abaf97c06d06de4d87}\index{Statechart@{Statechart}!triggerWithoutEvent@{triggerWithoutEvent}}
+\index{triggerWithoutEvent@{triggerWithoutEvent}!Statechart@{Statechart}}
+\doxysubsubsection{\texorpdfstring{triggerWithoutEvent()}{triggerWithoutEvent()}}
+{\footnotesize\ttfamily \label{class_statechart_aef26f48a5bd790abaf97c06d06de4d87} 
+void Statechart\+::trigger\+Without\+Event (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Can be used by the client code to trigger a run to completion step without raising an event. 
+
+Implements \mbox{\hyperlink{classsc_1_1_event_driven_interface_a68a8f25dc0d37f7864eef4161de0e64b}{sc\+::\+Event\+Driven\+Interface}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/src-\/gen/\mbox{\hyperlink{_statechart_8h}{Statechart.\+h}}\item 
+src/src-\/gen/\mbox{\hyperlink{_statechart_8cpp}{Statechart.\+cpp}}\end{DoxyCompactItemize}
