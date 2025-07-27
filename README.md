@@ -14,7 +14,7 @@ Um sistema embarcado moderno e modular para monitoramento e controle térmico du
 8. [Requisitos do Projeto](#requisitos-do-projeto)  
 9.  [Funcionalidades Extras](#funcionalidades-extras)  
 10. [Receitas Utilizadas](#receitas-utilizadas)
-11. [Resultados e Logs de Processo](#resultados-elogs-de-processo)
+11. [Resultados e Logs de Processo](#resultados-e-logs-de-processo)
 12. [Considerações Finais e Melhorias Futuras](#considerações-finais-e-melhorias-futuras)
 13. [Changelog](#changelog)
 
@@ -97,7 +97,7 @@ Para garantir previsibilidade e segurança no controle da brassagem, a lógica d
 
 Abaixo, apresentamos o diagrama completo da máquina de estados desenvolvida para este projeto:
 
-📌 **Estados Principais:** `IDLE`, `MENU`, `STANDARD_PROCESS`, `HEATING`, `RESTING`, `FINISHED`, `EXIT`  ... etc
+📌 **Estados Principais:** `IDLE`, `MENU`, `STANDARD_PROCESS`, `HEATING`, `RESTING`, `FINISHED`, `EXIT`  ... etc<br>
 🔁 **Eventos de Transição:** `start_button`, `tempOk`, `timeout`, `erroSensor`, `abort` ... etc
 
 ![Diagrama da Máquina de Estados](itemis/statechart.png)
