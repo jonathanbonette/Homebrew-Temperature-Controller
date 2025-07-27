@@ -93,7 +93,7 @@ O controlador é baseado em uma arquitetura modular e desacoplada, onde o microc
 
 ### Modelagem e Lógica de Estados
 
-Para garantir previsibilidade e segurança no controle da brassagem, a lógica do sistema foi inteiramente modelada por meio de uma máquina de estados finita, utilizando a ferramenta [itemis CREATE](https://www.itemis.com/en/itemis CREATE/state-machine/). Essa modelagem define claramente o fluxo de operação do sistema, suas transições, eventos esperados e comportamentos em cada estado.
+Para garantir previsibilidade e segurança no controle da brassagem, a lógica do sistema foi inteiramente modelada por meio de uma máquina de estados finita, utilizando a ferramenta [itemis CREATE](https://www.itemis.com/en/). Essa modelagem define claramente o fluxo de operação do sistema, suas transições, eventos esperados e comportamentos em cada estado.
 
 Abaixo, apresentamos o diagrama completo da máquina de estados desenvolvida para este projeto:
 
