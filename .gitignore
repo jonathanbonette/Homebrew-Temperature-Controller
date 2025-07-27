@@ -1,3 +1,8 @@
-borracho/html/*
-!borracho/html/index.html
-borracho/latex/
+# Ignora tudo dentro da pasta html
+html/*
+
+# Exceto o index.html
+!/html/index.html
+
+# Ignora toda a pasta latex
+latex/
