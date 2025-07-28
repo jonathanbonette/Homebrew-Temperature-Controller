@@ -132,10 +132,9 @@ Essa modelagem permite a geração automática de código C++, que é posteriorm
 *Interface de usuário: teclado matricial e display OLED indicando a etapa atual da brassagem.*
 
 #### 🎥 Demonstração em Vídeo:
-Clique abaixo para ver a operação do sistema em tempo real durante uma simulação de brassagem:
+Abaixo o vídeo demonstra a operação do sistema em tempo real durante uma simulação de brassagem:
 
-[▶️  YouTube](https://youtu.be/LINK)
-**TODO**
+[▶️  YouTube](https://youtu.be/FWTbv7r1iv4)
 
 ---
 
